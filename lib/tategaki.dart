@@ -4,6 +4,7 @@ library tategaki;
 
 // Widgets
 export 'src/widgets/vertical_text.dart';
+export 'src/widgets/vertical_rich_text.dart';
 
 // Models
 export 'src/models/vertical_text_style.dart';
@@ -11,6 +12,7 @@ export 'src/models/ruby_text.dart';
 export 'src/models/kenten.dart';
 export 'src/models/tatechuyoko.dart';
 export 'src/models/figure.dart';
+export 'src/models/vertical_text_span.dart';
 
 // Utils (for advanced usage)
 export 'src/utils/character_classifier.dart';
