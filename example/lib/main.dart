@@ -115,6 +115,98 @@ class TategakiDemo extends StatelessWidget {
                     Kenten(startIndex: 5, length: 3, style: KentenStyle.filledTriangle),
                   ],
                 ),
+                const SizedBox(width: 32),
+
+                // Example 7: Auto tatechuyoko (horizontal numbers)
+                VerticalText(
+                  '令和06年12月25日',
+                  style: const VerticalTextStyle(
+                    baseStyle: TextStyle(fontSize: 28, color: Colors.black87),
+                    characterSpacing: 4,
+                  ),
+                  autoTatechuyoko: true,
+                ),
+                const SizedBox(width: 32),
+
+                // Example 8: Advanced kerning and yakumono adjustment
+                VerticalText(
+                  '「これは、約物調整の例です。」と彼は言った。',
+                  style: const VerticalTextStyle(
+                    baseStyle: TextStyle(fontSize: 24, color: Colors.black87),
+                    characterSpacing: 4,
+                    enableKerning: true,
+                    enableHalfWidthYakumono: true,
+                    adjustYakumono: true,
+                  ),
+                  maxHeight: 400,
+                ),
+                const SizedBox(width: 32),
+
+                // Example 9: Kinsoku processing (line breaking rules)
+                VerticalText(
+                  'これは禁則処理のデモです。行頭や行末に来てはいけない文字（句読点や括弧など）が適切に処理されます。',
+                  style: const VerticalTextStyle(
+                    baseStyle: TextStyle(fontSize: 22, color: Colors.black87),
+                    characterSpacing: 3,
+                    lineSpacing: 20,
+                  ),
+                  maxHeight: 300,
+                ),
+                const SizedBox(width: 32),
+
+                // Example 10: RichText with multiple styles
+                VerticalRichText(
+                  textSpan: VerticalTextSpan(
+                    style: const VerticalTextStyle(
+                      baseStyle: TextStyle(fontSize: 24, color: Colors.black87),
+                      characterSpacing: 4,
+                    ),
+                    children: [
+                      const VerticalTextSpan(text: 'これは'),
+                      VerticalTextSpan(
+                        text: '強調された',
+                        style: const VerticalTextStyle(
+                          baseStyle: TextStyle(
+                            fontSize: 24,
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          characterSpacing: 4,
+                        ),
+                      ),
+                      const VerticalTextSpan(text: 'テキスト'),
+                      VerticalTextSpan(
+                        text: 'です',
+                        style: const VerticalTextStyle(
+                          baseStyle: TextStyle(
+                            fontSize: 28,
+                            color: Colors.blue,
+                          ),
+                          characterSpacing: 4,
+                        ),
+                      ),
+                    ],
+                  ),
+                  maxHeight: 400,
+                ),
+                const SizedBox(width: 32),
+
+                // Example 11: Comprehensive typography features
+                VerticalText(
+                  '昭和（1926年）12月25日。「美しい日本語の組版」を実現する為に、様々な工夫が凝らされている。',
+                  style: const VerticalTextStyle(
+                    baseStyle: TextStyle(fontSize: 20, color: Colors.black87),
+                    characterSpacing: 3,
+                    lineSpacing: 18,
+                    enableKerning: true,
+                    enableHalfWidthYakumono: true,
+                    enableBurasageGumi: true,
+                    enableGyotoIndent: true,
+                    adjustYakumono: true,
+                  ),
+                  autoTatechuyoko: true,
+                  maxHeight: 350,
+                ),
               ],
             ),
           ),
