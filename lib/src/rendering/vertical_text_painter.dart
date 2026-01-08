@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../models/vertical_text_style.dart';
 import '../models/ruby_text.dart';
 import '../models/kenten.dart';
+import '../models/tatechuyoko.dart';
 import '../utils/kenten_renderer.dart';
+import '../utils/tatechuyoko_detector.dart';
 import 'text_layouter.dart';
 
 /// Custom painter for vertical text
@@ -11,6 +13,8 @@ class VerticalTextPainter extends CustomPainter {
   final VerticalTextStyle style;
   final List<RubyText>? ruby;
   final List<Kenten>? kenten;
+  final List<Tatechuyoko>? tatechuyoko;
+  final bool autoTatechuyoko;
   final TextLayouter layouter;
   final double maxHeight;
 
@@ -19,6 +23,8 @@ class VerticalTextPainter extends CustomPainter {
     required this.style,
     this.ruby,
     this.kenten,
+    this.tatechuyoko,
+    this.autoTatechuyoko = false,
     TextLayouter? layouter,
     this.maxHeight = 0,
   }) : layouter = layouter ?? TextLayouter();
@@ -125,6 +131,8 @@ class VerticalTextPainter extends CustomPainter {
         oldDelegate.style != style ||
         oldDelegate.ruby != ruby ||
         oldDelegate.kenten != kenten ||
+        oldDelegate.tatechuyoko != tatechuyoko ||
+        oldDelegate.autoTatechuyoko != autoTatechuyoko ||
         oldDelegate.maxHeight != maxHeight;
   }
 }

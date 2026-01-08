@@ -16,3 +16,4 @@ export 'src/utils/character_classifier.dart';
 export 'src/utils/rotation_rules.dart';
 export 'src/utils/yakumono_adjuster.dart';
 export 'src/utils/kenten_renderer.dart';
+export 'src/utils/tatechuyoko_detector.dart';
