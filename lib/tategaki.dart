@@ -17,3 +17,5 @@ export 'src/utils/rotation_rules.dart';
 export 'src/utils/yakumono_adjuster.dart';
 export 'src/utils/kenten_renderer.dart';
 export 'src/utils/tatechuyoko_detector.dart';
+export 'src/utils/kinsoku_processor.dart';
+export 'src/utils/kerning_processor.dart';
