@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/vertical_text_style.dart';
 import '../models/ruby_text.dart';
+import '../models/kenten.dart';
 import '../rendering/vertical_text_painter.dart';
 
 /// A widget that displays vertical Japanese text (tategaki)
@@ -14,8 +15,11 @@ class VerticalText extends StatelessWidget {
   /// Ruby (furigana) annotations
   final List<RubyText>? ruby;
 
+  /// Kenten (emphasis dots) annotations
+  final List<Kenten>? kenten;
+
   /// Maximum height for text before wrapping to next line
-  /// 
+  ///
   /// If 0 or not specified, text will not wrap
   final double maxHeight;
 
@@ -24,6 +28,7 @@ class VerticalText extends StatelessWidget {
     super.key,
     this.style = const VerticalTextStyle(),
     this.ruby,
+    this.kenten,
     this.maxHeight = 0,
   });
 
@@ -34,6 +39,7 @@ class VerticalText extends StatelessWidget {
         text: text,
         style: style,
         ruby: ruby,
+        kenten: kenten,
         maxHeight: maxHeight,
       ),
       size: _calculateSize(),

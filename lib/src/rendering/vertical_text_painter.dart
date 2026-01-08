@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/vertical_text_style.dart';
 import '../models/ruby_text.dart';
+import '../models/kenten.dart';
+import '../utils/kenten_renderer.dart';
 import 'text_layouter.dart';
 
 /// Custom painter for vertical text
@@ -8,6 +10,7 @@ class VerticalTextPainter extends CustomPainter {
   final String text;
   final VerticalTextStyle style;
   final List<RubyText>? ruby;
+  final List<Kenten>? kenten;
   final TextLayouter layouter;
   final double maxHeight;
 
@@ -15,6 +18,7 @@ class VerticalTextPainter extends CustomPainter {
     required this.text,
     required this.style,
     this.ruby,
+    this.kenten,
     TextLayouter? layouter,
     this.maxHeight = 0,
   }) : layouter = layouter ?? TextLayouter();
@@ -35,6 +39,11 @@ class VerticalTextPainter extends CustomPainter {
       for (final rubyLayout in rubyLayouts) {
         _drawRuby(canvas, rubyLayout);
       }
+    }
+
+    // Draw kenten if present
+    if (kenten != null && kenten!.isNotEmpty) {
+      _drawKenten(canvas, characterLayouts);
     }
   }
 
@@ -84,11 +93,38 @@ class VerticalTextPainter extends CustomPainter {
     textPainter.paint(canvas, layout.position);
   }
 
+  void _drawKenten(Canvas canvas, List<CharacterLayout> characterLayouts) {
+    final fontSize = style.baseStyle.fontSize ?? 16.0;
+    final color = style.baseStyle.color ?? Colors.black;
+
+    for (final kentenItem in kenten!) {
+      for (int i = kentenItem.startIndex;
+          i < kentenItem.endIndex && i < characterLayouts.length;
+          i++) {
+        final charLayout = characterLayouts[i];
+        final kentenPos = KentenRenderer.getKentenPosition(
+          charLayout.position,
+          fontSize,
+          true, // isVertical
+        );
+
+        KentenRenderer.drawKenten(
+          canvas,
+          kentenPos,
+          kentenItem.style,
+          fontSize,
+          color,
+        );
+      }
+    }
+  }
+
   @override
   bool shouldRepaint(covariant VerticalTextPainter oldDelegate) {
     return oldDelegate.text != text ||
         oldDelegate.style != style ||
         oldDelegate.ruby != ruby ||
+        oldDelegate.kenten != kenten ||
         oldDelegate.maxHeight != maxHeight;
   }
 }

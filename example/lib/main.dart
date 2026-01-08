@@ -87,6 +87,34 @@ class TategakiDemo extends StatelessWidget {
                   ),
                   maxHeight: 400,
                 ),
+                const SizedBox(width: 32),
+
+                // Example 5: With kenten (emphasis dots)
+                VerticalText(
+                  '重要な内容です',
+                  style: const VerticalTextStyle(
+                    baseStyle: TextStyle(fontSize: 28, color: Colors.black87),
+                    characterSpacing: 6,
+                  ),
+                  kenten: const [
+                    Kenten(startIndex: 0, length: 2, style: KentenStyle.filledCircle),
+                  ],
+                ),
+                const SizedBox(width: 32),
+
+                // Example 6: Different kenten styles
+                VerticalText(
+                  '様々な圏点スタイル',
+                  style: const VerticalTextStyle(
+                    baseStyle: TextStyle(fontSize: 24, color: Colors.black87),
+                    characterSpacing: 4,
+                  ),
+                  kenten: const [
+                    Kenten(startIndex: 0, length: 2, style: KentenStyle.sesame),
+                    Kenten(startIndex: 3, length: 2, style: KentenStyle.circle),
+                    Kenten(startIndex: 5, length: 3, style: KentenStyle.filledTriangle),
+                  ],
+                ),
               ],
             ),
           ),
