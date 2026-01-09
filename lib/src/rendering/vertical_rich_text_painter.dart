@@ -67,10 +67,10 @@ class VerticalRichTextPainter extends CustomPainter {
       // Calculate rotation
       double rotation;
       if (style.useVerticalGlyphs && type == CharacterType.yakumono) {
-        // When using vertical glyphs, some characters need rotation, others don't
-        // Characters that the font handles: ―（U+2015）、ー（U+30FC）、：
-        // Characters that need rotation: —（U+2014）、–（U+2013）、－（U+FF0D）、；
-        const needsRotationWithVert = {'—', '–', '－', '；'};
+        // When using vertical glyphs, most characters are handled by the font
+        // Characters that the font handles: ―（U+2015）、ー（U+30FC）、—（U+2014）、–（U+2013）、－（U+FF0D）、：
+        // Characters that need rotation: ；
+        const needsRotationWithVert = {'；'};
         if (needsRotationWithVert.contains(char)) {
           rotation = RotationRules.getRotationAngle(char, type, style.rotateLatinCharacters);
         } else {
