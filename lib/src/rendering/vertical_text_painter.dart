@@ -335,11 +335,13 @@ class VerticalTextPainter extends CustomPainter {
       // Rotate first
       canvas.rotate(layout.rotation);
 
-      // In the rotated coordinate system, apply centering within virtual cell:
-      // Horizontal center
-      offsetX = 0;
-      // Vertical positioning
-      offsetY = -textPainter.width;
+      // In the rotated coordinate system, apply positioning within virtual cell:
+      // Use fontSize (virtual cell size) instead of textPainter.width (actual glyph width)
+      // to ensure consistent positioning regardless of glyph width
+      // Shift left slightly to better align with the cell
+      offsetX = -(textPainter.height / 2);
+      // Vertical positioning - use fontSize for consistency
+      offsetY = -fontSize;
     } else {
       // For non-rotated characters
       // Center horizontally (X axis) within the virtual cell

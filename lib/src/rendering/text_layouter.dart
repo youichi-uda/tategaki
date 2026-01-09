@@ -142,11 +142,6 @@ class TextLayouter {
         position = YakumonoAdjuster.adjustPosition(char, position, style);
       }
 
-      // Adjust number position (move right) - always apply regardless of line position
-      if (type == CharacterType.number) {
-        position = Offset(position.dx + fontSize * 0.3, position.dy);
-      }
-
       // Create layout
       layouts.add(CharacterLayout(
         character: char,
@@ -269,11 +264,6 @@ class TextLayouter {
                 newPosition = YakumonoAdjuster.adjustPosition(layout.character, newPosition, style);
               }
 
-              // Adjust number position (move right) - same as initial layout
-              if (layout.type == CharacterType.number) {
-                newPosition = Offset(newPosition.dx + fontSize * 0.3, newPosition.dy);
-              }
-
               layouts[j] = CharacterLayout(
                 character: layout.character,
                 position: newPosition,
@@ -345,11 +335,6 @@ class TextLayouter {
             Offset newPosition = Offset(currentX + newXOffset, currentY);
             if (style.adjustYakumono) {
               newPosition = YakumonoAdjuster.adjustPosition(char, newPosition, style);
-            }
-
-            // Adjust number position (move right) - same as initial layout
-            if (type == CharacterType.number) {
-              newPosition = Offset(newPosition.dx + fontSize * 0.3, newPosition.dy);
             }
 
             layouts[layouts.length - 1] = CharacterLayout(
