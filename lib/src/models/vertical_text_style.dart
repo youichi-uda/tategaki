@@ -1,4 +1,5 @@
 import 'package:flutter/painting.dart';
+import 'kinsoku_method.dart';
 
 /// Style configuration for vertical text layout
 class VerticalTextStyle {
@@ -20,8 +21,10 @@ class VerticalTextStyle {
   /// Text style for ruby (furigana) text
   final TextStyle? rubyStyle;
 
-  /// Enable burasage-gumi (hanging punctuation at line end)
-  final bool enableBurasageGumi;
+  /// Method for kinsoku processing (line breaking rules)
+  /// - oikomi (追い込み): Push forbidden characters to previous line
+  /// - burasage (ぶら下げ): Allow forbidden characters to hang beyond maxHeight
+  final KinsokuMethod kinsokuMethod;
 
   /// Enable half-width yakumono processing
   final bool enableHalfWidthYakumono;
@@ -39,7 +42,7 @@ class VerticalTextStyle {
     this.rotateLatinCharacters = true,
     this.adjustYakumono = true,
     this.rubyStyle,
-    this.enableBurasageGumi = false,
+    this.kinsokuMethod = KinsokuMethod.oikomi,
     this.enableHalfWidthYakumono = false,
     this.enableGyotoIndent = false,
     this.enableKerning = false,
@@ -53,7 +56,7 @@ class VerticalTextStyle {
     bool? rotateLatinCharacters,
     bool? adjustYakumono,
     TextStyle? rubyStyle,
-    bool? enableBurasageGumi,
+    KinsokuMethod? kinsokuMethod,
     bool? enableHalfWidthYakumono,
     bool? enableGyotoIndent,
     bool? enableKerning,
@@ -65,7 +68,7 @@ class VerticalTextStyle {
       rotateLatinCharacters: rotateLatinCharacters ?? this.rotateLatinCharacters,
       adjustYakumono: adjustYakumono ?? this.adjustYakumono,
       rubyStyle: rubyStyle ?? this.rubyStyle,
-      enableBurasageGumi: enableBurasageGumi ?? this.enableBurasageGumi,
+      kinsokuMethod: kinsokuMethod ?? this.kinsokuMethod,
       enableHalfWidthYakumono: enableHalfWidthYakumono ?? this.enableHalfWidthYakumono,
       enableGyotoIndent: enableGyotoIndent ?? this.enableGyotoIndent,
       enableKerning: enableKerning ?? this.enableKerning,

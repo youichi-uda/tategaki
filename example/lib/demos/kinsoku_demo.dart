@@ -10,6 +10,7 @@ class KinsokuDemo extends StatefulWidget {
 
 class _KinsokuDemoState extends State<KinsokuDemo> {
   bool _showGrid = false;
+  KinsokuMethod _kinsokuMethod = KinsokuMethod.oikomi;
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +19,23 @@ class _KinsokuDemoState extends State<KinsokuDemo> {
         title: const Text('禁則処理（改行規則）'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
+          TextButton.icon(
+            onPressed: () {
+              setState(() {
+                _kinsokuMethod = _kinsokuMethod == KinsokuMethod.oikomi
+                    ? KinsokuMethod.burasage
+                    : KinsokuMethod.oikomi;
+              });
+            },
+            icon: const Icon(
+              Icons.swap_horiz,
+              color: Colors.white,
+            ),
+            label: Text(
+              _kinsokuMethod == KinsokuMethod.oikomi ? '追い込み' : 'ぶら下げ',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
           TextButton.icon(
             onPressed: () {
               setState(() {
@@ -43,18 +61,22 @@ class _KinsokuDemoState extends State<KinsokuDemo> {
             padding: const EdgeInsets.all(48.0),
             child: Column(
               children: [
-                const Text(
-                  '適切な改行処理\n句読点が行頭に来ないように自動調整されます',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                Text(
+                  _kinsokuMethod == KinsokuMethod.oikomi
+                      ? '追い込み処理\n句読点が行頭に来ないように前の行に戻します'
+                      : 'ぶら下げ処理\n句読点を前の行の末尾にぶら下げます',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
                 VerticalText(
                   'これは禁則処理のデモです。行頭や行末に来てはいけない文字（句読点や括弧など）が適切に処理されます。「このように」括弧も正しく扱われます。',
-                  style: const VerticalTextStyle(
-                    baseStyle: TextStyle(fontSize: 24, color: Colors.black87),
+                  style: VerticalTextStyle(
+                    baseStyle: const TextStyle(fontSize: 24, color: Colors.black87),
                     characterSpacing: 4,
                     lineSpacing: 24,
+                    kinsokuMethod: _kinsokuMethod,
+                    enableGyotoIndent: true,
                   ),
                   maxHeight: 350,
                   showGrid: _showGrid,

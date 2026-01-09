@@ -1,5 +1,6 @@
 import 'dart:ui';
 import '../models/vertical_text_style.dart';
+import 'character_classifier.dart';
 
 /// Yakumono (Japanese punctuation) position adjuster
 class YakumonoAdjuster {
@@ -13,17 +14,27 @@ class YakumonoAdjuster {
       return basePosition;
     }
 
+    final fontSize = style.baseStyle.fontSize ?? 16.0;
+
     // Apply fine-tuning based on character type
     double xOffset = 0.0;
     double yOffset = 0.0;
 
-    // Adjust specific yakumono characters
-    if (_isClosingBracket(character)) {
-      // Slightly shift closing brackets
-      xOffset = -2.0;
+    // Position punctuation marks at top-right of the virtual cell
+    if (_isPunctuation(character)) {
+      // Move right and up within the virtual cell
+      xOffset = fontSize * 0.75;  // Move right by 3/4 of fontSize
+      yOffset = -fontSize * 0.75; // Move up by 3/4 of fontSize
+    } else if (CharacterClassifier.isSmallKana(character)) {
+      // Position small kana: vertically centered, horizontally to the right (JLREQ)
+      xOffset = fontSize * 0.25;  // Move right by 1/4 of fontSize
+      yOffset = 0.0;              // Keep vertically centered
     } else if (_isOpeningBracket(character)) {
-      // Slightly shift opening brackets
-      xOffset = 2.0;
+      // Shift opening brackets to the left
+      xOffset = -fontSize * 0.2;
+    } else if (_isClosingBracket(character)) {
+      // Shift closing brackets to the left
+      xOffset = -fontSize * 0.2;
     }
 
     return Offset(basePosition.dx + xOffset, basePosition.dy + yOffset);
@@ -49,7 +60,7 @@ class YakumonoAdjuster {
   /// Get gyoto indent amount for opening brackets
   static double getGyotoIndent(String character) {
     if (_isOpeningBracket(character)) {
-      return 0.5; // 0.5 character width
+      return 0.1; // 0.1 character width
     }
     return 0.0;
   }

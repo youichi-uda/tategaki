@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/vertical_text_span.dart';
 import '../models/vertical_text_style.dart';
+import '../models/kinsoku_method.dart';
 import '../utils/character_classifier.dart';
 import '../utils/rotation_rules.dart';
 import '../utils/kerning_processor.dart';
 import '../utils/kinsoku_processor.dart';
 import '../utils/yakumono_adjuster.dart';
-import 'text_layouter.dart';
 
 /// Custom painter for vertical rich text with multiple styles
 class VerticalRichTextPainter extends CustomPainter {
@@ -97,13 +97,30 @@ class VerticalRichTextPainter extends CustomPainter {
       ));
 
       // Calculate advance
-      double advance = fontSize + style.characterSpacing;
+      // For rotated characters (90 degrees), the advance should be based on the
+      // text width (which becomes the vertical extent after rotation)
+      double advance;
+      if (rotation != 0.0) {
+        // Rotated character: use actual text width for advance
+        final textPainter = TextPainter(
+          text: TextSpan(
+            text: char,
+            style: style.baseStyle.copyWith(fontSize: charFontSize),
+          ),
+          textDirection: TextDirection.ltr,
+        );
+        textPainter.layout();
+        advance = textPainter.width + style.characterSpacing;
+      } else {
+        // Non-rotated character: use fontSize
+        advance = fontSize + style.characterSpacing;
 
-      // Apply half-width yakumono adjustment
-      if (style.enableHalfWidthYakumono) {
-        final yakumonoWidth = YakumonoAdjuster.getYakumonoWidth(char);
-        if (yakumonoWidth < 1.0) {
-          advance = (fontSize * yakumonoWidth) + style.characterSpacing;
+        // Apply half-width yakumono adjustment
+        if (style.enableHalfWidthYakumono) {
+          final yakumonoWidth = YakumonoAdjuster.getYakumonoWidth(char);
+          if (yakumonoWidth < 1.0) {
+            advance = (fontSize * yakumonoWidth) + style.characterSpacing;
+          }
         }
       }
 
@@ -126,10 +143,14 @@ class VerticalRichTextPainter extends CustomPainter {
 
       // Handle line wrapping
       if (maxHeight > 0 && currentY > maxHeight) {
-        // Check if current character can hang
+        // Determine whether to hang or wrap based on kinsoku method
         bool shouldHang = false;
-        if (style.enableBurasageGumi && YakumonoAdjuster.canHang(char)) {
-          shouldHang = true;
+
+        if (style.kinsokuMethod == KinsokuMethod.burasage) {
+          // Burasage: Allow line-start forbidden characters (gyoto kinsoku) to hang
+          if (KinsokuProcessor.isGyotoKinsoku(char)) {
+            shouldHang = true;
+          }
         }
 
         if (!shouldHang) {
@@ -318,9 +339,12 @@ class VerticalRichTextPainter extends CustomPainter {
     if (layout.rotation != 0.0) {
       // For rotated characters (90 degrees clockwise)
       canvas.rotate(layout.rotation);
-      // Center in the rotated coordinate system
-      offsetX = -(textPainter.height / 2);
-      offsetY = -(textPainter.width / 2);
+
+      // In the rotated coordinate system, apply centering within virtual cell:
+      // Horizontal center
+      offsetX = 0;
+      // Vertical positioning
+      offsetY = -textPainter.width;
     } else {
       // For non-rotated characters
       // Center horizontally (X axis) within the virtual cell

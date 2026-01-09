@@ -51,13 +51,19 @@ class VerticalTextPainter extends CustomPainter {
     final fontSize = style.baseStyle.fontSize ?? 16.0;
     final startX = size.width - fontSize;
 
-    // Layout the text
-    final characterLayouts = layouter.layoutText(text, style, maxHeight, startX: startX);
+    // Layout the text (pass tatechuyoko indices to skip them in layout)
+    final characterLayouts = layouter.layoutText(
+      text,
+      style,
+      maxHeight,
+      startX: startX,
+      tatechuyokoIndices: tatechuyokoIndices,
+    );
 
     // Draw each character (skip tatechuyoko characters)
-    for (int i = 0; i < characterLayouts.length; i++) {
-      if (!tatechuyokoIndices.contains(i)) {
-        _drawCharacter(canvas, characterLayouts[i]);
+    for (final layout in characterLayouts) {
+      if (!tatechuyokoIndices.contains(layout.textIndex)) {
+        _drawCharacter(canvas, layout);
       }
     }
 
@@ -183,15 +189,11 @@ class VerticalTextPainter extends CustomPainter {
       // Rotate first
       canvas.rotate(layout.rotation);
 
-      // After rotation (90 degrees clockwise):
-      // In the rotated coordinate system:
-      // - Original X axis points down
-      // - Original Y axis points left
-      // We need to position the text so it's centered in the character cell
-
-      // Center the text in the rotated coordinate system
-      offsetX = -(textPainter.height / 2);
-      offsetY = -(textPainter.width / 2);
+      // In the rotated coordinate system, apply centering within virtual cell:
+      // Horizontal center
+      offsetX = 0;
+      // Vertical positioning
+      offsetY = -textPainter.width;
     } else {
       // For non-rotated characters
       // Center horizontally (X axis) within the virtual cell
@@ -241,10 +243,16 @@ class VerticalTextPainter extends CustomPainter {
     final color = style.baseStyle.color ?? Colors.black;
 
     for (final kentenItem in kenten!) {
-      for (int i = kentenItem.startIndex;
-          i < kentenItem.endIndex && i < characterLayouts.length;
-          i++) {
-        final charLayout = characterLayouts[i];
+      for (int textIdx = kentenItem.startIndex; textIdx < kentenItem.endIndex; textIdx++) {
+        // Find the layout for this text index
+        CharacterLayout? charLayout;
+        for (final layout in characterLayouts) {
+          if (layout.textIndex == textIdx) {
+            charLayout = layout;
+            break;
+          }
+        }
+        if (charLayout == null) continue;
 
         final kentenPos = KentenRenderer.getKentenPosition(
           charLayout.position,
@@ -274,9 +282,15 @@ class VerticalTextPainter extends CustomPainter {
     final endIndex = (tcy.startIndex + tcy.length).clamp(0, text.length);
     final tcyText = text.substring(tcy.startIndex, endIndex);
 
-    // Get position from first character in the range
-    if (tcy.startIndex >= characterLayouts.length) return;
-    final baseLayout = characterLayouts[tcy.startIndex];
+    // Find the layout for the first character of this tatechuyoko range
+    CharacterLayout? baseLayout;
+    for (final layout in characterLayouts) {
+      if (layout.textIndex == tcy.startIndex) {
+        baseLayout = layout;
+        break;
+      }
+    }
+    if (baseLayout == null) return;
 
     // Calculate tatechuyoko layout
     final fontSize = style.baseStyle.fontSize ?? 16.0;
@@ -300,9 +314,9 @@ class VerticalTextPainter extends CustomPainter {
     textPainter.layout();
 
     // Center the tatechuyoko text both horizontally and vertically in the character cell
-    // Horizontal: center within the character width
-    final offsetX = tcyLayout.position.dx - (textPainter.width / 2) + (fontSize / 2);
-    // Vertical: center within the character height (reduce gap)
+    // Horizontal: center at the character position (same as regular characters)
+    final offsetX = tcyLayout.position.dx - (textPainter.width / 2);
+    // Vertical: center within the fontSize-based virtual cell
     final offsetY = tcyLayout.position.dy + (fontSize - textPainter.height) / 2;
 
     textPainter.paint(canvas, Offset(offsetX, offsetY));

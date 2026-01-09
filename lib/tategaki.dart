@@ -13,6 +13,7 @@ export 'src/models/kenten.dart';
 export 'src/models/tatechuyoko.dart';
 export 'src/models/figure.dart';
 export 'src/models/vertical_text_span.dart';
+export 'src/models/kinsoku_method.dart';
 
 // Utils (for advanced usage)
 export 'src/utils/character_classifier.dart';

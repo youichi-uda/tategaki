@@ -56,7 +56,7 @@ class _ComprehensiveDemoState extends State<ComprehensiveDemo> {
                     lineSpacing: 20,
                     enableKerning: true,
                     enableHalfWidthYakumono: true,
-                    enableBurasageGumi: true,
+                    kinsokuMethod: KinsokuMethod.oikomi,
                     enableGyotoIndent: true,
                     adjustYakumono: true,
                   ),

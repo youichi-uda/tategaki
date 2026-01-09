@@ -1,7 +1,7 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../models/vertical_text_style.dart';
 import '../models/ruby_text.dart';
+import '../models/kinsoku_method.dart';
 import '../utils/character_classifier.dart';
 import '../utils/rotation_rules.dart';
 import '../utils/kerning_processor.dart';
@@ -25,12 +25,16 @@ class CharacterLayout {
   /// Character type
   final CharacterType type;
 
+  /// Index in the original text
+  final int textIndex;
+
   const CharacterLayout({
     required this.character,
     required this.position,
     required this.rotation,
     required this.fontSize,
     required this.type,
+    required this.textIndex,
   });
 }
 
@@ -62,6 +66,7 @@ class TextLayouter {
     VerticalTextStyle style,
     double maxHeight, {
     double startX = 0.0,
+    Set<int>? tatechuyokoIndices,
   }) {
     final layouts = <CharacterLayout>[];
     final fontSize = style.baseStyle.fontSize ?? 16.0;
@@ -71,6 +76,32 @@ class TextLayouter {
     int lineStartIndex = 0;
 
     for (int i = 0; i < text.length; i++) {
+      // Skip characters that are part of tatechuyoko (except the first one)
+      if (tatechuyokoIndices != null && tatechuyokoIndices.contains(i)) {
+        // Check if this is the first character of a tatechuyoko range
+        if (i == 0 || !tatechuyokoIndices.contains(i - 1)) {
+          // This is the first character - create a placeholder layout
+          final char = text[i];
+          final type = CharacterClassifier.classify(char);
+
+          final position = Offset(currentX, currentY);
+          layouts.add(CharacterLayout(
+            character: char,
+            position: position,
+            rotation: 0.0,
+            fontSize: fontSize,
+            type: type,
+            textIndex: i,
+          ));
+
+          // Advance by one character space for the entire tatechuyoko
+          double advance = fontSize + style.characterSpacing;
+          currentY += advance;
+        }
+        // Skip remaining characters in tatechuyoko range
+        continue;
+      }
+
       final char = text[i];
       final type = CharacterClassifier.classify(char);
 
@@ -107,10 +138,28 @@ class TextLayouter {
         rotation: rotation,
         fontSize: charFontSize,
         type: type,
+        textIndex: i,
       ));
 
       // Calculate advance
-      double advance = fontSize + style.characterSpacing;
+      // For rotated characters (90 degrees), the advance should be based on the
+      // text width (which becomes the vertical extent after rotation)
+      double advance;
+      if (rotation != 0.0) {
+        // Rotated character: use actual text width for advance
+        final textPainter = TextPainter(
+          text: TextSpan(
+            text: char,
+            style: TextStyle(fontSize: charFontSize),
+          ),
+          textDirection: TextDirection.ltr,
+        );
+        textPainter.layout();
+        advance = textPainter.width + style.characterSpacing;
+      } else {
+        // Non-rotated character: use fontSize
+        advance = fontSize + style.characterSpacing;
+      }
 
       // Apply half-width yakumono adjustment
       if (style.enableHalfWidthYakumono) {
@@ -138,10 +187,14 @@ class TextLayouter {
 
       // Handle line wrapping with kinsoku processing
       if (maxHeight > 0 && currentY > maxHeight) {
-        // Check if current character can hang (burasage-gumi)
+        // Determine whether to hang or wrap based on kinsoku method
         bool shouldHang = false;
-        if (style.enableBurasageGumi && YakumonoAdjuster.canHang(char)) {
-          shouldHang = true;
+
+        if (style.kinsokuMethod == KinsokuMethod.burasage) {
+          // Burasage: Allow line-start forbidden characters (gyoto kinsoku) to hang
+          if (KinsokuProcessor.isGyotoKinsoku(char)) {
+            shouldHang = true;
+          }
         }
 
         if (!shouldHang) {
@@ -168,13 +221,19 @@ class TextLayouter {
             currentX -= fontSize + style.lineSpacing;
             currentY = 0.0;
 
+            // Find layouts that need to be moved (textIndex >= breakPosition)
             // Recalculate positions for moved characters
-            for (int j = breakPosition + 1; j < layouts.length; j++) {
+            for (int j = 0; j < layouts.length; j++) {
               final layout = layouts[j];
+
+              // Skip layouts that should stay on current line
+              if (layout.textIndex < breakPosition) {
+                continue;
+              }
 
               // Recalculate gyoto indent for first character of new line
               double newXOffset = 0.0;
-              if (style.enableGyotoIndent && j == breakPosition + 1) {
+              if (style.enableGyotoIndent && layout.textIndex == breakPosition) {
                 newXOffset = YakumonoAdjuster.getGyotoIndent(layout.character) * fontSize;
               }
 
@@ -189,6 +248,7 @@ class TextLayouter {
                 rotation: layout.rotation,
                 fontSize: layout.fontSize,
                 type: layout.type,
+                textIndex: layout.textIndex,
               );
 
               // Advance for next character
@@ -202,15 +262,16 @@ class TextLayouter {
                 }
               }
 
-              if (style.enableKerning && j < layouts.length - 1) {
-                final nextChar = layouts[j + 1].character;
+              // Apply kerning if there's a next character in the original text
+              if (style.enableKerning && layout.textIndex < text.length - 1) {
+                final nextChar = text[layout.textIndex + 1];
                 final kerning = KerningProcessor.getKerning(layout.character, nextChar);
                 moveAdvance += kerning * layout.fontSize;
               }
 
               // Apply consecutive yakumono spacing
-              if (j < layouts.length - 1) {
-                final nextChar = layouts[j + 1].character;
+              if (layout.textIndex < text.length - 1) {
+                final nextChar = text[layout.textIndex + 1];
                 final yakumonoSpacing = YakumonoAdjuster.getConsecutiveYakumonoSpacing(
                   layout.character,
                   nextChar,
@@ -221,7 +282,7 @@ class TextLayouter {
               currentY += moveAdvance;
             }
 
-            lineStartIndex = breakPosition + 1;
+            lineStartIndex = breakPosition;
           } else {
             // breakPosition == i, need to move current character to next line
             currentX -= fontSize + style.lineSpacing;
@@ -244,6 +305,7 @@ class TextLayouter {
               rotation: rotation,
               fontSize: charFontSize,
               type: type,
+              textIndex: i,
             );
 
             // Recalculate advance for current character
@@ -278,10 +340,16 @@ class TextLayouter {
     final rubyFontSize = style.rubyStyle?.fontSize ?? (baseFontSize * 0.5);
 
     for (final ruby in rubyList) {
-      if (ruby.startIndex >= characterLayouts.length) continue;
+      // Find the layout for the first character of this ruby range
+      CharacterLayout? baseLayout;
+      for (final layout in characterLayouts) {
+        if (layout.textIndex == ruby.startIndex) {
+          baseLayout = layout;
+          break;
+        }
+      }
+      if (baseLayout == null) continue;
 
-      // Get position from first character in ruby range
-      final baseLayout = characterLayouts[ruby.startIndex];
       final baseX = baseLayout.position.dx;
       final baseY = baseLayout.position.dy;
 
