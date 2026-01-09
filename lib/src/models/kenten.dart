@@ -9,11 +9,38 @@ enum KentenStyle {
   /// Hollow circle (白丸)
   circle,
 
+  /// Double circle (二重丸)
+  doubleCircle,
+
   /// Filled triangle (黒三角)
   filledTriangle,
 
   /// Hollow triangle (白三角)
   triangle,
+
+  /// X mark (×印)
+  x,
+
+  /// Filled diamond (黒菱形)
+  filledDiamond,
+
+  /// Hollow diamond (白菱形)
+  diamond,
+
+  /// Filled square (黒四角)
+  filledSquare,
+
+  /// Hollow square (白四角)
+  square,
+
+  /// Filled star (黒星)
+  filledStar,
+
+  /// Hollow star (白星)
+  star,
+
+  /// Sideline (傍線)
+  sideline,
 }
 
 /// Kenten (emphasis dots) annotation for vertical text
