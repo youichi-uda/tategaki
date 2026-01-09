@@ -4,16 +4,37 @@ class KinsokuProcessor {
   static const Set<String> gyotoKinsoku = {
     '。', '、', '．', '，', // Periods and commas
     '）', '」', '】', '』', '〉', '》', // Closing brackets
-    '！', '？', '：', '；', // Punctuation
+    '！', '？', '：', '；', // Full-width punctuation
+    '!', '?', ':', ';',    // Half-width punctuation
+    '・', // Middle dot (U+30FB)
     'ー', // Long vowel mark (U+30FC)
     '―', // Horizontal bar / Dash (U+2015)
     '—', // Em dash (U+2014)
     '–', // En dash (U+2013)
     '－', // Fullwidth hyphen-minus (U+FF0D)
+    '…', // Ellipsis (U+2026)
+    '‥', // Two-dot leader (U+2025)
     'っ', 'ゃ', 'ゅ', 'ょ', 'ゎ', // Small hiragana
     'ッ', 'ャ', 'ュ', 'ョ', 'ヮ', // Small katakana
     'ぁ', 'ぃ', 'ぅ', 'ぇ', 'ぉ', // Small hiragana vowels
     'ァ', 'ィ', 'ゥ', 'ェ', 'ォ', // Small katakana vowels
+  };
+
+  /// Small characters that can hang at line end (burasage allowed)
+  /// These are typically punctuation marks that take less visual space
+  static const Set<String> burasageAllowed = {
+    '。', '、', '．', '，', // Periods and commas only
+  };
+
+  /// Full-size characters that cannot hang (must use oikomi)
+  /// These include ellipsis, exclamation marks, question marks, etc.
+  static const Set<String> burasageForbidden = {
+    '！', '？', // Full-width punctuation
+    '!', '?',   // Half-width punctuation
+    '…', '‥', // Leaders (always used in pairs)
+    '）', '」', '】', '』', '〉', '》', // Closing brackets
+    '：', '；', // Colon and semicolon
+    'ー', '―', '—', '–', '－', // Dashes
   };
 
   /// Characters that cannot appear at the end of a line (gyomatsu kinsoku)
@@ -21,10 +42,18 @@ class KinsokuProcessor {
     '（', '「', '【', '『', '〈', '《', // Opening brackets
   };
 
-  /// Inseparable character pairs (must stay together)
-  static const Map<String, String> inseparablePairs = {
-    '…': '…', // Ellipsis (2 dots together)
-    '‥': '‥', // Two-dot leader (2 dots together)
+  /// Characters that must appear in pairs (e.g., ……, ‥‥)
+  /// Cannot break between two consecutive instances
+  static const Set<String> pairedCharacters = {
+    '…', // Ellipsis (always used as ……)
+    '‥', // Two-dot leader (always used as ‥‥)
+  };
+
+  /// Characters that cannot be separated when consecutive
+  /// (e.g., !!, ??, !?, ?!)
+  static const Set<String> consecutiveCharacters = {
+    '！', '？', // Full-width exclamation and question marks
+    '!', '?',   // Half-width exclamation and question marks
   };
 
   /// Check if we can break the line at the specified position
@@ -57,9 +86,14 @@ class KinsokuProcessor {
       return false;
     }
 
-    // Check inseparable pairs
-    if (inseparablePairs.containsKey(charBefore) &&
-        inseparablePairs[charBefore] == charAfter) {
+    // Cannot break between paired characters (……, ‥‥)
+    if (pairedCharacters.contains(charBefore) && charBefore == charAfter) {
+      return false;
+    }
+
+    // Cannot break between consecutive punctuation (!!, ??, !?, ?!)
+    if (consecutiveCharacters.contains(charBefore) &&
+        consecutiveCharacters.contains(charAfter)) {
       return false;
     }
 
@@ -112,5 +146,17 @@ class KinsokuProcessor {
   /// Check if a character is gyomatsu kinsoku (line-end forbidden)
   static bool isGyomatsuKinsoku(String char) {
     return gyomatsuKinsoku.contains(char);
+  }
+
+  /// Check if a character can hang at line end (burasage allowed)
+  /// Returns true for small punctuation like 。、
+  /// Returns false for full-size characters like ！？……
+  static bool canHangAtLineEnd(String char) {
+    return burasageAllowed.contains(char);
+  }
+
+  /// Check if a character cannot hang at line end (must use oikomi)
+  static bool mustUseOikomi(String char) {
+    return burasageForbidden.contains(char);
   }
 }

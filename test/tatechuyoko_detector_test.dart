@@ -68,6 +68,28 @@ void main() {
       expect(result[3].startIndex, 7); // 34
     });
 
+    test('detects consecutive half-width punctuation', () {
+      final result = TatechuyokoDetector.detectAuto('驚いた!!本当に!?信じられない??');
+
+      expect(result.length, 3); // !!, !?, ??
+      expect(result[0].startIndex, 3); // !!
+      expect(result[0].length, 2);
+      expect(result[1].startIndex, 8); // !?
+      expect(result[1].length, 2);
+      expect(result[2].startIndex, 16); // ??
+      expect(result[2].length, 2);
+    });
+
+    test('detects all patterns together', () {
+      final result = TatechuyokoDetector.detectAuto('AB12本当!?驚き!!');
+
+      expect(result.length, 4); // AB, 12, !?, !!
+      expect(result[0].startIndex, 0); // AB
+      expect(result[1].startIndex, 2); // 12
+      expect(result[2].startIndex, 6); // !?
+      expect(result[3].startIndex, 10); // !!
+    });
+
     test('handles text without numbers', () {
       final result = TatechuyokoDetector.detectAuto('これは普通のテキストです');
 

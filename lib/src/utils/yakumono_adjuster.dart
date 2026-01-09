@@ -51,6 +51,9 @@ class YakumonoAdjuster {
     } else if (character == '・') {
       // Shift middle dot up
       yOffset = -fontSize * 0.2;
+    } else if (_isLeader(character)) {
+      // Shift ellipsis and two-dot leader to the left
+      xOffset = -fontSize * 0.25;
     }
 
     return Offset(basePosition.dx + xOffset, basePosition.dy + yOffset);
@@ -84,8 +87,21 @@ class YakumonoAdjuster {
   /// Get spacing adjustment for consecutive yakumono
   static double getConsecutiveYakumonoSpacing(
     String char1,
-    String char2,
-  ) {
+    String char2, {
+    bool useVerticalGlyphs = false,
+  }) {
+    // Widen spacing after ellipsis and two-dot leader
+    // (but not when using vertical glyphs, as the font handles spacing)
+    if (_isLeader(char1) && !useVerticalGlyphs) {
+      return 0.4; // Add extra space after leaders
+    }
+
+    // Widen spacing after full-size exclamation and question marks
+    // (but not when using vertical glyphs)
+    if (_isFullSizePunctuation(char1) && !useVerticalGlyphs) {
+      return 0.4; // Add extra space after ！？
+    }
+
     // Tighten spacing between closing bracket and punctuation
     if (_isClosingBracket(char1) && _isPunctuation(char2)) {
       return -0.3;
@@ -123,5 +139,21 @@ class YakumonoAdjuster {
       '－', // Fullwidth hyphen-minus (U+FF0D)
     };
     return dashes.contains(character);
+  }
+
+  static bool _isLeader(String character) {
+    const leaders = {
+      '…', // Ellipsis (U+2026)
+      '‥', // Two-dot leader (U+2025)
+    };
+    return leaders.contains(character);
+  }
+
+  static bool _isFullSizePunctuation(String character) {
+    const fullSizePunctuation = {
+      '！', // Full-width exclamation mark
+      '？', // Full-width question mark
+    };
+    return fullSizePunctuation.contains(character);
   }
 }

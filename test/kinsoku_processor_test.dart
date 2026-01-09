@@ -57,5 +57,55 @@ void main() {
       // At end of string
       expect(KinsokuProcessor.canBreakAt('あいう', 3), true);
     });
+
+    test('disallows breaking between consecutive punctuation', () {
+      // Full-width: Cannot break between ！！
+      expect(KinsokuProcessor.canBreakAt('驚き！！', 3), false);
+      // Full-width: Cannot break between ？？
+      expect(KinsokuProcessor.canBreakAt('本当？？', 3), false);
+      // Full-width: Cannot break between ！？
+      expect(KinsokuProcessor.canBreakAt('何！？', 2), false);
+      // Full-width: Cannot break between ？！
+      expect(KinsokuProcessor.canBreakAt('えっ？！', 3), false);
+
+      // Half-width: Cannot break between !!
+      expect(KinsokuProcessor.canBreakAt('驚き!!', 3), false);
+      // Half-width: Cannot break between ??
+      expect(KinsokuProcessor.canBreakAt('本当??', 3), false);
+      // Half-width: Cannot break between !?
+      expect(KinsokuProcessor.canBreakAt('何!?', 2), false);
+      // Half-width: Cannot break between ?!
+      expect(KinsokuProcessor.canBreakAt('えっ?!', 3), false);
+    });
+
+    test('identifies small characters that can hang', () {
+      // Small punctuation can hang
+      expect(KinsokuProcessor.canHangAtLineEnd('。'), true);
+      expect(KinsokuProcessor.canHangAtLineEnd('、'), true);
+
+      // Full-size characters cannot hang (must use oikomi)
+      expect(KinsokuProcessor.canHangAtLineEnd('！'), false);
+      expect(KinsokuProcessor.canHangAtLineEnd('？'), false);
+      expect(KinsokuProcessor.canHangAtLineEnd('!'), false);
+      expect(KinsokuProcessor.canHangAtLineEnd('?'), false);
+      expect(KinsokuProcessor.canHangAtLineEnd('…'), false);
+      expect(KinsokuProcessor.canHangAtLineEnd('）'), false);
+    });
+
+    test('identifies full-size characters that must use oikomi', () {
+      // Full-size punctuation must use oikomi
+      expect(KinsokuProcessor.mustUseOikomi('！'), true);
+      expect(KinsokuProcessor.mustUseOikomi('？'), true);
+      expect(KinsokuProcessor.mustUseOikomi('!'), true);
+      expect(KinsokuProcessor.mustUseOikomi('?'), true);
+      expect(KinsokuProcessor.mustUseOikomi('…'), true);
+      expect(KinsokuProcessor.mustUseOikomi('‥'), true);
+      expect(KinsokuProcessor.mustUseOikomi('）'), true);
+      expect(KinsokuProcessor.mustUseOikomi('」'), true);
+
+      // Small punctuation does not require oikomi
+      expect(KinsokuProcessor.mustUseOikomi('。'), false);
+      expect(KinsokuProcessor.mustUseOikomi('、'), false);
+    });
   });
 }

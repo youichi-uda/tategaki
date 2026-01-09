@@ -149,8 +149,11 @@ class VerticalRichTextPainter extends CustomPainter {
       // Apply consecutive yakumono spacing
       if (i < styledChars.length - 1) {
         final nextChar = styledChars[i + 1].character;
-        final yakumonoSpacing =
-            YakumonoAdjuster.getConsecutiveYakumonoSpacing(char, nextChar);
+        final yakumonoSpacing = YakumonoAdjuster.getConsecutiveYakumonoSpacing(
+          char,
+          nextChar,
+          useVerticalGlyphs: style.useVerticalGlyphs,
+        );
         advance += yakumonoSpacing * fontSize;
       }
 
@@ -158,12 +161,14 @@ class VerticalRichTextPainter extends CustomPainter {
 
       // Handle line wrapping
       if (maxHeight > 0 && currentY > maxHeight) {
-        // Determine whether to hang or wrap based on kinsoku method
+        // Determine whether to hang or wrap based on character type
+        // Small characters (。、) can hang (burasage)
+        // Full-size characters (！？…… etc) must be pushed in (oikomi)
         bool shouldHang = false;
 
         if (style.kinsokuMethod == KinsokuMethod.burasage) {
-          // Burasage: Allow line-start forbidden characters (gyoto kinsoku) to hang
-          if (KinsokuProcessor.isGyotoKinsoku(char)) {
+          // Only allow hanging for small characters that are explicitly allowed
+          if (KinsokuProcessor.canHangAtLineEnd(char)) {
             shouldHang = true;
           }
         }
@@ -254,10 +259,10 @@ class VerticalRichTextPainter extends CustomPainter {
 
               if (j < layouts.length - 1) {
                 final nextChar = layouts[j + 1].character;
-                final yakumonoSpacing =
-                    YakumonoAdjuster.getConsecutiveYakumonoSpacing(
+                final yakumonoSpacing = YakumonoAdjuster.getConsecutiveYakumonoSpacing(
                   layout.character,
                   nextChar,
+                  useVerticalGlyphs: style.useVerticalGlyphs,
                 );
                 moveAdvance += yakumonoSpacing * layout.fontSize;
               }

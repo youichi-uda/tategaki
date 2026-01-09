@@ -23,8 +23,7 @@ class TatechuyokoDetector {
   /// Detects:
   /// - 2-digit numbers (10-99) only when not part of 3+ digit numbers
   /// - 2-letter alphabets (AB, CD, etc.) only when not part of 3+ letter sequences
-  /// - Year patterns (2024年)
-  /// - Date patterns (12月)
+  /// - Consecutive half-width punctuation (!!, ??, !?, ?!)
   static List<Tatechuyoko> detectAuto(String text) {
     final detected = <Tatechuyoko>[];
 
@@ -62,6 +61,15 @@ class TatechuyokoDetector {
           continue; // Part of longer sequence, skip
         }
 
+        detected.add(Tatechuyoko(startIndex: i, length: 2));
+        i++; // Skip next character as it's part of this tatechuyoko
+        continue;
+      }
+
+      // Check for consecutive half-width punctuation (!!, ??, !?, ?!)
+      if (i < text.length - 1 &&
+          _isHalfWidthPunctuation(text[i]) &&
+          _isHalfWidthPunctuation(text[i + 1])) {
         detected.add(Tatechuyoko(startIndex: i, length: 2));
         i++; // Skip next character as it's part of this tatechuyoko
       }
@@ -103,5 +111,9 @@ class TatechuyokoDetector {
            (code >= 0x0061 && code <= 0x007A) || // a-z
            (code >= 0xFF21 && code <= 0xFF3A) || // Ａ-Ｚ (full-width)
            (code >= 0xFF41 && code <= 0xFF5A);   // ａ-ｚ (full-width)
+  }
+
+  static bool _isHalfWidthPunctuation(String char) {
+    return char == '!' || char == '?';
   }
 }

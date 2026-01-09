@@ -64,32 +64,88 @@ class _KinsokuDemoState extends State<KinsokuDemo> {
               children: [
                 Text(
                   _kinsokuMethod == KinsokuMethod.oikomi
-                      ? '追い込み処理\n句読点が行頭に来ないように前の行に戻します'
-                      : 'ぶら下げ処理\n句読点を前の行の末尾にぶら下げます',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ? '追い込み処理：行頭禁則文字を前の行に戻す'
+                      : 'ぶら下げ処理：小さい文字（。、）のみ行末にぶら下げ可能',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
-                VerticalText(
-                  'これは禁則処理のデモです。行頭や行末に来てはいけない文字（句読点や括弧など）が適切に処理されます。「このように」括弧も正しく扱われます。',
-                  style: VerticalTextStyle(
-                    baseStyle: GoogleFonts.notoSerifJp(
-                      fontSize: 24,
-                      color: Colors.black87,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 基本的な禁則処理
+                    _buildExample(
+                      '基本的な禁則処理',
+                      'これは禁則処理のデモです。行頭や行末に来てはいけない文字（句読点や括弧など）が適切に処理されます。',
                     ),
-                    characterSpacing: 4,
-                    lineSpacing: 24,
-                    kinsokuMethod: _kinsokuMethod,
-                    enableGyotoIndent: true,
-                  ),
-                  maxHeight: 350,
-                  showGrid: _showGrid,
+                    const SizedBox(width: 60),
+                    // 三点リーダー
+                    _buildExample(
+                      '三点リーダーは分離しない',
+                      '三点リーダー……は必ずペアで使用されます。途中で改行されることはありません……大丈夫です。',
+                    ),
+                    const SizedBox(width: 60),
+                    // 二点リーダー
+                    _buildExample(
+                      '二点リーダーも同様',
+                      '二点リーダー‥‥も同じくペアで使います。これも分離されません‥‥安心です。',
+                    ),
+                    const SizedBox(width: 60),
+                    // 連続する感嘆符・疑問符
+                    _buildExample(
+                      '連続する感嘆符・疑問符',
+                      '驚いた！！本当に！？信じられない？？そんなことが!?実際に起こるなんて？！',
+                    ),
+                    const SizedBox(width: 60),
+                    // 小さい文字 vs フルサイズ文字
+                    _buildExample(
+                      '句読点（小）vs 感嘆符（大）',
+                      '小さい句読点。は、ぶら下げ可能です。しかし大きな感嘆符！や疑問符？は押し込みのみです！',
+                      maxHeight: 200,
+                    ),
+                    const SizedBox(width: 60),
+                    // 括弧の処理
+                    _buildExample(
+                      '括弧の行頭・行末禁則',
+                      '「このように」括弧も正しく扱われます。（開き括弧は行末禁則）（閉じ括弧は行頭禁則）と処理されます。',
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildExample(String title, String text, {double maxHeight = 250}) {
+    return Column(
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 16),
+        VerticalText(
+          text,
+          style: VerticalTextStyle(
+            baseStyle: GoogleFonts.notoSerifJp(
+              fontSize: 22,
+              color: Colors.black87,
+            ),
+            characterSpacing: 4,
+            lineSpacing: 20,
+            kinsokuMethod: _kinsokuMethod,
+            enableGyotoIndent: true,
+            adjustYakumono: true,
+          ),
+          autoTatechuyoko: true,
+          maxHeight: maxHeight,
+          showGrid: _showGrid,
+        ),
+      ],
     );
   }
 }

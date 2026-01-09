@@ -34,9 +34,9 @@ void main() {
     });
 
     test('calculates gyoto indent for opening brackets', () {
-      expect(YakumonoAdjuster.getGyotoIndent('（'), 0.5);
-      expect(YakumonoAdjuster.getGyotoIndent('「'), 0.5);
-      expect(YakumonoAdjuster.getGyotoIndent('【'), 0.5);
+      expect(YakumonoAdjuster.getGyotoIndent('（'), 0.1);
+      expect(YakumonoAdjuster.getGyotoIndent('「'), 0.1);
+      expect(YakumonoAdjuster.getGyotoIndent('【'), 0.1);
 
       expect(YakumonoAdjuster.getGyotoIndent('あ'), 0.0);
       expect(YakumonoAdjuster.getGyotoIndent('）'), 0.0);
@@ -51,9 +51,37 @@ void main() {
       final spacing2 = YakumonoAdjuster.getConsecutiveYakumonoSpacing('。', '」');
       expect(spacing2, lessThan(0));
 
+      // Ellipsis followed by normal character (should be widened)
+      final spacing3 = YakumonoAdjuster.getConsecutiveYakumonoSpacing('…', 'あ');
+      expect(spacing3, greaterThan(0)); // Should be positive (widened)
+
+      // Two-dot leader followed by normal character (should be widened)
+      final spacing4 = YakumonoAdjuster.getConsecutiveYakumonoSpacing('‥', 'い');
+      expect(spacing4, greaterThan(0)); // Should be positive (widened)
+
+      // Ellipsis with useVerticalGlyphs (should NOT be widened)
+      final spacing6 = YakumonoAdjuster.getConsecutiveYakumonoSpacing('…', 'あ', useVerticalGlyphs: true);
+      expect(spacing6, 0.0); // Should be 0 when using vertical glyphs
+
+      // Two-dot leader with useVerticalGlyphs (should NOT be widened)
+      final spacing7 = YakumonoAdjuster.getConsecutiveYakumonoSpacing('‥', 'い', useVerticalGlyphs: true);
+      expect(spacing7, 0.0); // Should be 0 when using vertical glyphs
+
+      // Full-width exclamation mark followed by normal character (should be widened)
+      final spacing8 = YakumonoAdjuster.getConsecutiveYakumonoSpacing('！', 'あ');
+      expect(spacing8, greaterThan(0)); // Should be positive (widened)
+
+      // Full-width question mark followed by normal character (should be widened)
+      final spacing9 = YakumonoAdjuster.getConsecutiveYakumonoSpacing('？', 'い');
+      expect(spacing9, greaterThan(0)); // Should be positive (widened)
+
+      // Full-width punctuation with useVerticalGlyphs (should NOT be widened)
+      final spacing10 = YakumonoAdjuster.getConsecutiveYakumonoSpacing('！', 'あ', useVerticalGlyphs: true);
+      expect(spacing10, 0.0); // Should be 0 when using vertical glyphs
+
       // Normal characters
-      final spacing3 = YakumonoAdjuster.getConsecutiveYakumonoSpacing('あ', 'い');
-      expect(spacing3, 0.0);
+      final spacing5 = YakumonoAdjuster.getConsecutiveYakumonoSpacing('あ', 'い');
+      expect(spacing5, 0.0);
     });
   });
 }

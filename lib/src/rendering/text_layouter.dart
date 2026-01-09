@@ -194,7 +194,11 @@ class TextLayouter {
       // Apply consecutive yakumono spacing
       if (i < text.length - 1) {
         final nextChar = text[i + 1];
-        final yakumonoSpacing = YakumonoAdjuster.getConsecutiveYakumonoSpacing(char, nextChar);
+        final yakumonoSpacing = YakumonoAdjuster.getConsecutiveYakumonoSpacing(
+          char,
+          nextChar,
+          useVerticalGlyphs: style.useVerticalGlyphs,
+        );
         advance += yakumonoSpacing * fontSize;
       }
 
@@ -202,12 +206,14 @@ class TextLayouter {
 
       // Handle line wrapping with kinsoku processing
       if (maxHeight > 0 && currentY > maxHeight) {
-        // Determine whether to hang or wrap based on kinsoku method
+        // Determine whether to hang or wrap based on character type
+        // Small characters (。、) can hang (burasage)
+        // Full-size characters (！？…… etc) must be pushed in (oikomi)
         bool shouldHang = false;
 
         if (style.kinsokuMethod == KinsokuMethod.burasage) {
-          // Burasage: Allow line-start forbidden characters (gyoto kinsoku) to hang
-          if (KinsokuProcessor.isGyotoKinsoku(char)) {
+          // Only allow hanging for small characters that are explicitly allowed
+          if (KinsokuProcessor.canHangAtLineEnd(char)) {
             shouldHang = true;
           }
         }
@@ -310,6 +316,7 @@ class TextLayouter {
                 final yakumonoSpacing = YakumonoAdjuster.getConsecutiveYakumonoSpacing(
                   layout.character,
                   nextChar,
+                  useVerticalGlyphs: style.useVerticalGlyphs,
                 );
                 moveAdvance += yakumonoSpacing * layout.fontSize;
               }
