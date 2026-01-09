@@ -2,41 +2,109 @@ import 'package:flutter/material.dart';
 import '../models/vertical_text_style.dart';
 import '../models/ruby_text.dart';
 import '../models/kenten.dart';
+import '../models/warichu.dart';
 import '../models/tatechuyoko.dart';
+import '../models/vertical_text_span.dart';
 import '../utils/kenten_renderer.dart';
+import '../utils/warichu_renderer.dart';
 import '../utils/tatechuyoko_detector.dart';
 import 'text_layouter.dart';
 
 /// Custom painter for vertical text
 class VerticalTextPainter extends CustomPainter {
-  final String text;
+  final String? text;
+  final VerticalTextSpan? span;
   final VerticalTextStyle style;
   final List<RubyText>? ruby;
   final List<Kenten>? kenten;
+  final List<Warichu>? warichu;
   final List<Tatechuyoko>? tatechuyoko;
   final bool autoTatechuyoko;
   final TextLayouter layouter;
   final double maxHeight;
   final bool showGrid;
 
+  // Computed values from span
+  late final String _actualText;
+  late final List<RubyText> _actualRuby;
+  late final List<Kenten> _actualKenten;
+  late final List<Warichu> _actualWarichu;
+  late final List<Tatechuyoko> _actualTatechuyoko;
+
   VerticalTextPainter({
-    required this.text,
+    this.text,
+    this.span,
     required this.style,
     this.ruby,
     this.kenten,
+    this.warichu,
     this.tatechuyoko,
     this.autoTatechuyoko = false,
     TextLayouter? layouter,
     this.maxHeight = 0,
     this.showGrid = false,
-  }) : layouter = layouter ?? TextLayouter();
+  })  : layouter = layouter ?? TextLayouter(),
+        assert(text != null || span != null, 'Either text or span must be provided') {
+    // Process span if provided
+    if (span != null) {
+      _processSpan();
+    } else {
+      _actualText = text!;
+      _actualRuby = ruby ?? [];
+      _actualKenten = kenten ?? [];
+      _actualWarichu = warichu ?? [];
+      _actualTatechuyoko = tatechuyoko ?? [];
+    }
+  }
+
+  void _processSpan() {
+    // Convert span structure to flat text with annotations
+    final rubyList = <RubyText>[];
+    final kentenList = <Kenten>[];
+    final warichuList = <Warichu>[];
+    final tatechuyokoList = <Tatechuyoko>[];
+
+    span!.visitSpans((visitedSpan, startIndex) {
+      if (visitedSpan is RubySpan) {
+        rubyList.add(RubyText(
+          startIndex: startIndex,
+          length: visitedSpan.text!.length,
+          ruby: visitedSpan.ruby,
+        ));
+      } else if (visitedSpan is KentenSpan) {
+        kentenList.add(Kenten(
+          startIndex: startIndex,
+          length: visitedSpan.text!.length,
+          style: visitedSpan.kentenStyle,
+        ));
+      } else if (visitedSpan is WarichuSpan) {
+        warichuList.add(Warichu(
+          startIndex: startIndex,
+          length: 0, // Warichu doesn't replace text in new design
+          text: visitedSpan.text!,
+          splitIndex: visitedSpan.splitIndex,
+        ));
+      } else if (visitedSpan is TatechuyokoSpan) {
+        tatechuyokoList.add(Tatechuyoko(
+          startIndex: startIndex,
+          length: visitedSpan.text!.length,
+        ));
+      }
+    });
+
+    _actualText = span!.toPlainText();
+    _actualRuby = rubyList;
+    _actualKenten = kentenList;
+    _actualWarichu = warichuList;
+    _actualTatechuyoko = tatechuyokoList;
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
     // Get tatechuyoko ranges
-    List<Tatechuyoko> tatechuyokoRanges = tatechuyoko ?? [];
+    List<Tatechuyoko> tatechuyokoRanges = _actualTatechuyoko;
     if (autoTatechuyoko) {
-      tatechuyokoRanges = TatechuyokoDetector.detectAuto(text);
+      tatechuyokoRanges = TatechuyokoDetector.detectAuto(_actualText);
     }
 
     // Create set of indices that are part of tatechuyoko
@@ -51,16 +119,32 @@ class VerticalTextPainter extends CustomPainter {
     final fontSize = style.baseStyle.fontSize ?? 16.0;
     final startX = size.width - fontSize;
 
-    // Layout the text (pass tatechuyoko indices to skip them in layout)
+    // Calculate warichu heights
+    final warichuHeights = <int, double>{};
+    for (final warichuItem in _actualWarichu) {
+      final warichuFontSize = fontSize * 0.5;
+      final maxLineLength = warichuItem.firstLine.length > warichuItem.secondLine.length
+          ? warichuItem.firstLine.length
+          : warichuItem.secondLine.length;
+      // Add extra spacing after warichu to separate it from next character
+      final warichuHeight = maxLineLength * warichuFontSize + style.characterSpacing * 2;
+
+      // For WarichuSpan (length=0), the warichu is inserted at startIndex
+      final insertIndex = warichuItem.startIndex;
+      warichuHeights[insertIndex] = warichuHeight;
+    }
+
+    // Layout the text (pass tatechuyoko indices and warichu heights)
     final characterLayouts = layouter.layoutText(
-      text,
+      _actualText,
       style,
       maxHeight,
       startX: startX,
       tatechuyokoIndices: tatechuyokoIndices,
+      warichuHeights: warichuHeights,
     );
 
-    // Draw each character (skip tatechuyoko characters)
+    // Draw each character (skip tatechuyoko characters only, not warichu)
     for (final layout in characterLayouts) {
       if (!tatechuyokoIndices.contains(layout.textIndex)) {
         _drawCharacter(canvas, layout);
@@ -73,16 +157,21 @@ class VerticalTextPainter extends CustomPainter {
     }
 
     // Draw ruby if present
-    if (ruby != null && ruby!.isNotEmpty) {
-      final rubyLayouts = layouter.layoutRuby(text, ruby!, style, characterLayouts);
+    if (_actualRuby.isNotEmpty) {
+      final rubyLayouts = layouter.layoutRuby(_actualText, _actualRuby, style, characterLayouts);
       for (final rubyLayout in rubyLayouts) {
         _drawRuby(canvas, rubyLayout);
       }
     }
 
     // Draw kenten if present
-    if (kenten != null && kenten!.isNotEmpty) {
+    if (_actualKenten.isNotEmpty) {
       _drawKenten(canvas, characterLayouts);
+    }
+
+    // Draw warichu if present
+    if (_actualWarichu.isNotEmpty) {
+      _drawWarichu(canvas, characterLayouts);
     }
 
     // Draw grid if enabled
@@ -242,7 +331,7 @@ class VerticalTextPainter extends CustomPainter {
     final fontSize = style.baseStyle.fontSize ?? 16.0;
     final color = style.baseStyle.color ?? Colors.black;
 
-    for (final kentenItem in kenten!) {
+    for (final kentenItem in _actualKenten) {
       for (int textIdx = kentenItem.startIndex; textIdx < kentenItem.endIndex; textIdx++) {
         // Find the layout for this text index
         CharacterLayout? charLayout;
@@ -271,16 +360,63 @@ class VerticalTextPainter extends CustomPainter {
     }
   }
 
+  void _drawWarichu(Canvas canvas, List<CharacterLayout> characterLayouts) {
+    final fontSize = style.baseStyle.fontSize ?? 16.0;
+
+    for (final warichuItem in _actualWarichu) {
+      // For WarichuSpan (length=0), find the character at startIndex
+      // The warichu is inserted AFTER this character
+      CharacterLayout? insertLayout;
+
+      if (warichuItem.length == 0) {
+        // New span-based API: warichu is inserted at this position
+        // Find the character just before the insertion point
+        if (warichuItem.startIndex > 0) {
+          for (final layout in characterLayouts) {
+            if (layout.textIndex == warichuItem.startIndex - 1) {
+              insertLayout = layout;
+              break;
+            }
+          }
+        }
+      } else {
+        // Old API: warichu replaces characters
+        final endIndex = warichuItem.startIndex + warichuItem.length - 1;
+        for (final layout in characterLayouts) {
+          if (layout.textIndex == endIndex) {
+            insertLayout = layout;
+            break;
+          }
+        }
+      }
+      if (insertLayout == null) continue;
+
+      // Calculate position for warichu (after the character)
+      final warichuStartY = insertLayout.position.dy + fontSize + style.characterSpacing;
+      final warichuPosition = Offset(insertLayout.position.dx, warichuStartY);
+
+      // Draw the warichu annotation
+      WarichuRenderer.drawWarichu(
+        canvas,
+        warichuPosition,
+        warichuItem,
+        style.baseStyle,
+        fontSize,
+        style.characterSpacing,
+      );
+    }
+  }
+
   void _drawTatechuyoko(
     Canvas canvas,
     Tatechuyoko tcy,
     List<CharacterLayout> characterLayouts,
   ) {
-    if (tcy.startIndex >= text.length) return;
+    if (tcy.startIndex >= _actualText.length) return;
 
     // Extract tatechuyoko text
-    final endIndex = (tcy.startIndex + tcy.length).clamp(0, text.length);
-    final tcyText = text.substring(tcy.startIndex, endIndex);
+    final endIndex = (tcy.startIndex + tcy.length).clamp(0, _actualText.length);
+    final tcyText = _actualText.substring(tcy.startIndex, endIndex);
 
     // Find the layout for the first character of this tatechuyoko range
     CharacterLayout? baseLayout;
@@ -327,9 +463,11 @@ class VerticalTextPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant VerticalTextPainter oldDelegate) {
     return oldDelegate.text != text ||
+        oldDelegate.span != span ||
         oldDelegate.style != style ||
         oldDelegate.ruby != ruby ||
         oldDelegate.kenten != kenten ||
+        oldDelegate.warichu != warichu ||
         oldDelegate.tatechuyoko != tatechuyoko ||
         oldDelegate.autoTatechuyoko != autoTatechuyoko ||
         oldDelegate.maxHeight != maxHeight ||

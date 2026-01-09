@@ -45,57 +45,25 @@ class _RichTextDemoState extends State<RichTextDemo> {
             child: Column(
               children: [
                 const Text(
-                  '複数のスタイルを組み合わせたテキスト',
+                  'Span-based API デモ（Ruby + Kenten）',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 32),
-                VerticalRichText(
-                  textSpan: VerticalTextSpan(
-                    style: VerticalTextStyle(
-                      baseStyle: GoogleFonts.notoSerifJp(
-                        fontSize: 24,
-                        color: Colors.black87,
-                      ),
-                      characterSpacing: 4,
-                    ),
+                VerticalText.rich(
+                  TextSpanV(
                     children: [
-                      VerticalTextSpan(text: 'これは'),
-                      VerticalTextSpan(
-                        text: '強調された',
-                        style: VerticalTextStyle(
-                          baseStyle: GoogleFonts.notoSerifJp(
-                            fontSize: 26,
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          characterSpacing: 4,
-                        ),
-                      ),
-                      VerticalTextSpan(text: 'テキストと'),
-                      VerticalTextSpan(
-                        text: '青色の',
-                        style: VerticalTextStyle(
-                          baseStyle: GoogleFonts.notoSerifJp(
-                            fontSize: 24,
-                            color: Colors.blue,
-                          ),
-                          characterSpacing: 4,
-                        ),
-                      ),
-                      VerticalTextSpan(text: 'テキストを'),
-                      VerticalTextSpan(
-                        text: '組み合わせた',
-                        style: VerticalTextStyle(
-                          baseStyle: GoogleFonts.notoSerifJp(
-                            fontSize: 28,
-                            color: Colors.green,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          characterSpacing: 4,
-                        ),
-                      ),
-                      VerticalTextSpan(text: '例です。'),
+                      RubySpan(text: '日本語', ruby: 'にほんご'),
+                      TextSpanV(text: 'の'),
+                      KentenSpan(text: '縦書き', kentenStyle: KentenStyle.sesame),
+                      TextSpanV(text: 'テキスト'),
                     ],
+                  ),
+                  style: VerticalTextStyle(
+                    baseStyle: GoogleFonts.notoSerifJp(
+                      fontSize: 32,
+                      color: Colors.black87,
+                    ),
+                    characterSpacing: 8,
                   ),
                   maxHeight: 450,
                   showGrid: _showGrid,

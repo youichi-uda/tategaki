@@ -67,6 +67,7 @@ class TextLayouter {
     double maxHeight, {
     double startX = 0.0,
     Set<int>? tatechuyokoIndices,
+    Map<int, double>? warichuHeights,
   }) {
     final layouts = <CharacterLayout>[];
     final fontSize = style.baseStyle.fontSize ?? 16.0;
@@ -203,6 +204,11 @@ class TextLayouter {
       }
 
       currentY += advance;
+
+      // Add space for warichu if this is the end of a warichu range
+      if (warichuHeights != null && warichuHeights.containsKey(i)) {
+        currentY += warichuHeights[i]!;
+      }
 
       // Handle line wrapping with kinsoku processing
       if (maxHeight > 0 && currentY > maxHeight) {

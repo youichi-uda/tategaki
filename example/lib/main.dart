@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'demos/basic_demo.dart';
 import 'demos/ruby_demo.dart';
 import 'demos/kenten_demo.dart';
+import 'demos/warichu_demo.dart';
 import 'demos/tatechuyoko_demo.dart';
 import 'demos/kinsoku_demo.dart';
 import 'demos/yakumono_demo.dart';
@@ -151,6 +152,17 @@ class _TategakiDemoHomeState extends State<TategakiDemoHome> {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const KentenDemo()),
+            ),
+          ),
+          _buildDemoCard(
+            context,
+            title: '割注（インライン注釈）',
+            description: '本文中に小さな2行の注釈を表示',
+            icon: Icons.notes,
+            color: Colors.amber,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const WarichuDemo()),
             ),
           ),
           _buildDemoCard(

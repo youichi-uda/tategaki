@@ -3,23 +3,31 @@ import '../models/vertical_text_style.dart';
 import '../models/ruby_text.dart';
 import '../models/kenten.dart';
 import '../models/tatechuyoko.dart';
+import '../models/warichu.dart';
+import '../models/vertical_text_span.dart';
 import '../rendering/vertical_text_painter.dart';
 
 /// A widget that displays vertical Japanese text (tategaki)
 class VerticalText extends StatelessWidget {
   /// The text to display vertically
-  final String text;
+  final String? text;
+
+  /// Span-based text composition (alternative to plain text)
+  final VerticalTextSpan? span;
 
   /// Style configuration for the vertical text
   final VerticalTextStyle style;
 
-  /// Ruby (furigana) annotations
+  /// Ruby (furigana) annotations (used with plain text)
   final List<RubyText>? ruby;
 
-  /// Kenten (emphasis dots) annotations
+  /// Kenten (emphasis dots) annotations (used with plain text)
   final List<Kenten>? kenten;
 
-  /// Tatechuyoko (horizontal text within vertical) annotations
+  /// Warichu (inline annotations) annotations (used with plain text)
+  final List<Warichu>? warichu;
+
+  /// Tatechuyoko (horizontal text within vertical) annotations (used with plain text)
   final List<Tatechuyoko>? tatechuyoko;
 
   /// Auto-detect and apply tatechuyoko to 2-digit numbers
@@ -39,20 +47,56 @@ class VerticalText extends StatelessWidget {
     this.style = const VerticalTextStyle(),
     this.ruby,
     this.kenten,
+    this.warichu,
     this.tatechuyoko,
     this.autoTatechuyoko = false,
     this.maxHeight = 0,
     this.showGrid = false,
-  });
+  })  : span = null,
+        assert(text != null, 'text must not be null');
+
+  /// Creates a vertical text widget with rich text composition
+  ///
+  /// This constructor uses a span-based API similar to Flutter's Text.rich()
+  /// which makes it easier to compose text with different styles and annotations.
+  ///
+  /// Example:
+  /// ```dart
+  /// VerticalText.rich(
+  ///   TextSpanV(
+  ///     children: [
+  ///       RubySpan(text: '東京', ruby: 'とうきょう'),
+  ///       TextSpanV(text: 'と'),
+  ///       RubySpan(text: '大阪', ruby: 'おおさか'),
+  ///       TextSpanV(text: 'は日本の大都市である。'),
+  ///     ],
+  ///   ),
+  /// )
+  /// ```
+  const VerticalText.rich(
+    this.span, {
+    super.key,
+    this.style = const VerticalTextStyle(),
+    this.autoTatechuyoko = false,
+    this.maxHeight = 0,
+    this.showGrid = false,
+  })  : text = null,
+        ruby = null,
+        kenten = null,
+        warichu = null,
+        tatechuyoko = null,
+        assert(span != null, 'span must not be null');
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
       painter: VerticalTextPainter(
         text: text,
+        span: span,
         style: style,
         ruby: ruby,
         kenten: kenten,
+        warichu: warichu,
         tatechuyoko: tatechuyoko,
         autoTatechuyoko: autoTatechuyoko,
         maxHeight: maxHeight,
@@ -64,7 +108,7 @@ class VerticalText extends StatelessWidget {
 
   Size _calculateSize() {
     final fontSize = style.baseStyle.fontSize ?? 16.0;
-    final numChars = text.length;
+    final numChars = span != null ? span!.textLength : text!.length;
 
     // Calculate height (vertical extent in vertical text)
     double height = numChars * (fontSize + style.characterSpacing);
@@ -84,6 +128,12 @@ class VerticalText extends StatelessWidget {
       width += fontSize * 0.5; // Extra space for kenten on the right
     }
 
+    // Add space for warichu if present
+    if (warichu != null && warichu!.isNotEmpty) {
+      // Warichu doesn't extend beyond main text width
+      // No extra space needed
+    }
+
     // Handle wrapping
     if (maxHeight > 0 && height > maxHeight) {
       final linesNeeded = (height / maxHeight).ceil();
@@ -98,6 +148,7 @@ class VerticalText extends StatelessWidget {
       if (kenten != null && kenten!.isNotEmpty) {
         lineWidth += fontSize * 0.5;
       }
+      // Warichu doesn't extend beyond main text width
 
       width = lineWidth * linesNeeded + style.lineSpacing * (linesNeeded - 1);
     }
