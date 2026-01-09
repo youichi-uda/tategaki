@@ -38,11 +38,19 @@ class YakumonoAdjuster {
         xOffset = -fontSize * 0.2;
       }
     } else if (_isOpeningBracket(character)) {
-      // Shift opening brackets to the left
-      xOffset = -fontSize * 0.2;
+      // Shift opening brackets to the left and down
+      xOffset = -fontSize * 0.3;
+      yOffset = fontSize * 0.1;
     } else if (_isClosingBracket(character)) {
-      // Shift closing brackets to the left
+      // Shift closing brackets to the left and up
+      xOffset = -fontSize * 0.3;
+      yOffset = -fontSize * 0.1;
+    } else if (character == '：' || character == '；') {
+      // Shift colon and semicolon to the left
       xOffset = -fontSize * 0.2;
+    } else if (character == '・') {
+      // Shift middle dot up
+      yOffset = -fontSize * 0.2;
     }
 
     return Offset(basePosition.dx + xOffset, basePosition.dy + yOffset);
@@ -102,7 +110,7 @@ class YakumonoAdjuster {
   }
 
   static bool _isPunctuation(String character) {
-    const punctuation = {'。', '、', '！', '？', '：', '；'};
+    const punctuation = {'。', '、'};
     return punctuation.contains(character);
   }
 

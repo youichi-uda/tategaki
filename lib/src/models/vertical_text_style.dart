@@ -35,6 +35,11 @@ class VerticalTextStyle {
   /// Enable kerning (advanced character spacing)
   final bool enableKerning;
 
+  /// Use vertical glyphs (OpenType 'vert' feature)
+  /// When true, assumes the font provides vertical glyphs and skips rotation
+  /// processing for yakumono (brackets, dashes, etc.)
+  final bool useVerticalGlyphs;
+
   const VerticalTextStyle({
     this.baseStyle = const TextStyle(),
     this.lineSpacing = 0.0,
@@ -46,6 +51,7 @@ class VerticalTextStyle {
     this.enableHalfWidthYakumono = false,
     this.enableGyotoIndent = false,
     this.enableKerning = false,
+    this.useVerticalGlyphs = false,
   });
 
   /// Create a copy with modified properties
@@ -60,6 +66,7 @@ class VerticalTextStyle {
     bool? enableHalfWidthYakumono,
     bool? enableGyotoIndent,
     bool? enableKerning,
+    bool? useVerticalGlyphs,
   }) {
     return VerticalTextStyle(
       baseStyle: baseStyle ?? this.baseStyle,
@@ -72,6 +79,7 @@ class VerticalTextStyle {
       enableHalfWidthYakumono: enableHalfWidthYakumono ?? this.enableHalfWidthYakumono,
       enableGyotoIndent: enableGyotoIndent ?? this.enableGyotoIndent,
       enableKerning: enableKerning ?? this.enableKerning,
+      useVerticalGlyphs: useVerticalGlyphs ?? this.useVerticalGlyphs,
     );
   }
 }

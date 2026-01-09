@@ -44,18 +44,19 @@ class RotationRules {
       '－', // Fullwidth hyphen-minus (U+FF0D)
       '…', '‥', // Leaders
       '〜', // Wave dash
+      '：', '；', // Colon, Semicolon
     };
-    
+
     if (rotatedYakumono.contains(character)) {
       return math.pi / 2;
     }
-    
+
     // Punctuation marks that stay upright
-    const uprightYakumono = {'。', '、', '！', '？', '：', '；', '・'};
+    const uprightYakumono = {'。', '、', '！', '？', '・'};
     if (uprightYakumono.contains(character)) {
       return 0.0;
     }
-    
+
     return 0.0;
   }
 }

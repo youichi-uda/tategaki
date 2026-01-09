@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:tategaki/tategaki.dart';
 
 class KentenDemo extends StatefulWidget {
@@ -71,8 +72,14 @@ class _KentenDemoState extends State<KentenDemo> {
         const SizedBox(height: 24),
         VerticalText(
           text,
-          style: const VerticalTextStyle(
-            baseStyle: TextStyle(fontSize: 32, color: Colors.black87),
+          style: VerticalTextStyle(
+            baseStyle: GoogleFonts.notoSerifJp(
+              fontSize: 32,
+              color: Colors.black87,
+              fontFeatures: const [
+                FontFeature.enable('vert'),
+              ],
+            ),
             characterSpacing: 8,
           ),
           kenten: [

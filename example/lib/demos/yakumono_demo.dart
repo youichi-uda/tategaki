@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:tategaki/tategaki.dart';
 
 class YakumonoDemo extends StatefulWidget {
@@ -53,8 +54,14 @@ class _YakumonoDemoState extends State<YakumonoDemo> {
                     const SizedBox(height: 24),
                     VerticalText(
                       '「これは、約物調整の例です。」と彼は言った。',
-                      style: const VerticalTextStyle(
-                        baseStyle: TextStyle(fontSize: 24, color: Colors.black87),
+                      style: VerticalTextStyle(
+                        baseStyle: GoogleFonts.notoSerifJp(
+                          fontSize: 24,
+                          color: Colors.black87,
+                          fontFeatures: const [
+                            FontFeature.enable('vert'),
+                          ],
+                        ),
                         characterSpacing: 4,
                         lineSpacing: 24,
                         adjustYakumono: false,
@@ -74,8 +81,14 @@ class _YakumonoDemoState extends State<YakumonoDemo> {
                     const SizedBox(height: 24),
                     VerticalText(
                       '「これは、約物調整の例です。」と彼は言った。',
-                      style: const VerticalTextStyle(
-                        baseStyle: TextStyle(fontSize: 24, color: Colors.black87),
+                      style: VerticalTextStyle(
+                        baseStyle: GoogleFonts.notoSerifJp(
+                          fontSize: 24,
+                          color: Colors.black87,
+                          fontFeatures: const [
+                            FontFeature.enable('vert'),
+                          ],
+                        ),
                         characterSpacing: 4,
                         lineSpacing: 24,
                         enableHalfWidthYakumono: true,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:tategaki/tategaki.dart';
 
 class KinsokuDemo extends StatefulWidget {
@@ -72,7 +73,13 @@ class _KinsokuDemoState extends State<KinsokuDemo> {
                 VerticalText(
                   'これは禁則処理のデモです。行頭や行末に来てはいけない文字（句読点や括弧など）が適切に処理されます。「このように」括弧も正しく扱われます。',
                   style: VerticalTextStyle(
-                    baseStyle: const TextStyle(fontSize: 24, color: Colors.black87),
+                    baseStyle: GoogleFonts.notoSerifJp(
+                      fontSize: 24,
+                      color: Colors.black87,
+                      fontFeatures: const [
+                        FontFeature.enable('vert'),
+                      ],
+                    ),
                     characterSpacing: 4,
                     lineSpacing: 24,
                     kinsokuMethod: _kinsokuMethod,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:tategaki/tategaki.dart';
 
 class RubyDemo extends StatefulWidget {
@@ -53,9 +54,15 @@ class _RubyDemoState extends State<RubyDemo> {
                     const SizedBox(height: 24),
                     VerticalText(
                       '日本語',
-                      style: const VerticalTextStyle(
-                        baseStyle: TextStyle(fontSize: 40, color: Colors.black87),
-                        rubyStyle: TextStyle(fontSize: 20, color: Colors.blue),
+                      style: VerticalTextStyle(
+                        baseStyle: GoogleFonts.notoSerifJp(
+                          fontSize: 40,
+                          color: Colors.black87,
+                          fontFeatures: const [
+                            FontFeature.enable('vert'),
+                          ],
+                        ),
+                        rubyStyle: const TextStyle(fontSize: 20, color: Colors.blue),
                         characterSpacing: 6,
                       ),
                       ruby: const [
@@ -75,9 +82,15 @@ class _RubyDemoState extends State<RubyDemo> {
                     const SizedBox(height: 24),
                     VerticalText(
                       '漢字を読む',
-                      style: const VerticalTextStyle(
-                        baseStyle: TextStyle(fontSize: 36, color: Colors.black87),
-                        rubyStyle: TextStyle(fontSize: 18, color: Colors.blue),
+                      style: VerticalTextStyle(
+                        baseStyle: GoogleFonts.notoSerifJp(
+                          fontSize: 36,
+                          color: Colors.black87,
+                          fontFeatures: const [
+                            FontFeature.enable('vert'),
+                          ],
+                        ),
+                        rubyStyle: const TextStyle(fontSize: 18, color: Colors.blue),
                         characterSpacing: 6,
                       ),
                       ruby: const [
@@ -98,9 +111,15 @@ class _RubyDemoState extends State<RubyDemo> {
                     const SizedBox(height: 24),
                     VerticalText(
                       '薔薇',
-                      style: const VerticalTextStyle(
-                        baseStyle: TextStyle(fontSize: 40, color: Colors.black87),
-                        rubyStyle: TextStyle(fontSize: 20, color: Colors.blue),
+                      style: VerticalTextStyle(
+                        baseStyle: GoogleFonts.notoSerifJp(
+                          fontSize: 40,
+                          color: Colors.black87,
+                          fontFeatures: const [
+                            FontFeature.enable('vert'),
+                          ],
+                        ),
+                        rubyStyle: const TextStyle(fontSize: 20, color: Colors.blue),
                         characterSpacing: 6,
                       ),
                       ruby: const [

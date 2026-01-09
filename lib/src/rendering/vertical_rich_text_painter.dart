@@ -61,18 +61,28 @@ class VerticalRichTextPainter extends CustomPainter {
       final type = CharacterClassifier.classify(char);
       final fontSize = style.baseStyle.fontSize ?? 16.0;
 
-      // Calculate character size
+      // Use base font size for all characters
       double charFontSize = fontSize;
-      if (CharacterClassifier.isSmallKana(char)) {
-        charFontSize = fontSize * 0.7;
-      }
 
       // Calculate rotation
-      final rotation = RotationRules.getRotationAngle(
-        char,
-        type,
-        style.rotateLatinCharacters,
-      );
+      double rotation;
+      if (style.useVerticalGlyphs && type == CharacterType.yakumono) {
+        // When using vertical glyphs, some characters need rotation, others don't
+        // Characters that the font handles: ―（U+2015）、ー（U+30FC）、：
+        // Characters that need rotation: —（U+2014）、–（U+2013）、－（U+FF0D）、；
+        const needsRotationWithVert = {'—', '–', '－', '；'};
+        if (needsRotationWithVert.contains(char)) {
+          rotation = RotationRules.getRotationAngle(char, type, style.rotateLatinCharacters);
+        } else {
+          rotation = 0.0;
+        }
+      } else {
+        rotation = RotationRules.getRotationAngle(
+          char,
+          type,
+          style.rotateLatinCharacters,
+        );
+      }
 
       // Apply gyoto indent for opening brackets at line start
       double xOffset = 0.0;
@@ -85,6 +95,11 @@ class VerticalRichTextPainter extends CustomPainter {
       Offset position = Offset(currentX + xOffset, currentY);
       if (style.adjustYakumono) {
         position = YakumonoAdjuster.adjustPosition(char, position, style);
+      }
+
+      // Adjust number position (move right)
+      if (type == CharacterType.number) {
+        position = Offset(position.dx + fontSize * 0.2, position.dy);
       }
 
       // Create layout

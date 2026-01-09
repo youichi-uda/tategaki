@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'demos/basic_demo.dart';
 import 'demos/ruby_demo.dart';
 import 'demos/kenten_demo.dart';
@@ -7,6 +8,7 @@ import 'demos/kinsoku_demo.dart';
 import 'demos/yakumono_demo.dart';
 import 'demos/richtext_demo.dart';
 import 'demos/comprehensive_demo.dart';
+import 'demos/comprehensive_vert_demo.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,6 +24,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        textTheme: GoogleFonts.notoSerifJpTextTheme(),
       ),
       home: const TategakiDemoHome(),
     );
@@ -128,13 +131,24 @@ class TategakiDemoHome extends StatelessWidget {
           ),
           _buildDemoCard(
             context,
-            title: '総合デモ',
-            description: 'すべての機能を組み合わせた例',
+            title: '総合デモ（標準）',
+            description: '全機能 - 回転・位置調整あり',
             icon: Icons.auto_awesome,
             color: Colors.deepPurple,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ComprehensiveDemo()),
+            ),
+          ),
+          _buildDemoCard(
+            context,
+            title: '総合デモ（縦書きフィーチャー）',
+            description: 'OpenType vert機能 - 全機能有効',
+            icon: Icons.font_download,
+            color: Colors.indigo,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ComprehensiveVertDemo()),
             ),
           ),
         ],

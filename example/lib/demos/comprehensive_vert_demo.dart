@@ -1,22 +1,24 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tategaki/tategaki.dart';
+import 'comprehensive_demo.dart';
 
-class BasicDemo extends StatefulWidget {
-  const BasicDemo({super.key});
+class ComprehensiveVertDemo extends StatefulWidget {
+  const ComprehensiveVertDemo({super.key});
 
   @override
-  State<BasicDemo> createState() => _BasicDemoState();
+  State<ComprehensiveVertDemo> createState() => _ComprehensiveVertDemoState();
 }
 
-class _BasicDemoState extends State<BasicDemo> {
+class _ComprehensiveVertDemoState extends State<ComprehensiveVertDemo> {
   bool _showGrid = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('基本的な縦書き'),
+        title: const Text('総合デモ（縦書きフィーチャー有効）'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           TextButton.icon(
@@ -45,23 +47,33 @@ class _BasicDemoState extends State<BasicDemo> {
             child: Column(
               children: [
                 const Text(
-                  'シンプルな縦書きテキスト',
+                  'OpenType vert機能による縦書き\n約物調整は無効、長音記号の回転のみ有効',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
                 VerticalText(
-                  'これは縦書きテキストの例です。日本語の伝統的な文書では、このように縦書きで文字を配置します。',
+                  kComprehensiveDemoText,
                   style: VerticalTextStyle(
                     baseStyle: GoogleFonts.notoSerifJp(
-                      fontSize: 24,
+                      fontSize: 22,
                       color: Colors.black87,
                       fontFeatures: const [
-                        FontFeature.enable('vert'),
+                        FontFeature.enable('vert'), // Vertical writing glyph substitution
                       ],
                     ),
                     characterSpacing: 4,
-                    lineSpacing: 24,
+                    lineSpacing: 20,
+                    // OpenType vert機能に依存、約物調整は無効
+                    rotateLatinCharacters: true,
+                    adjustYakumono: false,
+                    enableKerning: false,
+                    enableHalfWidthYakumono: false,
+                    enableGyotoIndent: false,
+                    kinsokuMethod: KinsokuMethod.oikomi,
+                    useVerticalGlyphs: true, // フォントの縦書きグリフを使用（一部長音は回転）
                   ),
+                  autoTatechuyoko: true,
                   maxHeight: 400,
                   showGrid: _showGrid,
                 ),

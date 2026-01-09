@@ -19,19 +19,29 @@ class TatechuyokoLayout {
 /// Detector and layouter for tatechuyoko
 class TatechuyokoDetector {
   /// Automatically detect tatechuyoko patterns in text
-  /// 
+  ///
   /// Detects:
-  /// - 2-digit numbers (10-99)
+  /// - 2-digit numbers (10-99) only when not part of 3+ digit numbers
   /// - Year patterns (2024年)
   /// - Date patterns (12月)
   static List<Tatechuyoko> detectAuto(String text) {
     final detected = <Tatechuyoko>[];
-    
+
     for (int i = 0; i < text.length; i++) {
       // Check for 2-digit number
       if (i < text.length - 1 &&
           _isDigit(text[i]) &&
           _isDigit(text[i + 1])) {
+        // Make sure it's not part of a 3+ digit number
+        // Check if there's a digit before
+        if (i > 0 && _isDigit(text[i - 1])) {
+          continue; // Part of longer number, skip
+        }
+        // Check if there's a digit after the second digit
+        if (i + 2 < text.length && _isDigit(text[i + 2])) {
+          continue; // Part of longer number, skip
+        }
+
         detected.add(Tatechuyoko(startIndex: i, length: 2));
         i++; // Skip next character as it's part of this tatechuyoko
       }

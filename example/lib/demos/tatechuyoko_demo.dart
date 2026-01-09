@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:tategaki/tategaki.dart';
 
 class TatechuyokoDemo extends StatefulWidget {
@@ -53,8 +54,14 @@ class _TatechuyokoDemoState extends State<TatechuyokoDemo> {
                     const SizedBox(height: 24),
                     VerticalText(
                       '令和06年12月25日',
-                      style: const VerticalTextStyle(
-                        baseStyle: TextStyle(fontSize: 28, color: Colors.black87),
+                      style: VerticalTextStyle(
+                        baseStyle: GoogleFonts.notoSerifJp(
+                          fontSize: 28,
+                          color: Colors.black87,
+                          fontFeatures: const [
+                            FontFeature.enable('vert'),
+                          ],
+                        ),
                         characterSpacing: 6,
                       ),
                       autoTatechuyoko: false,
@@ -72,8 +79,14 @@ class _TatechuyokoDemoState extends State<TatechuyokoDemo> {
                     const SizedBox(height: 24),
                     VerticalText(
                       '令和06年12月25日',
-                      style: const VerticalTextStyle(
-                        baseStyle: TextStyle(fontSize: 28, color: Colors.black87),
+                      style: VerticalTextStyle(
+                        baseStyle: GoogleFonts.notoSerifJp(
+                          fontSize: 28,
+                          color: Colors.black87,
+                          fontFeatures: const [
+                            FontFeature.enable('vert'),
+                          ],
+                        ),
                         characterSpacing: 6,
                       ),
                       autoTatechuyoko: true,
@@ -91,8 +104,14 @@ class _TatechuyokoDemoState extends State<TatechuyokoDemo> {
                     const SizedBox(height: 24),
                     VerticalText(
                       '午後03時45分',
-                      style: const VerticalTextStyle(
-                        baseStyle: TextStyle(fontSize: 28, color: Colors.black87),
+                      style: VerticalTextStyle(
+                        baseStyle: GoogleFonts.notoSerifJp(
+                          fontSize: 28,
+                          color: Colors.black87,
+                          fontFeatures: const [
+                            FontFeature.enable('vert'),
+                          ],
+                        ),
                         characterSpacing: 6,
                       ),
                       autoTatechuyoko: true,

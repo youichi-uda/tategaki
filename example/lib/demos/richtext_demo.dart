@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:tategaki/tategaki.dart';
 
 class RichTextDemo extends StatefulWidget {
@@ -50,47 +51,62 @@ class _RichTextDemoState extends State<RichTextDemo> {
                 const SizedBox(height: 32),
                 VerticalRichText(
                   textSpan: VerticalTextSpan(
-                    style: const VerticalTextStyle(
-                      baseStyle: TextStyle(fontSize: 24, color: Colors.black87),
+                    style: VerticalTextStyle(
+                      baseStyle: GoogleFonts.notoSerifJp(
+                        fontSize: 24,
+                        color: Colors.black87,
+                        fontFeatures: const [
+                          FontFeature.enable('vert'),
+                        ],
+                      ),
                       characterSpacing: 4,
                     ),
                     children: [
-                      const VerticalTextSpan(text: 'これは'),
+                      VerticalTextSpan(text: 'これは'),
                       VerticalTextSpan(
                         text: '強調された',
-                        style: const VerticalTextStyle(
-                          baseStyle: TextStyle(
+                        style: VerticalTextStyle(
+                          baseStyle: GoogleFonts.notoSerifJp(
                             fontSize: 26,
                             color: Colors.red,
                             fontWeight: FontWeight.bold,
+                            fontFeatures: const [
+                              FontFeature.enable('vert'),
+                            ],
                           ),
                           characterSpacing: 4,
                         ),
                       ),
-                      const VerticalTextSpan(text: 'テキストと'),
+                      VerticalTextSpan(text: 'テキストと'),
                       VerticalTextSpan(
                         text: '青色の',
-                        style: const VerticalTextStyle(
-                          baseStyle: TextStyle(
+                        style: VerticalTextStyle(
+                          baseStyle: GoogleFonts.notoSerifJp(
                             fontSize: 24,
                             color: Colors.blue,
+                            fontFeatures: const [
+                              FontFeature.enable('vert'),
+                            ],
                           ),
                           characterSpacing: 4,
                         ),
                       ),
-                      const VerticalTextSpan(text: 'テキストを'),
+                      VerticalTextSpan(text: 'テキストを'),
                       VerticalTextSpan(
                         text: '組み合わせた',
-                        style: const VerticalTextStyle(
-                          baseStyle: TextStyle(
+                        style: VerticalTextStyle(
+                          baseStyle: GoogleFonts.notoSerifJp(
                             fontSize: 28,
                             color: Colors.green,
                             fontWeight: FontWeight.w500,
+                            fontFeatures: const [
+                              FontFeature.enable('vert'),
+                            ],
                           ),
                           characterSpacing: 4,
                         ),
                       ),
-                      const VerticalTextSpan(text: '例です。'),
+                      VerticalTextSpan(text: '例です。'),
                     ],
                   ),
                   maxHeight: 450,
