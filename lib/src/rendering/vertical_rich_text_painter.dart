@@ -97,9 +97,9 @@ class VerticalRichTextPainter extends CustomPainter {
         position = YakumonoAdjuster.adjustPosition(char, position, style);
       }
 
-      // Adjust number position (move right)
+      // Adjust number position (move right) - always apply regardless of line position
       if (type == CharacterType.number) {
-        position = Offset(position.dx + fontSize * 0.2, position.dy);
+        position = Offset(position.dx + fontSize * 0.3, position.dy);
       }
 
       // Create layout
@@ -205,6 +205,12 @@ class VerticalRichTextPainter extends CustomPainter {
                 );
               }
 
+              // Adjust number position (move right) - same as initial layout
+              final charType = CharacterClassifier.classify(layout.character);
+              if (charType == CharacterType.number) {
+                newPosition = Offset(newPosition.dx + layout.fontSize * 0.3, newPosition.dy);
+              }
+
               layouts[j] = _StyledCharacterLayout(
                 character: layout.character,
                 position: newPosition,
@@ -213,8 +219,22 @@ class VerticalRichTextPainter extends CustomPainter {
                 style: layout.style,
               );
 
-              double moveAdvance =
-                  layout.fontSize + layoutStyle.characterSpacing;
+              double moveAdvance;
+              if (layout.rotation != 0.0) {
+                // Rotated character: use actual text width for advance
+                final textPainter = TextPainter(
+                  text: TextSpan(
+                    text: layout.character,
+                    style: layout.style.baseStyle.copyWith(fontSize: layout.fontSize),
+                  ),
+                  textDirection: TextDirection.ltr,
+                );
+                textPainter.layout();
+                moveAdvance = textPainter.width + layoutStyle.characterSpacing;
+              } else {
+                // Non-rotated character: use fontSize
+                moveAdvance = layout.fontSize + layoutStyle.characterSpacing;
+              }
 
               if (layoutStyle.enableHalfWidthYakumono) {
                 final yakumonoWidth =

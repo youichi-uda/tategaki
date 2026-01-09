@@ -76,9 +76,6 @@ class _KentenDemoState extends State<KentenDemo> {
             baseStyle: GoogleFonts.notoSerifJp(
               fontSize: 32,
               color: Colors.black87,
-              fontFeatures: const [
-                FontFeature.enable('vert'),
-              ],
             ),
             characterSpacing: 8,
           ),

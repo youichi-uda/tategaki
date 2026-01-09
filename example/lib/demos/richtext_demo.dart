@@ -55,9 +55,6 @@ class _RichTextDemoState extends State<RichTextDemo> {
                       baseStyle: GoogleFonts.notoSerifJp(
                         fontSize: 24,
                         color: Colors.black87,
-                        fontFeatures: const [
-                          FontFeature.enable('vert'),
-                        ],
                       ),
                       characterSpacing: 4,
                     ),
@@ -70,9 +67,6 @@ class _RichTextDemoState extends State<RichTextDemo> {
                             fontSize: 26,
                             color: Colors.red,
                             fontWeight: FontWeight.bold,
-                            fontFeatures: const [
-                              FontFeature.enable('vert'),
-                            ],
                           ),
                           characterSpacing: 4,
                         ),
@@ -84,9 +78,6 @@ class _RichTextDemoState extends State<RichTextDemo> {
                           baseStyle: GoogleFonts.notoSerifJp(
                             fontSize: 24,
                             color: Colors.blue,
-                            fontFeatures: const [
-                              FontFeature.enable('vert'),
-                            ],
                           ),
                           characterSpacing: 4,
                         ),
@@ -99,9 +90,6 @@ class _RichTextDemoState extends State<RichTextDemo> {
                             fontSize: 28,
                             color: Colors.green,
                             fontWeight: FontWeight.w500,
-                            fontFeatures: const [
-                              FontFeature.enable('vert'),
-                            ],
                           ),
                           characterSpacing: 4,
                         ),

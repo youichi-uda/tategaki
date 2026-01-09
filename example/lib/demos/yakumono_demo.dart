@@ -58,9 +58,6 @@ class _YakumonoDemoState extends State<YakumonoDemo> {
                         baseStyle: GoogleFonts.notoSerifJp(
                           fontSize: 24,
                           color: Colors.black87,
-                          fontFeatures: const [
-                            FontFeature.enable('vert'),
-                          ],
                         ),
                         characterSpacing: 4,
                         lineSpacing: 24,
@@ -85,9 +82,6 @@ class _YakumonoDemoState extends State<YakumonoDemo> {
                         baseStyle: GoogleFonts.notoSerifJp(
                           fontSize: 24,
                           color: Colors.black87,
-                          fontFeatures: const [
-                            FontFeature.enable('vert'),
-                          ],
                         ),
                         characterSpacing: 4,
                         lineSpacing: 24,

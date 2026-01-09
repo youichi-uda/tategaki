@@ -58,9 +58,6 @@ class _RubyDemoState extends State<RubyDemo> {
                         baseStyle: GoogleFonts.notoSerifJp(
                           fontSize: 40,
                           color: Colors.black87,
-                          fontFeatures: const [
-                            FontFeature.enable('vert'),
-                          ],
                         ),
                         rubyStyle: const TextStyle(fontSize: 20, color: Colors.blue),
                         characterSpacing: 6,
@@ -86,9 +83,6 @@ class _RubyDemoState extends State<RubyDemo> {
                         baseStyle: GoogleFonts.notoSerifJp(
                           fontSize: 36,
                           color: Colors.black87,
-                          fontFeatures: const [
-                            FontFeature.enable('vert'),
-                          ],
                         ),
                         rubyStyle: const TextStyle(fontSize: 18, color: Colors.blue),
                         characterSpacing: 6,
@@ -115,9 +109,6 @@ class _RubyDemoState extends State<RubyDemo> {
                         baseStyle: GoogleFonts.notoSerifJp(
                           fontSize: 40,
                           color: Colors.black87,
-                          fontFeatures: const [
-                            FontFeature.enable('vert'),
-                          ],
                         ),
                         rubyStyle: const TextStyle(fontSize: 20, color: Colors.blue),
                         characterSpacing: 6,

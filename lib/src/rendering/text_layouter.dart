@@ -141,9 +141,9 @@ class TextLayouter {
         position = YakumonoAdjuster.adjustPosition(char, position, style);
       }
 
-      // Adjust number position (move right)
+      // Adjust number position (move right) - always apply regardless of line position
       if (type == CharacterType.number) {
-        position = Offset(position.dx + fontSize * 0.2, position.dy);
+        position = Offset(position.dx + fontSize * 0.3, position.dy);
       }
 
       // Create layout
@@ -257,6 +257,11 @@ class TextLayouter {
                 newPosition = YakumonoAdjuster.adjustPosition(layout.character, newPosition, style);
               }
 
+              // Adjust number position (move right) - same as initial layout
+              if (layout.type == CharacterType.number) {
+                newPosition = Offset(newPosition.dx + fontSize * 0.3, newPosition.dy);
+              }
+
               layouts[j] = CharacterLayout(
                 character: layout.character,
                 position: newPosition,
@@ -267,7 +272,22 @@ class TextLayouter {
               );
 
               // Advance for next character
-              double moveAdvance = layout.fontSize + style.characterSpacing;
+              double moveAdvance;
+              if (layout.rotation != 0.0) {
+                // Rotated character: use actual text width for advance
+                final textPainter = TextPainter(
+                  text: TextSpan(
+                    text: layout.character,
+                    style: TextStyle(fontSize: layout.fontSize),
+                  ),
+                  textDirection: TextDirection.ltr,
+                );
+                textPainter.layout();
+                moveAdvance = textPainter.width + style.characterSpacing;
+              } else {
+                // Non-rotated character: use fontSize
+                moveAdvance = layout.fontSize + style.characterSpacing;
+              }
 
               // Apply half-width yakumono adjustment
               if (style.enableHalfWidthYakumono) {
@@ -314,6 +334,11 @@ class TextLayouter {
               newPosition = YakumonoAdjuster.adjustPosition(char, newPosition, style);
             }
 
+            // Adjust number position (move right) - same as initial layout
+            if (type == CharacterType.number) {
+              newPosition = Offset(newPosition.dx + fontSize * 0.3, newPosition.dy);
+            }
+
             layouts[layouts.length - 1] = CharacterLayout(
               character: char,
               position: newPosition,
@@ -324,7 +349,23 @@ class TextLayouter {
             );
 
             // Recalculate advance for current character
-            double moveAdvance = fontSize + style.characterSpacing;
+            double moveAdvance;
+            if (rotation != 0.0) {
+              // Rotated character: use actual text width for advance
+              final textPainter = TextPainter(
+                text: TextSpan(
+                  text: char,
+                  style: TextStyle(fontSize: charFontSize),
+                ),
+                textDirection: TextDirection.ltr,
+              );
+              textPainter.layout();
+              moveAdvance = textPainter.width + style.characterSpacing;
+            } else {
+              // Non-rotated character: use fontSize
+              moveAdvance = fontSize + style.characterSpacing;
+            }
+
             if (style.enableHalfWidthYakumono) {
               final yakumonoWidth = YakumonoAdjuster.getYakumonoWidth(char);
               if (yakumonoWidth < 1.0) {

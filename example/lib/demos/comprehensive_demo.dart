@@ -11,7 +11,9 @@ const kComprehensiveDemoText = '昭和（1926年）12月25日―東京。「美�
     'これらの文字種を適切に配置することで、読みやすく美しい縦書き文書が完成する。';
 
 class ComprehensiveDemo extends StatefulWidget {
-  const ComprehensiveDemo({super.key});
+  final String initialFont;
+
+  const ComprehensiveDemo({super.key, this.initialFont = 'Noto Serif JP'});
 
   @override
   State<ComprehensiveDemo> createState() => _ComprehensiveDemoState();
@@ -19,6 +21,29 @@ class ComprehensiveDemo extends StatefulWidget {
 
 class _ComprehensiveDemoState extends State<ComprehensiveDemo> {
   bool _showGrid = false;
+  late String _selectedFont;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedFont = widget.initialFont;
+  }
+
+  TextStyle _getFontStyle() {
+    switch (_selectedFont) {
+      case 'Noto Sans JP':
+        return GoogleFonts.notoSansJp(fontSize: 22, color: Colors.black87);
+      case 'Shippori Mincho':
+        return GoogleFonts.shipporiMincho(fontSize: 22, color: Colors.black87);
+      case 'Klee One':
+        return GoogleFonts.kleeOne(fontSize: 22, color: Colors.black87);
+      case 'Zen Old Mincho':
+        return GoogleFonts.zenOldMincho(fontSize: 22, color: Colors.black87);
+      case 'Noto Serif JP':
+      default:
+        return GoogleFonts.notoSerifJp(fontSize: 22, color: Colors.black87);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +52,27 @@ class _ComprehensiveDemoState extends State<ComprehensiveDemo> {
         title: const Text('総合デモ'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
+          DropdownButton<String>(
+            value: _selectedFont,
+            dropdownColor: Theme.of(context).colorScheme.inversePrimary,
+            style: const TextStyle(color: Colors.white),
+            underline: Container(),
+            items: const [
+              DropdownMenuItem(value: 'Noto Serif JP', child: Text('明朝 (Serif)')),
+              DropdownMenuItem(value: 'Noto Sans JP', child: Text('ゴシック (Sans)')),
+              DropdownMenuItem(value: 'Shippori Mincho', child: Text('しっぽり明朝')),
+              DropdownMenuItem(value: 'Klee One', child: Text('クレー')),
+              DropdownMenuItem(value: 'Zen Old Mincho', child: Text('禅明朝')),
+            ],
+            onChanged: (value) {
+              if (value != null) {
+                setState(() {
+                  _selectedFont = value;
+                });
+              }
+            },
+          ),
+          const SizedBox(width: 8),
           TextButton.icon(
             onPressed: () {
               setState(() {
@@ -60,10 +106,7 @@ class _ComprehensiveDemoState extends State<ComprehensiveDemo> {
                 VerticalText(
                   kComprehensiveDemoText,
                   style: VerticalTextStyle(
-                    baseStyle: GoogleFonts.notoSerifJp(
-                      fontSize: 22,
-                      color: Colors.black87,
-                    ),
+                    baseStyle: _getFontStyle(),
                     characterSpacing: 4,
                     lineSpacing: 20,
                     enableKerning: true,

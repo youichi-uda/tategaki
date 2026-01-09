@@ -58,9 +58,6 @@ class _TatechuyokoDemoState extends State<TatechuyokoDemo> {
                         baseStyle: GoogleFonts.notoSerifJp(
                           fontSize: 28,
                           color: Colors.black87,
-                          fontFeatures: const [
-                            FontFeature.enable('vert'),
-                          ],
                         ),
                         characterSpacing: 6,
                       ),
@@ -83,9 +80,6 @@ class _TatechuyokoDemoState extends State<TatechuyokoDemo> {
                         baseStyle: GoogleFonts.notoSerifJp(
                           fontSize: 28,
                           color: Colors.black87,
-                          fontFeatures: const [
-                            FontFeature.enable('vert'),
-                          ],
                         ),
                         characterSpacing: 6,
                       ),
@@ -108,9 +102,6 @@ class _TatechuyokoDemoState extends State<TatechuyokoDemo> {
                         baseStyle: GoogleFonts.notoSerifJp(
                           fontSize: 28,
                           color: Colors.black87,
-                          fontFeatures: const [
-                            FontFeature.enable('vert'),
-                          ],
                         ),
                         characterSpacing: 6,
                       ),

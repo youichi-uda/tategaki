@@ -14,8 +14,43 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  static _MyAppState? of(BuildContext context) {
+    return context.findAncestorStateOfType<_MyAppState>();
+  }
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  String _selectedFont = 'Noto Serif JP';
+
+  void setFont(String fontName) {
+    setState(() {
+      _selectedFont = fontName;
+    });
+  }
+
+  TextTheme _getTextTheme() {
+    switch (_selectedFont) {
+      case 'Noto Sans JP':
+        return GoogleFonts.notoSansJpTextTheme();
+      case 'Shippori Mincho':
+        return GoogleFonts.shipporiMinchoTextTheme();
+      case 'Klee One':
+        return GoogleFonts.kleeOneTextTheme();
+      case 'Zen Old Mincho':
+        return GoogleFonts.zenOldMinchoTextTheme();
+      case 'Noto Serif JP':
+      default:
+        return GoogleFonts.notoSerifJpTextTheme();
+    }
+  }
+
+  String get selectedFont => _selectedFont;
 
   @override
   Widget build(BuildContext context) {
@@ -24,22 +59,55 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
-        textTheme: GoogleFonts.notoSerifJpTextTheme(),
+        textTheme: _getTextTheme(),
       ),
       home: const TategakiDemoHome(),
     );
   }
 }
 
-class TategakiDemoHome extends StatelessWidget {
+class TategakiDemoHome extends StatefulWidget {
   const TategakiDemoHome({super.key});
 
   @override
+  State<TategakiDemoHome> createState() => _TategakiDemoHomeState();
+}
+
+class _TategakiDemoHomeState extends State<TategakiDemoHome> {
+  @override
   Widget build(BuildContext context) {
+    final appState = MyApp.of(context);
+    final selectedFont = appState?.selectedFont ?? 'Noto Serif JP';
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('Tategaki デモ'),
+        actions: [
+          const Text(
+            'フォント: ',
+            style: TextStyle(color: Colors.white),
+          ),
+          DropdownButton<String>(
+            value: selectedFont,
+            dropdownColor: Theme.of(context).colorScheme.inversePrimary,
+            style: const TextStyle(color: Colors.white),
+            underline: Container(),
+            items: const [
+              DropdownMenuItem(value: 'Noto Serif JP', child: Text('明朝')),
+              DropdownMenuItem(value: 'Noto Sans JP', child: Text('ゴシック')),
+              DropdownMenuItem(value: 'Shippori Mincho', child: Text('しっぽり')),
+              DropdownMenuItem(value: 'Klee One', child: Text('クレー')),
+              DropdownMenuItem(value: 'Zen Old Mincho', child: Text('禅明朝')),
+            ],
+            onChanged: (value) {
+              if (value != null) {
+                appState?.setFont(value);
+              }
+            },
+          ),
+          const SizedBox(width: 16),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -137,7 +205,9 @@ class TategakiDemoHome extends StatelessWidget {
             color: Colors.deepPurple,
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ComprehensiveDemo()),
+              MaterialPageRoute(
+                builder: (context) => ComprehensiveDemo(initialFont: selectedFont),
+              ),
             ),
           ),
           _buildDemoCard(
@@ -148,7 +218,9 @@ class TategakiDemoHome extends StatelessWidget {
             color: Colors.indigo,
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ComprehensiveVertDemo()),
+              MaterialPageRoute(
+                builder: (context) => ComprehensiveVertDemo(initialFont: selectedFont),
+              ),
             ),
           ),
         ],
