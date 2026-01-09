@@ -22,6 +22,7 @@ class TatechuyokoDetector {
   ///
   /// Detects:
   /// - 2-digit numbers (10-99) only when not part of 3+ digit numbers
+  /// - 2-letter alphabets (AB, CD, etc.) only when not part of 3+ letter sequences
   /// - Year patterns (2024年)
   /// - Date patterns (12月)
   static List<Tatechuyoko> detectAuto(String text) {
@@ -40,6 +41,25 @@ class TatechuyokoDetector {
         // Check if there's a digit after the second digit
         if (i + 2 < text.length && _isDigit(text[i + 2])) {
           continue; // Part of longer number, skip
+        }
+
+        detected.add(Tatechuyoko(startIndex: i, length: 2));
+        i++; // Skip next character as it's part of this tatechuyoko
+        continue;
+      }
+
+      // Check for 2-letter alphabet
+      if (i < text.length - 1 &&
+          _isAlphabet(text[i]) &&
+          _isAlphabet(text[i + 1])) {
+        // Make sure it's not part of a 3+ letter sequence
+        // Check if there's an alphabet before
+        if (i > 0 && _isAlphabet(text[i - 1])) {
+          continue; // Part of longer sequence, skip
+        }
+        // Check if there's an alphabet after the second letter
+        if (i + 2 < text.length && _isAlphabet(text[i + 2])) {
+          continue; // Part of longer sequence, skip
         }
 
         detected.add(Tatechuyoko(startIndex: i, length: 2));
@@ -75,5 +95,13 @@ class TatechuyokoDetector {
     final code = char.codeUnitAt(0);
     return (code >= 0x0030 && code <= 0x0039) || // 0-9
            (code >= 0xFF10 && code <= 0xFF19);   // ０-９ (full-width)
+  }
+
+  static bool _isAlphabet(String char) {
+    final code = char.codeUnitAt(0);
+    return (code >= 0x0041 && code <= 0x005A) || // A-Z
+           (code >= 0x0061 && code <= 0x007A) || // a-z
+           (code >= 0xFF21 && code <= 0xFF3A) || // Ａ-Ｚ (full-width)
+           (code >= 0xFF41 && code <= 0xFF5A);   // ａ-ｚ (full-width)
   }
 }
