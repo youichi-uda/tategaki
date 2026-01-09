@@ -60,33 +60,42 @@ class _WarichuDemoState extends State<WarichuDemo> {
                 ),
                 const SizedBox(width: 40),
                 _buildWarichuExample(
+                  '説明文の割注',
+                  TextSpanV(
+                    children: [
+                      TextSpanV(text: '縦書き（'),
+                      WarichuSpan(
+                        text: 'たてがき',
+                        splitIndex: 3,
+                      ),
+                      TextSpanV(text: '）とは何か'),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 40),
+                _buildWarichuExample(
                   '複数の割注',
                   TextSpanV(
                     children: [
-                      RubySpan(text: '東京', ruby: 'とうきょう'),
-                      TextSpanV(text: 'と'),
-                      RubySpan(text: '大阪', ruby: 'おおさか'),
-                      TextSpanV(text: 'は日本の大都市である。'),
+                      TextSpanV(text: '東京（'),
+                      WarichuSpan(text: 'とうきょう', splitIndex: 3),
+                      TextSpanV(text: '）と大阪（'),
+                      WarichuSpan(text: 'おおさか', splitIndex: 3),
+                      TextSpanV(text: '）'),
                     ],
                   ),
                 ),
                 const SizedBox(width: 40),
                 _buildWarichuExample(
-                  '読み仮名',
+                  '長めの補足',
                   TextSpanV(
                     children: [
-                      RubySpan(text: '夏目漱石', ruby: 'なつめそうせき'),
-                      TextSpanV(text: 'は明治時代の文豪である。'),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 40),
-                _buildWarichuExample(
-                  '長い注釈',
-                  TextSpanV(
-                    children: [
-                      RubySpan(text: '芥川龍之介', ruby: 'あくたがわりゅうのすけ'),
-                      TextSpanV(text: 'の代表作。'),
+                      TextSpanV(text: 'AI（'),
+                      WarichuSpan(
+                        text: 'ArtificialIntelligence',
+                        splitIndex: 11,
+                      ),
+                      TextSpanV(text: '）技術'),
                     ],
                   ),
                 ),
