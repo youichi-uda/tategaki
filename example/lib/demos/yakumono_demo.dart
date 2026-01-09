@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:tategaki/tategaki.dart';
 
-class YakumonoDemo extends StatelessWidget {
+class YakumonoDemo extends StatefulWidget {
   const YakumonoDemo({super.key});
+
+  @override
+  State<YakumonoDemo> createState() => _YakumonoDemoState();
+}
+
+class _YakumonoDemoState extends State<YakumonoDemo> {
+  bool _showGrid = false;
 
   @override
   Widget build(BuildContext context) {
@@ -10,6 +17,23 @@ class YakumonoDemo extends StatelessWidget {
       appBar: AppBar(
         title: const Text('約物調整'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          TextButton.icon(
+            onPressed: () {
+              setState(() {
+                _showGrid = !_showGrid;
+              });
+            },
+            icon: Icon(
+              _showGrid ? Icons.grid_off : Icons.grid_on,
+              color: Colors.white,
+            ),
+            label: Text(
+              _showGrid ? 'グリッドOFF' : 'グリッドON',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -36,6 +60,7 @@ class YakumonoDemo extends StatelessWidget {
                         adjustYakumono: false,
                       ),
                       maxHeight: 400,
+                      showGrid: _showGrid,
                     ),
                   ],
                 ),
@@ -57,6 +82,7 @@ class YakumonoDemo extends StatelessWidget {
                         adjustYakumono: true,
                       ),
                       maxHeight: 400,
+                      showGrid: _showGrid,
                     ),
                   ],
                 ),

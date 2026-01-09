@@ -17,6 +17,7 @@ class VerticalTextPainter extends CustomPainter {
   final bool autoTatechuyoko;
   final TextLayouter layouter;
   final double maxHeight;
+  final bool showGrid;
 
   VerticalTextPainter({
     required this.text,
@@ -27,6 +28,7 @@ class VerticalTextPainter extends CustomPainter {
     this.autoTatechuyoko = false,
     TextLayouter? layouter,
     this.maxHeight = 0,
+    this.showGrid = false,
   }) : layouter = layouter ?? TextLayouter();
 
   @override
@@ -76,6 +78,81 @@ class VerticalTextPainter extends CustomPainter {
     if (kenten != null && kenten!.isNotEmpty) {
       _drawKenten(canvas, characterLayouts);
     }
+
+    // Draw grid if enabled
+    if (showGrid) {
+      _drawGrid(canvas, characterLayouts, size);
+    }
+  }
+
+  void _drawGrid(Canvas canvas, List<CharacterLayout> characterLayouts, Size size) {
+    final baseFontSize = style.baseStyle.fontSize ?? 16.0;
+
+    final characterPaint = Paint()
+      ..color = Colors.blue.withOpacity(0.3)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    final spacingPaint = Paint()
+      ..color = Colors.orange.withOpacity(0.2)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    final centerLinePaint = Paint()
+      ..color = Colors.red.withOpacity(0.3)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0
+      ..strokeCap = StrokeCap.round;
+
+    for (int i = 0; i < characterLayouts.length; i++) {
+      final charLayout = characterLayouts[i];
+      final x = charLayout.position.dx;
+      final y = charLayout.position.dy;
+
+      // Use fontSize as the cell size (virtual body)
+      // This is consistent for all characters regardless of actual glyph size
+      final cellWidth = baseFontSize;
+      final cellHeight = baseFontSize;
+
+      // Draw character cell (fontSize × fontSize square)
+      final characterRect = Rect.fromLTWH(
+        x - cellWidth / 2,
+        y,
+        cellWidth,
+        cellHeight,
+      );
+      canvas.drawRect(characterRect, characterPaint);
+
+      // Draw horizontal center line (at cell center)
+      final cellCenterY = y + cellHeight / 2;
+      canvas.drawLine(
+        Offset(x - cellWidth / 2, cellCenterY),
+        Offset(x + cellWidth / 2, cellCenterY),
+        centerLinePaint,
+      );
+
+      // Draw vertical center line for character cell
+      canvas.drawLine(
+        Offset(x, y),
+        Offset(x, y + cellHeight),
+        centerLinePaint,
+      );
+
+      // Draw spacing area (characterSpacing) if not the last character
+      if (i < characterLayouts.length - 1) {
+        final spacingHeight = style.characterSpacing;
+
+        if (spacingHeight > 0) {
+          final spacingRect = Rect.fromLTWH(
+            x - cellWidth / 2,
+            y + cellHeight,
+            cellWidth,
+            spacingHeight,
+          );
+          canvas.drawRect(spacingRect, spacingPaint);
+        }
+      }
+    }
   }
 
   void _drawCharacter(Canvas canvas, CharacterLayout layout) {
@@ -98,6 +175,9 @@ class VerticalTextPainter extends CustomPainter {
     // Calculate offset based on rotation
     double offsetX, offsetY;
 
+    // Get the virtual cell size (fontSize)
+    final fontSize = style.baseStyle.fontSize ?? 16.0;
+
     if (layout.rotation != 0.0) {
       // For rotated characters (90 degrees clockwise)
       // Rotate first
@@ -111,13 +191,13 @@ class VerticalTextPainter extends CustomPainter {
 
       // Center the text in the rotated coordinate system
       offsetX = -(textPainter.height / 2);
-      offsetY = 0.0;
+      offsetY = -(textPainter.width / 2);
     } else {
       // For non-rotated characters
-      // Center horizontally (X axis)
+      // Center horizontally (X axis) within the virtual cell
       offsetX = -(textPainter.width / 2);
-      // Keep Y at 0 for baseline alignment
-      offsetY = 0.0;
+      // Center vertically (Y axis) within the virtual cell (fontSize)
+      offsetY = (fontSize - textPainter.height) / 2;
     }
 
     // Draw the character
@@ -165,6 +245,7 @@ class VerticalTextPainter extends CustomPainter {
           i < kentenItem.endIndex && i < characterLayouts.length;
           i++) {
         final charLayout = characterLayouts[i];
+
         final kentenPos = KentenRenderer.getKentenPosition(
           charLayout.position,
           fontSize,
@@ -237,6 +318,7 @@ class VerticalTextPainter extends CustomPainter {
         oldDelegate.kenten != kenten ||
         oldDelegate.tatechuyoko != tatechuyoko ||
         oldDelegate.autoTatechuyoko != autoTatechuyoko ||
-        oldDelegate.maxHeight != maxHeight;
+        oldDelegate.maxHeight != maxHeight ||
+        oldDelegate.showGrid != showGrid;
   }
 }

@@ -12,10 +12,12 @@ import 'text_layouter.dart';
 class VerticalRichTextPainter extends CustomPainter {
   final VerticalTextSpan textSpan;
   final double maxHeight;
+  final bool showGrid;
 
   VerticalRichTextPainter({
     required this.textSpan,
     this.maxHeight = 0,
+    this.showGrid = false,
   });
 
   @override
@@ -26,6 +28,11 @@ class VerticalRichTextPainter extends CustomPainter {
 
     // Layout each character with its specific style
     final layouts = _layoutStyledCharacters(styledChars, size);
+
+    // Draw grid if enabled
+    if (showGrid) {
+      _drawGrid(canvas, layouts);
+    }
 
     // Draw each character
     for (final layout in layouts) {
@@ -215,6 +222,76 @@ class VerticalRichTextPainter extends CustomPainter {
     return layouts;
   }
 
+  void _drawGrid(Canvas canvas, List<_StyledCharacterLayout> layouts) {
+    final characterPaint = Paint()
+      ..color = Colors.blue.withOpacity(0.3)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    final spacingPaint = Paint()
+      ..color = Colors.orange.withOpacity(0.2)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    final centerLinePaint = Paint()
+      ..color = Colors.red.withOpacity(0.3)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0
+      ..strokeCap = StrokeCap.round;
+
+    for (int i = 0; i < layouts.length; i++) {
+      final layout = layouts[i];
+      final x = layout.position.dx;
+      final y = layout.position.dy;
+      final fontSize = layout.style.baseStyle.fontSize ?? 16.0;
+      final characterSpacing = layout.style.characterSpacing;
+
+      // Use fontSize as the cell size (virtual body)
+      // This is consistent for all characters regardless of actual glyph size
+      final cellWidth = fontSize;
+      final cellHeight = fontSize;
+
+      // Draw character cell (fontSize × fontSize square)
+      final characterRect = Rect.fromLTWH(
+        x - cellWidth / 2,
+        y,
+        cellWidth,
+        cellHeight,
+      );
+      canvas.drawRect(characterRect, characterPaint);
+
+      // Draw horizontal center line (at cell center)
+      final cellCenterY = y + cellHeight / 2;
+      canvas.drawLine(
+        Offset(x - cellWidth / 2, cellCenterY),
+        Offset(x + cellWidth / 2, cellCenterY),
+        centerLinePaint,
+      );
+
+      // Draw vertical center line for character cell
+      canvas.drawLine(
+        Offset(x, y),
+        Offset(x, y + cellHeight),
+        centerLinePaint,
+      );
+
+      // Draw spacing area (characterSpacing) if not the last character
+      if (i < layouts.length - 1) {
+        final spacingHeight = characterSpacing;
+
+        if (spacingHeight > 0) {
+          final spacingRect = Rect.fromLTWH(
+            x - cellWidth / 2,
+            y + cellHeight,
+            cellWidth,
+            spacingHeight,
+          );
+          canvas.drawRect(spacingRect, spacingPaint);
+        }
+      }
+    }
+  }
+
   void _drawCharacter(Canvas canvas, _StyledCharacterLayout layout) {
     canvas.save();
 
@@ -232,20 +309,24 @@ class VerticalRichTextPainter extends CustomPainter {
 
     textPainter.layout();
 
+    // Get the virtual cell size (fontSize)
+    final fontSize = layout.style.baseStyle.fontSize ?? 16.0;
+
     // Calculate offset based on rotation
     double offsetX, offsetY;
 
     if (layout.rotation != 0.0) {
       // For rotated characters (90 degrees clockwise)
       canvas.rotate(layout.rotation);
+      // Center in the rotated coordinate system
       offsetX = -(textPainter.height / 2);
-      offsetY = 0.0;
+      offsetY = -(textPainter.width / 2);
     } else {
       // For non-rotated characters
-      // Center horizontally (X axis)
+      // Center horizontally (X axis) within the virtual cell
       offsetX = -(textPainter.width / 2);
-      // Keep Y at 0 for baseline alignment
-      offsetY = 0.0;
+      // Center vertically (Y axis) within the virtual cell (fontSize)
+      offsetY = (fontSize - textPainter.height) / 2;
     }
 
     textPainter.paint(canvas, Offset(offsetX, offsetY));
@@ -256,7 +337,8 @@ class VerticalRichTextPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant VerticalRichTextPainter oldDelegate) {
     return oldDelegate.textSpan != textSpan ||
-        oldDelegate.maxHeight != maxHeight;
+        oldDelegate.maxHeight != maxHeight ||
+        oldDelegate.showGrid != showGrid;
   }
 }
 

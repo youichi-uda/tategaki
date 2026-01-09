@@ -16,10 +16,14 @@ class VerticalRichText extends StatelessWidget {
   /// If 0 or not specified, text will not wrap
   final double maxHeight;
 
+  /// Show grid overlay for debugging character positions
+  final bool showGrid;
+
   const VerticalRichText({
     super.key,
     required this.textSpan,
     this.maxHeight = 0,
+    this.showGrid = false,
   });
 
   @override
@@ -28,6 +32,7 @@ class VerticalRichText extends StatelessWidget {
       painter: VerticalRichTextPainter(
         textSpan: textSpan,
         maxHeight: maxHeight,
+        showGrid: showGrid,
       ),
       size: _calculateSize(),
     );

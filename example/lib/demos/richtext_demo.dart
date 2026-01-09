@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:tategaki/tategaki.dart';
 
-class RichTextDemo extends StatelessWidget {
+class RichTextDemo extends StatefulWidget {
   const RichTextDemo({super.key});
+
+  @override
+  State<RichTextDemo> createState() => _RichTextDemoState();
+}
+
+class _RichTextDemoState extends State<RichTextDemo> {
+  bool _showGrid = false;
 
   @override
   Widget build(BuildContext context) {
@@ -10,6 +17,23 @@ class RichTextDemo extends StatelessWidget {
       appBar: AppBar(
         title: const Text('RichText（複数スタイル）'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          TextButton.icon(
+            onPressed: () {
+              setState(() {
+                _showGrid = !_showGrid;
+              });
+            },
+            icon: Icon(
+              _showGrid ? Icons.grid_off : Icons.grid_on,
+              color: Colors.white,
+            ),
+            label: Text(
+              _showGrid ? 'グリッドOFF' : 'グリッドON',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -70,6 +94,7 @@ class RichTextDemo extends StatelessWidget {
                     ],
                   ),
                   maxHeight: 450,
+                  showGrid: _showGrid,
                 ),
               ],
             ),

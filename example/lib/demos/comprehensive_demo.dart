@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:tategaki/tategaki.dart';
 
-class ComprehensiveDemo extends StatelessWidget {
+class ComprehensiveDemo extends StatefulWidget {
   const ComprehensiveDemo({super.key});
+
+  @override
+  State<ComprehensiveDemo> createState() => _ComprehensiveDemoState();
+}
+
+class _ComprehensiveDemoState extends State<ComprehensiveDemo> {
+  bool _showGrid = false;
 
   @override
   Widget build(BuildContext context) {
@@ -10,6 +17,23 @@ class ComprehensiveDemo extends StatelessWidget {
       appBar: AppBar(
         title: const Text('総合デモ'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          TextButton.icon(
+            onPressed: () {
+              setState(() {
+                _showGrid = !_showGrid;
+              });
+            },
+            icon: Icon(
+              _showGrid ? Icons.grid_off : Icons.grid_on,
+              color: Colors.white,
+            ),
+            label: Text(
+              _showGrid ? 'グリッドOFF' : 'グリッドON',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -38,6 +62,7 @@ class ComprehensiveDemo extends StatelessWidget {
                   ),
                   autoTatechuyoko: true,
                   maxHeight: 400,
+                  showGrid: _showGrid,
                 ),
               ],
             ),

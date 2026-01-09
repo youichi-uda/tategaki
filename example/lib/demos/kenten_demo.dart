@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:tategaki/tategaki.dart';
 
-class KentenDemo extends StatelessWidget {
+class KentenDemo extends StatefulWidget {
   const KentenDemo({super.key});
+
+  @override
+  State<KentenDemo> createState() => _KentenDemoState();
+}
+
+class _KentenDemoState extends State<KentenDemo> {
+  bool _showGrid = false;
 
   @override
   Widget build(BuildContext context) {
@@ -10,6 +17,23 @@ class KentenDemo extends StatelessWidget {
       appBar: AppBar(
         title: const Text('圏点（強調マーク）'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          TextButton.icon(
+            onPressed: () {
+              setState(() {
+                _showGrid = !_showGrid;
+              });
+            },
+            icon: Icon(
+              _showGrid ? Icons.grid_off : Icons.grid_on,
+              color: Colors.white,
+            ),
+            label: Text(
+              _showGrid ? 'グリッドOFF' : 'グリッドON',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -54,6 +78,7 @@ class KentenDemo extends StatelessWidget {
           kenten: [
             Kenten(startIndex: 3, length: 2, style: style),
           ],
+          showGrid: _showGrid,
         ),
       ],
     );

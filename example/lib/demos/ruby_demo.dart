@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:tategaki/tategaki.dart';
 
-class RubyDemo extends StatelessWidget {
+class RubyDemo extends StatefulWidget {
   const RubyDemo({super.key});
+
+  @override
+  State<RubyDemo> createState() => _RubyDemoState();
+}
+
+class _RubyDemoState extends State<RubyDemo> {
+  bool _showGrid = false;
 
   @override
   Widget build(BuildContext context) {
@@ -10,6 +17,23 @@ class RubyDemo extends StatelessWidget {
       appBar: AppBar(
         title: const Text('ルビ（振り仮名）'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          TextButton.icon(
+            onPressed: () {
+              setState(() {
+                _showGrid = !_showGrid;
+              });
+            },
+            icon: Icon(
+              _showGrid ? Icons.grid_off : Icons.grid_on,
+              color: Colors.white,
+            ),
+            label: Text(
+              _showGrid ? 'グリッドOFF' : 'グリッドON',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -37,6 +61,7 @@ class RubyDemo extends StatelessWidget {
                       ruby: const [
                         RubyText(startIndex: 0, length: 3, ruby: 'にほんご'),
                       ],
+                      showGrid: _showGrid,
                     ),
                   ],
                 ),
@@ -59,6 +84,7 @@ class RubyDemo extends StatelessWidget {
                         RubyText(startIndex: 0, length: 2, ruby: 'かんじ'),
                         RubyText(startIndex: 3, length: 1, ruby: 'よ'),
                       ],
+                      showGrid: _showGrid,
                     ),
                   ],
                 ),
@@ -80,6 +106,7 @@ class RubyDemo extends StatelessWidget {
                       ruby: const [
                         RubyText(startIndex: 0, length: 2, ruby: 'ばら'),
                       ],
+                      showGrid: _showGrid,
                     ),
                   ],
                 ),

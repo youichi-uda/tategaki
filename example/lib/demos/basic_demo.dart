@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:tategaki/tategaki.dart';
 
-class BasicDemo extends StatelessWidget {
+class BasicDemo extends StatefulWidget {
   const BasicDemo({super.key});
+
+  @override
+  State<BasicDemo> createState() => _BasicDemoState();
+}
+
+class _BasicDemoState extends State<BasicDemo> {
+  bool _showGrid = false;
 
   @override
   Widget build(BuildContext context) {
@@ -10,6 +17,23 @@ class BasicDemo extends StatelessWidget {
       appBar: AppBar(
         title: const Text('基本的な縦書き'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          TextButton.icon(
+            onPressed: () {
+              setState(() {
+                _showGrid = !_showGrid;
+              });
+            },
+            icon: Icon(
+              _showGrid ? Icons.grid_off : Icons.grid_on,
+              color: Colors.white,
+            ),
+            label: Text(
+              _showGrid ? 'グリッドOFF' : 'グリッドON',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -32,6 +56,7 @@ class BasicDemo extends StatelessWidget {
                     lineSpacing: 24,
                   ),
                   maxHeight: 400,
+                  showGrid: _showGrid,
                 ),
               ],
             ),

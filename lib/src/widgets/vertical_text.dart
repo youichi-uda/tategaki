@@ -30,6 +30,9 @@ class VerticalText extends StatelessWidget {
   /// If 0 or not specified, text will not wrap
   final double maxHeight;
 
+  /// Show grid overlay for debugging character positions
+  final bool showGrid;
+
   const VerticalText(
     this.text, {
     super.key,
@@ -39,6 +42,7 @@ class VerticalText extends StatelessWidget {
     this.tatechuyoko,
     this.autoTatechuyoko = false,
     this.maxHeight = 0,
+    this.showGrid = false,
   });
 
   @override
@@ -52,6 +56,7 @@ class VerticalText extends StatelessWidget {
         tatechuyoko: tatechuyoko,
         autoTatechuyoko: autoTatechuyoko,
         maxHeight: maxHeight,
+        showGrid: showGrid,
       ),
       size: _calculateSize(),
     );

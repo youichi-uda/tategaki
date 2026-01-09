@@ -285,24 +285,9 @@ class TextLayouter {
       final baseX = baseLayout.position.dx;
       final baseY = baseLayout.position.dy;
 
-      // Calculate actual height covered by base text
-      // Use the actual layout positions: from first char Y to last char Y + last char's actual height
-      final lastCharIndex = (ruby.startIndex + ruby.length - 1).clamp(0, characterLayouts.length - 1);
-      final lastCharLayout = characterLayouts[lastCharIndex];
-      final lastCharY = lastCharLayout.position.dy;
-
-      // Get the actual rendered height of the last character
-      final lastCharPainter = TextPainter(
-        text: TextSpan(
-          text: lastCharLayout.character,
-          style: style.baseStyle.copyWith(fontSize: lastCharLayout.fontSize),
-        ),
-        textDirection: TextDirection.ltr,
-      );
-      lastCharPainter.layout();
-
-      // Base text height is from first character Y to last character Y + last character's actual height
-      final baseTextHeight = (lastCharY - baseY) + lastCharPainter.height;
+      // Calculate height of base text using virtual cells (fontSize-based)
+      // Each character occupies fontSize height + characterSpacing (except the last one)
+      final baseTextHeight = ruby.length * baseFontSize + (ruby.length - 1) * style.characterSpacing;
 
       // Calculate total height of ruby text using actual TextPainter height
       double rubyTextHeight = 0;
@@ -318,7 +303,7 @@ class TextLayouter {
         rubyTextHeight += textPainter.height;
       }
 
-      // Center ruby vertically with the base text
+      // Center ruby vertically with the base text (based on virtual cells)
       final rubyY = baseY + (baseTextHeight - rubyTextHeight) / 2;
 
       // Place ruby to the right of base text (move further right)
