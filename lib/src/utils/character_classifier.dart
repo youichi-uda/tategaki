@@ -53,15 +53,16 @@ class CharacterClassifier {
     if (codeUnit >= 0x3040 && codeUnit <= 0x309F) {
       return CharacterType.hiragana;
     }
-    
+
+    // Yakumono (Japanese punctuation and symbols)
+    // Check this before Katakana to catch long vowel mark (ー, U+30FC)
+    if (_isYakumono(character)) {
+      return CharacterType.yakumono;
+    }
+
     // Katakana
     if (codeUnit >= 0x30A0 && codeUnit <= 0x30FF) {
       return CharacterType.katakana;
-    }
-    
-    // Yakumono (Japanese punctuation and symbols)
-    if (_isYakumono(character)) {
-      return CharacterType.yakumono;
     }
     
     // Punctuation
@@ -84,7 +85,12 @@ class CharacterClassifier {
     const yakumonoChars = {
       '。', '、', '・', '（', '）', '「', '」', '【', '】',
       '『', '』', '〈', '〉', '《', '》', '！', '？', '：', '；',
-      'ー', '〜', '…', '‥', '＿', '－', '＝'
+      'ー', // Long vowel mark (U+30FC)
+      '―', // Horizontal bar / Dash (U+2015)
+      '—', // Em dash (U+2014)
+      '–', // En dash (U+2013)
+      '－', // Fullwidth hyphen-minus (U+FF0D)
+      '〜', '…', '‥', '＿', '＝'
     };
     return yakumonoChars.contains(character);
   }
@@ -109,7 +115,13 @@ class CharacterClassifier {
   static bool _isRotatableYakumono(String character) {
     const rotatableYakumono = {
       '（', '）', '「', '」', '【', '】', '『', '』',
-      '〈', '〉', '《', '》', 'ー', '〜', '…', '‥', '－'
+      '〈', '〉', '《', '》',
+      'ー', // Long vowel mark (U+30FC)
+      '―', // Horizontal bar / Dash (U+2015)
+      '—', // Em dash (U+2014)
+      '–', // En dash (U+2013)
+      '－', // Fullwidth hyphen-minus (U+FF0D)
+      '〜', '…', '‥'
     };
     return rotatableYakumono.contains(character);
   }

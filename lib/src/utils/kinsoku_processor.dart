@@ -5,7 +5,11 @@ class KinsokuProcessor {
     '。', '、', '．', '，', // Periods and commas
     '）', '」', '】', '』', '〉', '》', // Closing brackets
     '！', '？', '：', '；', // Punctuation
-    'ー', // Long vowel mark
+    'ー', // Long vowel mark (U+30FC)
+    '―', // Horizontal bar / Dash (U+2015)
+    '—', // Em dash (U+2014)
+    '–', // En dash (U+2013)
+    '－', // Fullwidth hyphen-minus (U+FF0D)
     'っ', 'ゃ', 'ゅ', 'ょ', 'ゎ', // Small hiragana
     'ッ', 'ャ', 'ュ', 'ョ', 'ヮ', // Small katakana
     'ぁ', 'ぃ', 'ぅ', 'ぇ', 'ぉ', // Small hiragana vowels

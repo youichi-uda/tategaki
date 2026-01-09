@@ -49,7 +49,11 @@ class _ComprehensiveDemoState extends State<ComprehensiveDemo> {
                 ),
                 const SizedBox(height: 32),
                 VerticalText(
-                  '昭和（1926年）12月25日。「美しい日本語の組版」を実現する為に、様々な工夫が凝らされている。',
+                  '昭和（1926年）12月25日―東京。「美しい日本語の組版」を実現する為に、様々な工夫が凝らされている。'
+                  'コンピュータ・システムによる自動組版技術は、活版印刷の時代から受け継がれてきた。'
+                  '小書き仮名（ゃゅょっ）、長音記号（ー）、各種ダッシュ記号（－―—–）の扱いは重要だ！　'
+                  '数字の処理も10個、25項目、99パーセントと多岐に渡る。'
+                  'これらの文字種を適切に配置することで、読みやすく美しい縦書き文書が完成する。',
                   style: const VerticalTextStyle(
                     baseStyle: TextStyle(fontSize: 22, color: Colors.black87),
                     characterSpacing: 4,

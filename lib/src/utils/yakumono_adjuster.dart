@@ -29,6 +29,14 @@ class YakumonoAdjuster {
       // Position small kana: vertically centered, horizontally to the right (JLREQ)
       xOffset = fontSize * 0.25;  // Move right by 1/4 of fontSize
       yOffset = 0.0;              // Keep vertically centered
+    } else if (_isDash(character)) {
+      // Shift dashes to the left (they appear too far right when rotated)
+      if (character == '–') {
+        // En dash needs less adjustment
+        xOffset = -fontSize * 0.1;
+      } else {
+        xOffset = -fontSize * 0.2;
+      }
     } else if (_isOpeningBracket(character)) {
       // Shift opening brackets to the left
       xOffset = -fontSize * 0.2;
@@ -96,5 +104,16 @@ class YakumonoAdjuster {
   static bool _isPunctuation(String character) {
     const punctuation = {'。', '、', '！', '？', '：', '；'};
     return punctuation.contains(character);
+  }
+
+  static bool _isDash(String character) {
+    const dashes = {
+      'ー', // Long vowel mark (U+30FC)
+      '―', // Horizontal bar / Dash (U+2015)
+      '—', // Em dash (U+2014)
+      '–', // En dash (U+2013)
+      '－', // Fullwidth hyphen-minus (U+FF0D)
+    };
+    return dashes.contains(character);
   }
 }
