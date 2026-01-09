@@ -31,12 +31,33 @@ class VerticalTextPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // Get tatechuyoko ranges
+    List<Tatechuyoko> tatechuyokoRanges = tatechuyoko ?? [];
+    if (autoTatechuyoko) {
+      tatechuyokoRanges = TatechuyokoDetector.detectAuto(text);
+    }
+
+    // Create set of indices that are part of tatechuyoko
+    final tatechuyokoIndices = <int>{};
+    for (final tcy in tatechuyokoRanges) {
+      for (int i = tcy.startIndex; i < tcy.startIndex + tcy.length; i++) {
+        tatechuyokoIndices.add(i);
+      }
+    }
+
     // Layout the text
     final characterLayouts = layouter.layoutText(text, style, maxHeight);
 
-    // Draw each character
-    for (final layout in characterLayouts) {
-      _drawCharacter(canvas, layout);
+    // Draw each character (skip tatechuyoko characters)
+    for (int i = 0; i < characterLayouts.length; i++) {
+      if (!tatechuyokoIndices.contains(i)) {
+        _drawCharacter(canvas, characterLayouts[i]);
+      }
+    }
+
+    // Draw tatechuyoko
+    for (final tcy in tatechuyokoRanges) {
+      _drawTatechuyoko(canvas, tcy, characterLayouts);
     }
 
     // Draw ruby if present
@@ -123,6 +144,52 @@ class VerticalTextPainter extends CustomPainter {
         );
       }
     }
+  }
+
+  void _drawTatechuyoko(
+    Canvas canvas,
+    Tatechuyoko tcy,
+    List<CharacterLayout> characterLayouts,
+  ) {
+    if (tcy.startIndex >= text.length) return;
+
+    // Extract tatechuyoko text
+    final endIndex = (tcy.startIndex + tcy.length).clamp(0, text.length);
+    final tcyText = text.substring(tcy.startIndex, endIndex);
+
+    // Get position from first character in the range
+    if (tcy.startIndex >= characterLayouts.length) return;
+    final baseLayout = characterLayouts[tcy.startIndex];
+
+    // Calculate tatechuyoko layout
+    final fontSize = style.baseStyle.fontSize ?? 16.0;
+    final tcyLayout = TatechuyokoDetector.layoutTatechuyoko(
+      tcyText,
+      baseLayout.position,
+      fontSize,
+    );
+
+    canvas.save();
+
+    // Move to position
+    canvas.translate(tcyLayout.position.dx, tcyLayout.position.dy);
+
+    // Draw tatechuyoko text horizontally (no rotation)
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: tcyText,
+        style: style.baseStyle.copyWith(fontSize: tcyLayout.fontSize),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+
+    textPainter.layout();
+
+    // Center horizontally in the character cell
+    final offsetX = (fontSize - textPainter.width) / 2;
+    textPainter.paint(canvas, Offset(offsetX, 0));
+
+    canvas.restore();
   }
 
   @override
