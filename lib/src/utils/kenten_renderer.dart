@@ -87,9 +87,12 @@ class KentenRenderer {
   ) {
     if (isVertical) {
       // Place to the right of character in vertical text
+      // Position: More right, at about half the font height down
+      // X: characterPosition.dx + offset (right side of character)
+      // Y: characterPosition.dy + fontSize * 0.5 (half the font height down)
       return Offset(
-        characterPosition.dx + fontSize * 0.6,
-        characterPosition.dy + fontSize * 0.5,
+        characterPosition.dx + fontSize * 0.75,  // More to the right
+        characterPosition.dy + fontSize * 0.5,   // Half font height down
       );
     } else {
       // Place above character in horizontal text

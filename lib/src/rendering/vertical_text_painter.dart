@@ -45,8 +45,12 @@ class VerticalTextPainter extends CustomPainter {
       }
     }
 
+    // Calculate starting X position (right edge minus one character width)
+    final fontSize = style.baseStyle.fontSize ?? 16.0;
+    final startX = size.width - fontSize;
+
     // Layout the text
-    final characterLayouts = layouter.layoutText(text, style, maxHeight);
+    final characterLayouts = layouter.layoutText(text, style, maxHeight, startX: startX);
 
     // Draw each character (skip tatechuyoko characters)
     for (int i = 0; i < characterLayouts.length; i++) {
@@ -62,7 +66,7 @@ class VerticalTextPainter extends CustomPainter {
 
     // Draw ruby if present
     if (ruby != null && ruby!.isNotEmpty) {
-      final rubyLayouts = layouter.layoutRuby(text, ruby!, style);
+      final rubyLayouts = layouter.layoutRuby(text, ruby!, style, characterLayouts);
       for (final rubyLayout in rubyLayouts) {
         _drawRuby(canvas, rubyLayout);
       }
@@ -80,11 +84,6 @@ class VerticalTextPainter extends CustomPainter {
     // Move to character position
     canvas.translate(layout.position.dx, layout.position.dy);
 
-    // Rotate if needed
-    if (layout.rotation != 0.0) {
-      canvas.rotate(layout.rotation);
-    }
-
     // Create text painter
     final textPainter = TextPainter(
       text: TextSpan(
@@ -96,28 +95,65 @@ class VerticalTextPainter extends CustomPainter {
 
     textPainter.layout();
 
+    // Calculate offset based on rotation
+    double offsetX, offsetY;
+
+    if (layout.rotation != 0.0) {
+      // For rotated characters (90 degrees clockwise)
+      // Rotate first
+      canvas.rotate(layout.rotation);
+
+      // After rotation (90 degrees clockwise):
+      // In the rotated coordinate system:
+      // - Original X axis points down
+      // - Original Y axis points left
+      // We need to position the text so it's centered in the character cell
+
+      // Center the text in the rotated coordinate system
+      offsetX = -(textPainter.height / 2);
+      offsetY = 0.0;
+    } else {
+      // For non-rotated characters
+      // Center horizontally (X axis)
+      offsetX = -(textPainter.width / 2);
+      // Keep Y at 0 for baseline alignment
+      offsetY = 0.0;
+    }
+
     // Draw the character
-    textPainter.paint(canvas, const Offset(0, 0));
+    textPainter.paint(canvas, Offset(offsetX, offsetY));
 
     canvas.restore();
   }
 
   void _drawRuby(Canvas canvas, RubyLayout layout) {
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: layout.ruby,
-        style: (style.rubyStyle ?? style.baseStyle).copyWith(
-          fontSize: layout.fontSize,
+    // Draw ruby characters vertically one by one
+    final rubyFontSize = layout.fontSize;
+    double currentY = layout.position.dy;
+
+    for (int i = 0; i < layout.ruby.length; i++) {
+      final char = layout.ruby[i];
+
+      final textPainter = TextPainter(
+        text: TextSpan(
+          text: char,
+          style: (style.rubyStyle ?? style.baseStyle).copyWith(
+            fontSize: rubyFontSize,
+          ),
         ),
-      ),
-      textDirection: TextDirection.ltr,
-      textAlign: TextAlign.start,
-    );
+        textDirection: TextDirection.ltr,
+      );
 
-    textPainter.layout();
+      textPainter.layout();
 
-    // Draw ruby text
-    textPainter.paint(canvas, layout.position);
+      // Center the character horizontally
+      final offsetX = -(textPainter.width / 2);
+      textPainter.paint(canvas, Offset(layout.position.dx + offsetX, currentY));
+
+      // Move to next character position (vertically)
+      // Use actual text height instead of fontSize
+      currentY += textPainter.height;
+    }
   }
 
   void _drawKenten(Canvas canvas, List<CharacterLayout> characterLayouts) {
@@ -171,9 +207,6 @@ class VerticalTextPainter extends CustomPainter {
 
     canvas.save();
 
-    // Move to position
-    canvas.translate(tcyLayout.position.dx, tcyLayout.position.dy);
-
     // Draw tatechuyoko text horizontally (no rotation)
     final textPainter = TextPainter(
       text: TextSpan(
@@ -185,9 +218,13 @@ class VerticalTextPainter extends CustomPainter {
 
     textPainter.layout();
 
-    // Center horizontally in the character cell
-    final offsetX = (fontSize - textPainter.width) / 2;
-    textPainter.paint(canvas, Offset(offsetX, 0));
+    // Center the tatechuyoko text both horizontally and vertically in the character cell
+    // Horizontal: center within the character width
+    final offsetX = tcyLayout.position.dx - (textPainter.width / 2) + (fontSize / 2);
+    // Vertical: center within the character height (reduce gap)
+    final offsetY = tcyLayout.position.dy + (fontSize - textPainter.height) / 2;
+
+    textPainter.paint(canvas, Offset(offsetX, offsetY));
 
     canvas.restore();
   }

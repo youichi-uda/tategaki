@@ -60,22 +60,41 @@ class VerticalText extends StatelessWidget {
   Size _calculateSize() {
     final fontSize = style.baseStyle.fontSize ?? 16.0;
     final numChars = text.length;
-    
+
     // Calculate height (vertical extent in vertical text)
     double height = numChars * (fontSize + style.characterSpacing);
-    
+
     // Calculate width (horizontal extent in vertical text)
-    // Account for ruby text if present
+    // Base width is one character width
     double width = fontSize;
+
+    // Add space for ruby text if present
     if (ruby != null && ruby!.isNotEmpty) {
-      width += fontSize; // Add space for ruby
+      final rubyFontSize = style.rubyStyle?.fontSize ?? (fontSize * 0.5);
+      width += rubyFontSize + fontSize * 0.2; // Ruby size + margin
+    }
+
+    // Add space for kenten if present
+    if (kenten != null && kenten!.isNotEmpty) {
+      width += fontSize * 0.5; // Extra space for kenten on the right
     }
 
     // Handle wrapping
     if (maxHeight > 0 && height > maxHeight) {
       final linesNeeded = (height / maxHeight).ceil();
       height = maxHeight;
-      width = fontSize * linesNeeded + style.lineSpacing * (linesNeeded - 1);
+
+      // Width for multiple lines
+      double lineWidth = fontSize;
+      if (ruby != null && ruby!.isNotEmpty) {
+        final rubyFontSize = style.rubyStyle?.fontSize ?? (fontSize * 0.5);
+        lineWidth += rubyFontSize + fontSize * 0.2;
+      }
+      if (kenten != null && kenten!.isNotEmpty) {
+        lineWidth += fontSize * 0.5;
+      }
+
+      width = lineWidth * linesNeeded + style.lineSpacing * (linesNeeded - 1);
     }
 
     return Size(width, height);

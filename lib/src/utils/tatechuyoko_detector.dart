@@ -46,12 +46,13 @@ class TatechuyokoDetector {
     Offset basePosition,
     double baseFontSize,
   ) {
-    // Tatechuyoko text is typically 50-70% of base font size
-    final fontSize = baseFontSize * 0.6;
-    
+    // Tatechuyoko text should be scaled to fit exactly in one character cell
+    // Use 85% of base font size to fit comfortably
+    final fontSize = baseFontSize * 0.85;
+
     // Calculate width needed for the horizontal text
     final width = fontSize * text.length * 0.6; // Approximate
-    
+
     return TatechuyokoLayout(
       position: basePosition,
       width: width,

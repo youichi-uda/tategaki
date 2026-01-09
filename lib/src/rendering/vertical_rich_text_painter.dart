@@ -25,7 +25,7 @@ class VerticalRichTextPainter extends CustomPainter {
     if (styledChars.isEmpty) return;
 
     // Layout each character with its specific style
-    final layouts = _layoutStyledCharacters(styledChars);
+    final layouts = _layoutStyledCharacters(styledChars, size);
 
     // Draw each character
     for (final layout in layouts) {
@@ -35,11 +35,16 @@ class VerticalRichTextPainter extends CustomPainter {
 
   List<_StyledCharacterLayout> _layoutStyledCharacters(
     List<StyledCharacter> styledChars,
+    Size size,
   ) {
     final layouts = <_StyledCharacterLayout>[];
 
+    // Calculate starting X position (right edge)
+    final firstFontSize = styledChars.isNotEmpty
+        ? (styledChars[0].style.baseStyle.fontSize ?? 16.0)
+        : 16.0;
     double currentY = 0.0;
-    double currentX = 0.0;
+    double currentX = size.width - firstFontSize;
     int lineStartIndex = 0;
 
     for (int i = 0; i < styledChars.length; i++) {
@@ -216,11 +221,6 @@ class VerticalRichTextPainter extends CustomPainter {
     // Move to character position
     canvas.translate(layout.position.dx, layout.position.dy);
 
-    // Rotate if needed
-    if (layout.rotation != 0.0) {
-      canvas.rotate(layout.rotation);
-    }
-
     // Create text painter with the character's specific style
     final textPainter = TextPainter(
       text: TextSpan(
@@ -231,7 +231,24 @@ class VerticalRichTextPainter extends CustomPainter {
     );
 
     textPainter.layout();
-    textPainter.paint(canvas, const Offset(0, 0));
+
+    // Calculate offset based on rotation
+    double offsetX, offsetY;
+
+    if (layout.rotation != 0.0) {
+      // For rotated characters (90 degrees clockwise)
+      canvas.rotate(layout.rotation);
+      offsetX = -(textPainter.height / 2);
+      offsetY = 0.0;
+    } else {
+      // For non-rotated characters
+      // Center horizontally (X axis)
+      offsetX = -(textPainter.width / 2);
+      // Keep Y at 0 for baseline alignment
+      offsetY = 0.0;
+    }
+
+    textPainter.paint(canvas, Offset(offsetX, offsetY));
 
     canvas.restore();
   }
