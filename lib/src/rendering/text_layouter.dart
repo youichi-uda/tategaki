@@ -396,48 +396,89 @@ class TextLayouter {
     final rubyFontSize = style.rubyStyle?.fontSize ?? (baseFontSize * 0.5);
 
     for (final ruby in rubyList) {
-      // Find the layout for the first character of this ruby range
-      CharacterLayout? baseLayout;
+      // Find all character layouts in this ruby range
+      final baseLayouts = <CharacterLayout>[];
       for (final layout in characterLayouts) {
-        if (layout.textIndex == ruby.startIndex) {
-          baseLayout = layout;
-          break;
+        if (layout.textIndex >= ruby.startIndex &&
+            layout.textIndex < ruby.startIndex + ruby.length) {
+          baseLayouts.add(layout);
         }
       }
-      if (baseLayout == null) continue;
+      if (baseLayouts.isEmpty) continue;
 
-      final baseX = baseLayout.position.dx;
-      final baseY = baseLayout.position.dy;
-
-      // Calculate height of base text using virtual cells (fontSize-based)
-      // Each character occupies fontSize height + characterSpacing (except the last one)
-      final baseTextHeight = ruby.length * baseFontSize + (ruby.length - 1) * style.characterSpacing;
-
-      // Calculate total height of ruby text using actual TextPainter height
-      double rubyTextHeight = 0;
-      for (int i = 0; i < ruby.ruby.length; i++) {
-        final textPainter = TextPainter(
-          text: TextSpan(
-            text: ruby.ruby[i],
-            style: (style.rubyStyle ?? style.baseStyle).copyWith(fontSize: rubyFontSize),
-          ),
-          textDirection: TextDirection.ltr,
-        );
-        textPainter.layout();
-        rubyTextHeight += textPainter.height;
+      // Group base characters by line (same X position = same line)
+      final lineGroups = <double, List<CharacterLayout>>{};
+      for (final layout in baseLayouts) {
+        lineGroups.putIfAbsent(layout.position.dx, () => []).add(layout);
       }
 
-      // Center ruby vertically with the base text (based on virtual cells)
-      final rubyY = baseY + (baseTextHeight - rubyTextHeight) / 2;
+      // Sort lines by X position (right to left)
+      final sortedLines = lineGroups.entries.toList()
+        ..sort((a, b) => b.key.compareTo(a.key));
 
-      // Place ruby to the right of base text (move further right)
-      final rubyX = baseX + baseFontSize * 0.75;
+      // Calculate ruby split ratios based on character count per line
+      final totalChars = baseLayouts.length;
+      int rubyStartIndex = 0;
 
-      layouts.add(RubyLayout(
-        position: Offset(rubyX, rubyY),
-        ruby: ruby.ruby,
-        fontSize: rubyFontSize,
-      ));
+      for (int lineIdx = 0; lineIdx < sortedLines.length; lineIdx++) {
+        final lineEntry = sortedLines[lineIdx];
+        final lineX = lineEntry.key;
+        final lineChars = lineEntry.value;
+        lineChars.sort((a, b) => a.position.dy.compareTo(b.position.dy));
+
+        final lineCharCount = lineChars.length;
+        final isLastLine = lineIdx == sortedLines.length - 1;
+
+        // Calculate ruby substring for this line
+        int rubyCharCount;
+        if (isLastLine) {
+          // Last line gets all remaining ruby characters
+          rubyCharCount = ruby.ruby.length - rubyStartIndex;
+        } else {
+          // Calculate proportionally
+          rubyCharCount = ((ruby.ruby.length * lineCharCount) / totalChars).round();
+        }
+
+        // Make sure we don't exceed the ruby string length
+        rubyCharCount = rubyCharCount.clamp(0, ruby.ruby.length - rubyStartIndex);
+
+        if (rubyCharCount == 0) continue;
+
+        final rubySubstring = ruby.ruby.substring(rubyStartIndex, rubyStartIndex + rubyCharCount);
+
+        // Calculate layout for this line's ruby
+        final firstChar = lineChars.first;
+        final lastChar = lineChars.last;
+        final baseY = firstChar.position.dy;
+        final baseTextHeight = (lastChar.position.dy - firstChar.position.dy) +
+                               baseFontSize + style.characterSpacing;
+
+        // Calculate ruby text height
+        double rubyTextHeight = 0;
+        for (int i = 0; i < rubySubstring.length; i++) {
+          final textPainter = TextPainter(
+            text: TextSpan(
+              text: rubySubstring[i],
+              style: (style.rubyStyle ?? style.baseStyle).copyWith(fontSize: rubyFontSize),
+            ),
+            textDirection: TextDirection.ltr,
+          );
+          textPainter.layout();
+          rubyTextHeight += textPainter.height;
+        }
+
+        // Center ruby vertically with the base text
+        final rubyY = baseY + (baseTextHeight - rubyTextHeight) / 2;
+        final rubyX = lineX + baseFontSize * 0.75;
+
+        layouts.add(RubyLayout(
+          position: Offset(rubyX, rubyY),
+          ruby: rubySubstring,
+          fontSize: rubyFontSize,
+        ));
+
+        rubyStartIndex += rubyCharCount;
+      }
     }
 
     return layouts;

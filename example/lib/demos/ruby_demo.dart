@@ -120,6 +120,33 @@ class _RubyDemoState extends State<RubyDemo> {
                     ),
                   ],
                 ),
+                const SizedBox(width: 60),
+                Column(
+                  children: [
+                    const Text(
+                      '改行を含むルビ',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 24),
+                    VerticalText(
+                      '日本国憲法第九条',
+                      style: VerticalTextStyle(
+                        baseStyle: GoogleFonts.notoSerifJp(
+                          fontSize: 36,
+                          color: Colors.black87,
+                        ),
+                        rubyStyle: const TextStyle(fontSize: 18, color: Colors.blue),
+                        characterSpacing: 6,
+                        lineSpacing: 40,
+                      ),
+                      ruby: const [
+                        RubyText(startIndex: 0, length: 8, ruby: 'にほんこくけんぽうだいきゅうじょう'),
+                      ],
+                      maxHeight: 200,
+                      showGrid: _showGrid,
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
