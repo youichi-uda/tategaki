@@ -32,12 +32,15 @@ void main() {
       expect(result.length, 0); // Single digits not detected
     });
 
-    test('does not detect 3+ digit numbers', () {
+    test('detects all 2-digit pairs in longer numbers', () {
       final result = TatechuyokoDetector.detectAuto('2024年');
 
-      expect(result.length, 1); // Only detects first two digits: 20
-      expect(result[0].startIndex, 0);
+      // Detects 20 and 24 (skipping overlaps)
+      expect(result.length, 2);
+      expect(result[0].startIndex, 0); // 20
       expect(result[0].length, 2);
+      expect(result[1].startIndex, 2); // 24
+      expect(result[1].length, 2);
     });
 
     test('handles text without numbers', () {

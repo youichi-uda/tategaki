@@ -24,14 +24,20 @@ class KinsokuProcessor {
   };
 
   /// Check if we can break the line at the specified position
-  /// 
+  ///
   /// [text] The full text
   /// [position] The position to check (0-based index)
-  /// 
+  ///
   /// Returns true if line can be broken at this position
   static bool canBreakAt(String text, int position) {
-    if (position <= 0 || position >= text.length) {
+    // Empty string or negative position
+    if (position < 0) {
       return false;
+    }
+
+    // Can always break at the start or end of text
+    if (position == 0 || position >= text.length) {
+      return true;
     }
 
     final charBefore = text[position - 1];

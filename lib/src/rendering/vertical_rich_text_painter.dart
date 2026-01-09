@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/vertical_text_span.dart';
+import '../models/vertical_text_style.dart';
 import '../utils/character_classifier.dart';
 import '../utils/rotation_rules.dart';
 import '../utils/kerning_processor.dart';

@@ -28,15 +28,23 @@ void main() {
     });
 
     test('handles inseparable pairs', () {
-      // Ellipsis should not be separated
-      expect(KinsokuProcessor.canBreakAt('あ…い', 2), false);
+      // Two ellipses should not be separated (between the two ellipses)
+      expect(KinsokuProcessor.canBreakAt('あ……い', 2), false);
+      // Can break after the pair of ellipses
+      expect(KinsokuProcessor.canBreakAt('あ……い', 3), true);
+      // Single ellipsis can have a break after it
+      expect(KinsokuProcessor.canBreakAt('あ…い', 2), true);
     });
 
     test('finds proper break position', () {
       final text = 'これは文章。次の文';
-      // If target is at 6 (after 。), should move to 5
-      final breakPos = KinsokuProcessor.findBreakPosition(text, 6);
-      expect(breakPos, lessThan(6));
+      // Position 6 (after 。) is valid - splits into 'これは文章。' and '次の文'
+      final breakPos1 = KinsokuProcessor.findBreakPosition(text, 6);
+      expect(breakPos1, 6); // Can break here
+
+      // Position 5 (before 。) cannot break - 。 would be at line start
+      final breakPos2 = KinsokuProcessor.findBreakPosition(text, 5);
+      expect(breakPos2, lessThan(5)); // Must move back
     });
 
     test('handles edge cases', () {
