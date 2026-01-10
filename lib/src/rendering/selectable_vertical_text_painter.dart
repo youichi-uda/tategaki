@@ -20,6 +20,7 @@ class SelectableVerticalTextPainter extends CustomPainter {
   final Color handleColor;
   final bool showHandles;
   final void Function(List<CharacterLayout>)? onLayoutsCalculated;
+  final double startX;
 
   SelectableVerticalTextPainter({
     required this.text,
@@ -35,6 +36,7 @@ class SelectableVerticalTextPainter extends CustomPainter {
     this.handleColor = const Color(0xFF2196F3),
     this.showHandles = true,
     this.onLayoutsCalculated,
+    this.startX = 0.0,
   });
 
   @override
@@ -47,6 +49,7 @@ class SelectableVerticalTextPainter extends CustomPainter {
       text,
       style,
       maxHeight,
+      startX: startX,
     );
 
     // Notify parent of layouts for hit testing
@@ -94,7 +97,7 @@ class SelectableVerticalTextPainter extends CustomPainter {
       }
     }
 
-    const handleRadius = 6.0;
+    const handleRadius = 8.0;
 
     // Draw start handle (top of selection in vertical text)
     if (startLayout != null) {

@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/vertical_text_style.dart';
@@ -82,6 +83,7 @@ class _SelectableVerticalTextState extends State<SelectableVerticalText> {
   int _lastTapTime = 0;
   final GlobalKey _textKey = GlobalKey();
   _DragTarget _dragTarget = _DragTarget.none;
+  bool _preventScroll = false;
 
   @override
   void dispose() {
@@ -106,26 +108,32 @@ class _SelectableVerticalTextState extends State<SelectableVerticalText> {
       baseStyle: widget.style.baseStyle.copyWith(color: defaultColor),
     );
 
+    final fontSize = effectiveStyle.baseStyle.fontSize ?? 16.0;
+
+    // Add extra space for selection handles on the left
+    // Handles extend to the left of the text, so we need to shift everything right
+    const handleRadius = 8.0;
+    final handleExtraSpace = handleRadius + fontSize / 2 + 4.0; // Space for handle + margin
+
     // Calculate the size needed for the text
     final layouter = TextLayouter();
     final layouts = layouter.layoutText(
       widget.text,
       effectiveStyle,
       widget.maxHeight,
+      startX: handleExtraSpace, // Shift text to the right to make room for handles
     );
 
     double maxX = 0.0;
     double maxY = 0.0;
-    final fontSize = effectiveStyle.baseStyle.fontSize ?? 16.0;
 
     for (final layout in layouts) {
       maxX = (layout.position.dx + fontSize).clamp(maxX, double.infinity);
       maxY = (layout.position.dy + fontSize).clamp(maxY, double.infinity);
     }
 
-    // Add extra space for selection handles
-    const handleExtraWidth = 12.0; // handleRadius * 2
-    final size = Size(maxX + handleExtraWidth, maxY);
+    // Add extra space on the right side too
+    final size = Size(maxX + handleExtraSpace, maxY);
 
     return Focus(
       focusNode: _focusNode,
@@ -148,57 +156,102 @@ class _SelectableVerticalTextState extends State<SelectableVerticalText> {
         }
         return KeyEventResult.ignored;
       },
-      child: NotificationListener<ScrollNotification>(
-        onNotification: (notification) {
-          // Block scrolling when dragging handles
-          if (_dragTarget == _DragTarget.startHandle || _dragTarget == _DragTarget.endHandle) {
-            return true; // Consume the notification to prevent scrolling
+      child: Listener(
+        onPointerDown: (event) {
+          // Check if pointer is down over a handle
+          final localPosition = event.localPosition;
+          if (_selectionStart != null && _selectionEnd != null) {
+            final handleTarget = _findHandleAt(localPosition);
+            if (handleTarget == _DragTarget.startHandle || handleTarget == _DragTarget.endHandle) {
+              _preventScroll = true;
+            }
           }
-          return false;
         },
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: (details) {
-            _focusNode.requestFocus();
-            _handleTap(details.localPosition);
+        onPointerUp: (_) {
+          _preventScroll = false;
+        },
+        onPointerCancel: (_) {
+          _preventScroll = false;
+        },
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            // Block scrolling when dragging handles
+            if (_preventScroll) {
+              return true; // Consume the notification to prevent scrolling
+            }
+            return false;
           },
-          onSecondaryTapDown: (details) {
-            _focusNode.requestFocus();
-            _handleSecondaryTap(details.localPosition, details.globalPosition);
-          },
-          onLongPressStart: (details) {
-            _focusNode.requestFocus();
-            _handleLongPress(details.localPosition, details.globalPosition);
-          },
-          onPanStart: (details) {
-            _focusNode.requestFocus();
-            _handlePanStart(details.localPosition);
-          },
-          onPanUpdate: (details) {
-            _handlePanUpdate(details.localPosition);
-          },
-          onPanEnd: (details) {
-            _handlePanEnd();
-          },
-          child: CustomPaint(
-            key: _textKey,
-            size: size,
-            painter: SelectableVerticalTextPainter(
-              text: widget.text,
-              style: effectiveStyle,
-              maxHeight: widget.maxHeight,
-              showGrid: widget.showGrid,
-              rubyList: widget.rubyList,
-              kentenList: widget.kentenList,
-              tatechuyokoList: widget.tatechuyokoList,
-              selectionStart: _selectionStart,
-              selectionEnd: _selectionEnd,
-              selectionColor: effectiveSelectionColor,
-              handleColor: Theme.of(context).colorScheme.primary,
-              showHandles: true,
-              onLayoutsCalculated: (layouts) {
-                _layouts = layouts;
+          child: RawGestureDetector(
+            behavior: HitTestBehavior.opaque,
+            gestures: <Type, GestureRecognizerFactory>{
+              PanGestureRecognizer: GestureRecognizerFactoryWithHandlers<PanGestureRecognizer>(
+                () => PanGestureRecognizer(debugOwner: this),
+                (PanGestureRecognizer instance) {
+                  instance
+                    ..onStart = (details) {
+                      _focusNode.requestFocus();
+                      _handlePanStart(details.localPosition);
+                    }
+                    ..onUpdate = (details) {
+                      _handlePanUpdate(details.localPosition);
+                    }
+                    ..onEnd = (details) {
+                      _handlePanEnd();
+                    }
+                    // Use very small touch slop to make this recognizer highly competitive
+                    // with parent ScrollView, especially when dragging selection handles
+                    ..gestureSettings = const DeviceGestureSettings(
+                      touchSlop: 1.0,
+                    );
+                },
+              ),
+              TapGestureRecognizer: GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+                () => TapGestureRecognizer(debugOwner: this),
+                (TapGestureRecognizer instance) {
+                  instance.onTapDown = (details) {
+                    _focusNode.requestFocus();
+                    _handleTap(details.localPosition);
+                  };
+                },
+              ),
+              LongPressGestureRecognizer: GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
+                () => LongPressGestureRecognizer(debugOwner: this),
+                (LongPressGestureRecognizer instance) {
+                  instance.onLongPressStart = (details) {
+                    _focusNode.requestFocus();
+                    _handleLongPress(details.localPosition, details.globalPosition);
+                  };
+                },
+              ),
+            },
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onSecondaryTapDown: (details) {
+                _focusNode.requestFocus();
+                _handleSecondaryTap(details.localPosition, details.globalPosition);
               },
+              child: CustomPaint(
+                key: _textKey,
+                size: size,
+                painter: SelectableVerticalTextPainter(
+                  text: widget.text,
+                  style: effectiveStyle,
+                  maxHeight: widget.maxHeight,
+                  showGrid: widget.showGrid,
+                  rubyList: widget.rubyList,
+                  kentenList: widget.kentenList,
+                  tatechuyokoList: widget.tatechuyokoList,
+                  selectionStart: _selectionStart,
+                  selectionEnd: _selectionEnd,
+                  selectionColor: effectiveSelectionColor,
+                  handleColor: Theme.of(context).colorScheme.primary,
+                  showHandles: true,
+                  startX: handleExtraSpace,
+                  onLayoutsCalculated: (layouts) {
+                    _layouts = layouts;
+                  },
+                ),
+              ),
             ),
           ),
         ),
@@ -403,8 +456,8 @@ class _SelectableVerticalTextState extends State<SelectableVerticalText> {
     final end = _selectionStart! < _selectionEnd! ? _selectionEnd! : _selectionStart!;
 
     final fontSize = widget.style.baseStyle.fontSize ?? 16.0;
-    const handleRadius = 6.0;
-    const hitTestRadius = 24.0; // Larger touch target
+    const handleRadius = 8.0;
+    const hitTestRadius = 48.0; // Large touch target for easier dragging
 
     // Find start and end layouts
     CharacterLayout? startLayout;
