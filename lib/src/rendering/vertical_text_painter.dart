@@ -336,12 +336,9 @@ class VerticalTextPainter extends CustomPainter {
       canvas.rotate(layout.rotation);
 
       // In the rotated coordinate system, apply positioning within virtual cell:
-      // Use fontSize (virtual cell size) instead of textPainter.width (actual glyph width)
-      // to ensure consistent positioning regardless of glyph width
-      // Shift left slightly to better align with the cell
-      offsetX = -(textPainter.height / 2);
-      // Vertical positioning - use fontSize for consistency
-      offsetY = -fontSize;
+      offsetX = 0;
+      // Vertical positioning - use text height / 2 to center at position.dx
+      offsetY = -textPainter.height / 2;
     } else {
       // For non-rotated characters
       // Center horizontally (X axis) within the virtual cell
@@ -498,6 +495,9 @@ class VerticalTextPainter extends CustomPainter {
 
     canvas.save();
 
+    // Move to the character position
+    canvas.translate(tcyLayout.position.dx, tcyLayout.position.dy);
+
     // Draw tatechuyoko text horizontally (no rotation)
     final textPainter = TextPainter(
       text: TextSpan(
@@ -510,10 +510,11 @@ class VerticalTextPainter extends CustomPainter {
     textPainter.layout();
 
     // Center the tatechuyoko text both horizontally and vertically in the character cell
-    // Horizontal: center at the character position (same as regular characters)
-    final offsetX = tcyLayout.position.dx - (textPainter.width / 2);
+    // (Same pattern as non-rotated characters)
+    // Horizontal: center at the character position
+    final offsetX = -(textPainter.width / 2);
     // Vertical: center within the fontSize-based virtual cell
-    final offsetY = tcyLayout.position.dy + (fontSize - textPainter.height) / 2;
+    final offsetY = (fontSize - textPainter.height) / 2;
 
     textPainter.paint(canvas, Offset(offsetX, offsetY));
 

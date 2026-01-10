@@ -126,6 +126,12 @@ class _WarichuDemoState extends State<WarichuDemo> {
               color: Colors.black87,
             ),
             characterSpacing: 8,
+            // All adjustments OFF
+            adjustYakumono: false,
+            enableHalfWidthYakumono: false,
+            enableGyotoIndent: false,
+            enableKerning: false,
+            rotateLatinCharacters: true, // Keep rotation on
           ),
           showGrid: _showGrid,
         ),
