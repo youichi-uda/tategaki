@@ -1,56 +1,94 @@
 /// Kinsoku processing (Japanese line breaking rules)
+///
+/// This class implements Japanese line breaking rules based on a simplified version
+/// of JIS X 4051 and JLREQ (Requirements for Japanese Text Layout).
+///
+/// ## Line Breaking Rules:
+///
+/// ### 1. Line-start prohibition (行頭禁則, gyoto kinsoku)
+/// Characters that cannot appear at the start of a line:
+/// - Periods and commas: 。、
+/// - Closing bracket: 」
+/// - Long vowel mark: ー
+///
+/// ### 2. Line-end prohibition (行末禁則, gyomatsu kinsoku)
+/// Characters that cannot appear at the end of a line:
+/// - Opening brackets: （「【『〈《
+///
+/// ### 3. Hanging (ぶら下げ, burasage)
+/// When line-start prohibited characters appear at line end, they can either:
+/// - Hang outside the text box (burasage) - only for: 。、」
+/// - Be pushed into the previous line (oikomi) - for: ー
+///
+/// ### 4. Separation prohibition (分離禁止)
+/// Characters that must stay together when consecutive:
+/// - Leaders: …… (two ellipses), ‥‥ (two two-dot leaders)
+/// - Dashes: ーー、――、——、––、－－
+/// - Exclamation/Question marks: ！！、？？、！？、？！
+///
+/// When separation would occur, these are handled by oikomi (push-in), not burasage.
+/// Leaders and dashes can appear at line start if not being separated from their pair.
+///
+/// ### 5. Processing order:
+/// 1. Check gyoto kinsoku (line-start prohibition)
+/// 2. Check gyomatsu kinsoku (line-end prohibition)
+/// 3. Check separation prohibition for paired characters
+/// 4. Apply burasage (hanging) or oikomi (push-in) as appropriate
 class KinsokuProcessor {
   /// Characters that cannot appear at the start of a line (gyoto kinsoku)
+  ///
+  /// When these characters would appear at line start, the line must be broken
+  /// at an earlier position (oikomi) or the character can hang outside the text
+  /// box (burasage) if it's in burasageAllowed.
   static const Set<String> gyotoKinsoku = {
-    '。', '、', '．', '，', // Periods and commas
-    '）', '」', '】', '』', '〉', '》', // Closing brackets
-    '！', '？', '：', '；', // Full-width punctuation
-    '!', '?', ':', ';',    // Half-width punctuation
-    '・', // Middle dot (U+30FB)
+    '。', '、', // Periods and commas (can hang)
+    '」', // Closing bracket (can hang)
+    'ー', // Long vowel mark (cannot hang, must use oikomi)
+  };
+
+  /// Small characters that can hang at line end (burasage allowed)
+  ///
+  /// These characters can extend beyond the text box boundary instead of
+  /// being pushed into the previous line.
+  static const Set<String> burasageAllowed = {
+    '。', '、', // Periods and commas
+    '」', // Closing bracket
+  };
+
+  /// Characters that cannot hang (must use oikomi when line breaking)
+  ///
+  /// When these characters would be separated from their pair or appear at
+  /// line end, they must be pushed into the previous line (oikomi).
+  static const Set<String> burasageForbidden = {
+    '…', '‥', // Leaders (always used in pairs: ……, ‥‥)
+    'ー', '―', '—', '–', '－', // Dashes and long vowel mark
+  };
+
+  /// Characters that cannot appear at the end of a line (gyomatsu kinsoku)
+  ///
+  /// When these characters would appear at line end, the following character
+  /// must be pushed to the next line with this character.
+  static const Set<String> gyomatsuKinsoku = {
+    '（', '「', '【', '『', '〈', '《', // Opening brackets
+  };
+
+  /// Characters that must appear in pairs (e.g., ……, ‥‥, ――)
+  ///
+  /// Cannot break between two consecutive instances.
+  /// When separation would occur, use oikomi (not burasage) to keep them together.
+  static const Set<String> pairedCharacters = {
+    '…', // Ellipsis (always used as ……)
+    '‥', // Two-dot leader (always used as ‥‥)
     'ー', // Long vowel mark (U+30FC)
     '―', // Horizontal bar / Dash (U+2015)
     '—', // Em dash (U+2014)
     '–', // En dash (U+2013)
     '－', // Fullwidth hyphen-minus (U+FF0D)
-    '…', // Ellipsis (U+2026)
-    '‥', // Two-dot leader (U+2025)
-    'っ', 'ゃ', 'ゅ', 'ょ', 'ゎ', // Small hiragana
-    'ッ', 'ャ', 'ュ', 'ョ', 'ヮ', // Small katakana
-    'ぁ', 'ぃ', 'ぅ', 'ぇ', 'ぉ', // Small hiragana vowels
-    'ァ', 'ィ', 'ゥ', 'ェ', 'ォ', // Small katakana vowels
-  };
-
-  /// Small characters that can hang at line end (burasage allowed)
-  /// These are typically punctuation marks that take less visual space
-  static const Set<String> burasageAllowed = {
-    '。', '、', '．', '，', // Periods and commas only
-  };
-
-  /// Full-size characters that cannot hang (must use oikomi)
-  /// These include ellipsis, exclamation marks, question marks, etc.
-  static const Set<String> burasageForbidden = {
-    '！', '？', // Full-width punctuation
-    '!', '?',   // Half-width punctuation
-    '…', '‥', // Leaders (always used in pairs)
-    '）', '」', '】', '』', '〉', '》', // Closing brackets
-    '：', '；', // Colon and semicolon
-    'ー', '―', '—', '–', '－', // Dashes
-  };
-
-  /// Characters that cannot appear at the end of a line (gyomatsu kinsoku)
-  static const Set<String> gyomatsuKinsoku = {
-    '（', '「', '【', '『', '〈', '《', // Opening brackets
-  };
-
-  /// Characters that must appear in pairs (e.g., ……, ‥‥)
-  /// Cannot break between two consecutive instances
-  static const Set<String> pairedCharacters = {
-    '…', // Ellipsis (always used as ……)
-    '‥', // Two-dot leader (always used as ‥‥)
   };
 
   /// Characters that cannot be separated when consecutive
-  /// (e.g., !!, ??, !?, ?!)
+  ///
+  /// Consecutive combinations like ！！、？？、！？、？！ must not be split.
   static const Set<String> consecutiveCharacters = {
     '！', '？', // Full-width exclamation and question marks
     '!', '?',   // Half-width exclamation and question marks

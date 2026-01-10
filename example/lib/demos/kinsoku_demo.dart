@@ -12,6 +12,7 @@ class KinsokuDemo extends StatefulWidget {
 class _KinsokuDemoState extends State<KinsokuDemo> {
   bool _showGrid = false;
   KinsokuMethod _kinsokuMethod = KinsokuMethod.oikomi;
+  double _maxHeight = 250.0;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +70,29 @@ class _KinsokuDemoState extends State<KinsokuDemo> {
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('描画領域の高さ：'),
+                    SizedBox(
+                      width: 300,
+                      child: Slider(
+                        value: _maxHeight,
+                        min: 100,
+                        max: 500,
+                        divisions: 40,
+                        label: _maxHeight.round().toString(),
+                        onChanged: (value) {
+                          setState(() {
+                            _maxHeight = value;
+                          });
+                        },
+                      ),
+                    ),
+                    Text('${_maxHeight.round()}px'),
+                  ],
+                ),
                 const SizedBox(height: 32),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,7 +125,6 @@ class _KinsokuDemoState extends State<KinsokuDemo> {
                     _buildExample(
                       '句読点（小）vs 感嘆符（大）',
                       '小さい句読点。は、ぶら下げ可能です。しかし大きな感嘆符！や疑問符？は押し込みのみです！',
-                      maxHeight: 200,
                     ),
                     const SizedBox(width: 60),
                     // 括弧の処理
@@ -119,7 +142,7 @@ class _KinsokuDemoState extends State<KinsokuDemo> {
     );
   }
 
-  Widget _buildExample(String title, String text, {double maxHeight = 250}) {
+  Widget _buildExample(String title, String text) {
     return Column(
       children: [
         Text(
@@ -142,7 +165,7 @@ class _KinsokuDemoState extends State<KinsokuDemo> {
             adjustYakumono: true,
           ),
           autoTatechuyoko: true,
-          maxHeight: maxHeight,
+          maxHeight: _maxHeight,
           showGrid: _showGrid,
         ),
       ],
