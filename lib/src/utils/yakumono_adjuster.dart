@@ -29,31 +29,6 @@ class YakumonoAdjuster {
       // Position small kana: vertically centered, horizontally to the right (JLREQ)
       xOffset = fontSize * 0.25;  // Move right by 1/4 of fontSize
       yOffset = 0.0;              // Keep vertically centered
-    } else if (_isDash(character)) {
-      // Shift dashes to the left (they appear too far right when rotated)
-      if (character == '–') {
-        // En dash needs less adjustment
-        xOffset = -fontSize * 0.1;
-      } else {
-        xOffset = -fontSize * 0.2;
-      }
-    } else if (_isOpeningBracket(character)) {
-      // Shift opening brackets to the left and down
-      xOffset = -fontSize * 0.3;
-      yOffset = fontSize * 0.1;
-    } else if (_isClosingBracket(character)) {
-      // Shift closing brackets to the left and up
-      xOffset = -fontSize * 0.3;
-      yOffset = -fontSize * 0.1;
-    } else if (character == '：' || character == '；') {
-      // Shift colon and semicolon to the left
-      xOffset = -fontSize * 0.2;
-    } else if (character == '・') {
-      // Shift middle dot up
-      yOffset = -fontSize * 0.2;
-    } else if (_isLeader(character)) {
-      // Shift ellipsis and two-dot leader to the left
-      xOffset = -fontSize * 0.25;
     }
 
     return Offset(basePosition.dx + xOffset, basePosition.dy + yOffset);
