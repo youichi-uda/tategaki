@@ -3,6 +3,7 @@ import 'package:kinsoku/kinsoku.dart';
 import '../models/vertical_text_style.dart';
 import '../models/ruby_text.dart';
 import '../models/kenten.dart';
+import '../models/text_decoration.dart';
 import '../utils/rotation_rules.dart';
 import '../utils/kinsoku_adapter.dart';
 
@@ -451,6 +452,7 @@ class TextLayouter {
     VerticalTextStyle style,
     List<CharacterLayout> characterLayouts,
     List<Kenten>? kentenList,
+    List<TextDecorationAnnotation>? decorationList,
   ) {
     final layouts = <RubyLayout>[];
     final baseFontSize = style.baseStyle.fontSize ?? 16.0;
@@ -546,10 +548,31 @@ class TextLayouter {
           }
         }
 
+        // Check if any character in this ruby range has decoration
+        bool hasDecoration = false;
+        if (decorationList != null) {
+          for (final decoration in decorationList) {
+            for (final charLayout in lineChars) {
+              if (charLayout.textIndex >= decoration.startIndex &&
+                  charLayout.textIndex < decoration.endIndex) {
+                hasDecoration = true;
+                break;
+              }
+            }
+            if (hasDecoration) break;
+          }
+        }
+
         // Position ruby to the right of the character
-        // If kenten exists, add extra space to avoid overlap
-        final kentenOffset = hasKenten ? baseFontSize * 0.5 : 0.0;
-        final rubyX = lineX + baseFontSize * 0.75 + kentenOffset;
+        // If kenten or decoration exists, add extra space to avoid overlap
+        // Kenten needs more space (0.5), decoration needs less (0.25)
+        double sideOffset = 0.0;
+        if (hasKenten) {
+          sideOffset = baseFontSize * 0.5;
+        } else if (hasDecoration) {
+          sideOffset = baseFontSize * 0.25;
+        }
+        final rubyX = lineX + baseFontSize * 0.75 + sideOffset;
 
         layouts.add(RubyLayout(
           position: Offset(rubyX, rubyY),

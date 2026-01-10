@@ -15,11 +15,13 @@ export 'src/models/tatechuyoko.dart';
 export 'src/models/warichu.dart';
 export 'src/models/figure.dart';
 export 'src/models/vertical_text_span.dart';
+export 'src/models/text_decoration.dart';
 
 // Utils (for advanced usage)
 export 'src/utils/rotation_rules.dart';
 export 'src/utils/kenten_renderer.dart';
 export 'src/utils/warichu_renderer.dart';
+export 'src/utils/decoration_renderer.dart';
 export 'src/utils/tatechuyoko_detector.dart';
 export 'src/utils/figure_layouter.dart';
 

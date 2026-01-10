@@ -4,9 +4,11 @@ import '../models/ruby_text.dart';
 import '../models/kenten.dart';
 import '../models/warichu.dart';
 import '../models/tatechuyoko.dart';
+import '../models/text_decoration.dart';
 import '../models/vertical_text_span.dart';
 import '../utils/kenten_renderer.dart';
 import '../utils/warichu_renderer.dart';
+import '../utils/decoration_renderer.dart';
 import '../utils/tatechuyoko_detector.dart';
 import 'text_layouter.dart';
 
@@ -19,6 +21,7 @@ class VerticalTextPainter extends CustomPainter {
   final List<Kenten>? kenten;
   final List<Warichu>? warichu;
   final List<Tatechuyoko>? tatechuyoko;
+  final List<TextDecorationAnnotation>? decorations;
   final bool autoTatechuyoko;
   final TextLayouter layouter;
   final double maxHeight;
@@ -30,6 +33,7 @@ class VerticalTextPainter extends CustomPainter {
   late final List<Kenten> _actualKenten;
   late final List<Warichu> _actualWarichu;
   late final List<Tatechuyoko> _actualTatechuyoko;
+  late final List<TextDecorationAnnotation> _actualDecorations;
 
   VerticalTextPainter({
     this.text,
@@ -39,6 +43,7 @@ class VerticalTextPainter extends CustomPainter {
     this.kenten,
     this.warichu,
     this.tatechuyoko,
+    this.decorations,
     this.autoTatechuyoko = false,
     TextLayouter? layouter,
     this.maxHeight = 0,
@@ -54,6 +59,7 @@ class VerticalTextPainter extends CustomPainter {
       _actualKenten = kenten ?? [];
       _actualWarichu = warichu ?? [];
       _actualTatechuyoko = tatechuyoko ?? [];
+      _actualDecorations = decorations ?? [];
     }
   }
 
@@ -85,6 +91,7 @@ class VerticalTextPainter extends CustomPainter {
     _actualKenten = kentenList;
     _actualWarichu = warichuList;
     _actualTatechuyoko = tatechuyokoList;
+    _actualDecorations = []; // TODO: Add DecorationSpan support in the future
   }
 
   int _visitSpansForAnnotations(
@@ -221,6 +228,7 @@ class VerticalTextPainter extends CustomPainter {
         style,
         characterLayouts,
         _actualKenten.isNotEmpty ? _actualKenten : null,
+        _actualDecorations.isNotEmpty ? _actualDecorations : null,
       );
       for (final rubyLayout in rubyLayouts) {
         _drawRuby(canvas, rubyLayout);
@@ -230,6 +238,11 @@ class VerticalTextPainter extends CustomPainter {
     // Draw kenten if present
     if (_actualKenten.isNotEmpty) {
       _drawKenten(canvas, characterLayouts);
+    }
+
+    // Draw decorations (傍線など) if present
+    if (_actualDecorations.isNotEmpty) {
+      _drawDecorations(canvas, characterLayouts);
     }
 
     // Draw warichu if present
@@ -421,6 +434,46 @@ class VerticalTextPainter extends CustomPainter {
     }
   }
 
+  void _drawDecorations(Canvas canvas, List<CharacterLayout> characterLayouts) {
+    final fontSize = style.baseStyle.fontSize ?? 16.0;
+    final defaultColor = style.baseStyle.color ?? Colors.black;
+
+    for (final decoration in _actualDecorations) {
+      // Find the first and last character layouts in the decoration range
+      CharacterLayout? firstLayout;
+      CharacterLayout? lastLayout;
+
+      for (final layout in characterLayouts) {
+        if (layout.textIndex >= decoration.startIndex &&
+            layout.textIndex < decoration.endIndex) {
+          if (firstLayout == null || layout.textIndex < firstLayout.textIndex) {
+            firstLayout = layout;
+          }
+          if (lastLayout == null || layout.textIndex > lastLayout.textIndex) {
+            lastLayout = layout;
+          }
+        }
+      }
+
+      if (firstLayout == null || lastLayout == null) continue;
+
+      // Calculate the start and end positions
+      final startPosition = firstLayout.position;
+      final endY = lastLayout.position.dy + fontSize;
+
+      // Draw the decoration
+      DecorationRenderer.drawDecoration(
+        canvas,
+        startPosition,
+        endY,
+        decoration.type,
+        fontSize,
+        decoration.color ?? defaultColor,
+        thickness: decoration.thickness,
+      );
+    }
+  }
+
   void _drawWarichu(Canvas canvas, List<CharacterLayout> characterLayouts, double lineX) {
     final fontSize = style.baseStyle.fontSize ?? 16.0;
 
@@ -535,6 +588,7 @@ class VerticalTextPainter extends CustomPainter {
         oldDelegate.kenten != kenten ||
         oldDelegate.warichu != warichu ||
         oldDelegate.tatechuyoko != tatechuyoko ||
+        oldDelegate.decorations != decorations ||
         oldDelegate.autoTatechuyoko != autoTatechuyoko ||
         oldDelegate.maxHeight != maxHeight ||
         oldDelegate.showGrid != showGrid;

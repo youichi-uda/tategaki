@@ -4,6 +4,7 @@ import '../models/ruby_text.dart';
 import '../models/kenten.dart';
 import '../models/tatechuyoko.dart';
 import '../models/warichu.dart';
+import '../models/text_decoration.dart';
 import '../models/vertical_text_span.dart';
 import '../rendering/vertical_text_painter.dart';
 
@@ -30,6 +31,9 @@ class VerticalText extends StatelessWidget {
   /// Tatechuyoko (horizontal text within vertical) annotations (used with plain text)
   final List<Tatechuyoko>? tatechuyoko;
 
+  /// Text decorations (傍線など) annotations (used with plain text)
+  final List<TextDecorationAnnotation>? decorations;
+
   /// Auto-detect and apply tatechuyoko to 2-digit numbers
   final bool autoTatechuyoko;
 
@@ -49,6 +53,7 @@ class VerticalText extends StatelessWidget {
     this.kenten,
     this.warichu,
     this.tatechuyoko,
+    this.decorations,
     this.autoTatechuyoko = false,
     this.maxHeight = 0,
     this.showGrid = false,
@@ -85,6 +90,7 @@ class VerticalText extends StatelessWidget {
         kenten = null,
         warichu = null,
         tatechuyoko = null,
+        decorations = null,
         assert(span != null, 'span must not be null');
 
   @override
@@ -108,6 +114,7 @@ class VerticalText extends StatelessWidget {
         kenten: kenten,
         warichu: warichu,
         tatechuyoko: tatechuyoko,
+        decorations: decorations,
         autoTatechuyoko: autoTatechuyoko,
         maxHeight: maxHeight,
         showGrid: showGrid,

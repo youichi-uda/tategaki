@@ -10,6 +10,7 @@ import 'demos/yakumono_demo.dart';
 import 'demos/richtext_demo.dart';
 import 'demos/selection_demo.dart';
 import 'demos/alignment_demo.dart';
+import 'demos/decoration_demo.dart';
 import 'demos/comprehensive_demo.dart';
 import 'demos/comprehensive_vert_demo.dart';
 
@@ -165,6 +166,17 @@ class _TategakiDemoHomeState extends State<TategakiDemoHome> {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const WarichuDemo()),
+            ),
+          ),
+          _buildDemoCard(
+            context,
+            title: '傍線（テキスト装飾）',
+            description: '文字の横に線を引いて強調',
+            icon: Icons.format_underline,
+            color: Colors.teal,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const DecorationDemo()),
             ),
           ),
           _buildDemoCard(
