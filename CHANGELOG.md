@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2026-01-10
+
+### Fixed
+- **Text selection handle dragging**
+  - Fixed handles being blocked by parent ScrollView gestures
+  - Replaced GestureDetector with RawGestureDetector for better gesture control
+  - Added early pointer detection with Listener to prevent scroll interference
+  - Increased handle size from 6px to 8px radius for better visibility
+  - Expanded handle hit test area from 24px to 48px for easier dragging
+  - Fixed handle positioning by adding proper left margin
+  - Handles now remain fully visible and draggable even inside ScrollView
+
+### Changed
+- Selection handles are now larger and easier to tap
+- Improved gesture handling with reduced touch slop (1.0px)
+- Text layout shifted to accommodate selection handle positioning
+
 ## [0.3.0] - 2026-01-10
 
 ### Added
