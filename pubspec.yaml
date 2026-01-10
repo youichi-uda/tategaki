@@ -12,7 +12,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  kinsoku: ^0.2.0
+  kinsoku:
+    path: ../kinsoku
 
 dev_dependencies:
   flutter_test:

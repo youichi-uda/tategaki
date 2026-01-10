@@ -9,6 +9,7 @@ import 'demos/kinsoku_demo.dart';
 import 'demos/yakumono_demo.dart';
 import 'demos/richtext_demo.dart';
 import 'demos/selection_demo.dart';
+import 'demos/alignment_demo.dart';
 import 'demos/comprehensive_demo.dart';
 import 'demos/comprehensive_vert_demo.dart';
 
@@ -219,6 +220,17 @@ class _TategakiDemoHomeState extends State<TategakiDemoHome> {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const SelectionDemo()),
+            ),
+          ),
+          _buildDemoCard(
+            context,
+            title: 'アライメント（地付き）',
+            description: '行全体の配置：天付き・中央・地付き',
+            icon: Icons.align_vertical_bottom,
+            color: Colors.brown,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AlignmentDemo()),
             ),
           ),
           _buildDemoCard(

@@ -1,4 +1,5 @@
 import 'package:flutter/painting.dart';
+import 'package:kinsoku/kinsoku.dart';
 
 /// Style configuration for vertical text layout
 class VerticalTextStyle {
@@ -40,6 +41,20 @@ class VerticalTextStyle {
   /// processing for yakumono (brackets, dashes, etc.)
   final bool useVerticalGlyphs;
 
+  /// Line alignment
+  /// - [TextAlignment.start]: Top alignment (天付き)
+  /// - [TextAlignment.center]: Center alignment
+  /// - [TextAlignment.end]: Bottom alignment (地付き)
+  final TextAlignment alignment;
+
+  /// Text indent in character units (字下げ)
+  ///
+  /// For vertical text, this shifts the starting position down by
+  /// `indent * fontSize` pixels.
+  ///
+  /// Example: `indent: 2` shifts text down by 2 character widths.
+  final int indent;
+
   const VerticalTextStyle({
     this.baseStyle = const TextStyle(),
     this.lineSpacing = 0.0,
@@ -52,6 +67,8 @@ class VerticalTextStyle {
     this.enableGyotoIndent = true,
     this.enableKerning = true,
     this.useVerticalGlyphs = false,
+    this.alignment = TextAlignment.center,
+    this.indent = 0,
   });
 
   /// Create a copy with modified properties
@@ -67,6 +84,8 @@ class VerticalTextStyle {
     bool? enableGyotoIndent,
     bool? enableKerning,
     bool? useVerticalGlyphs,
+    TextAlignment? alignment,
+    int? indent,
   }) {
     return VerticalTextStyle(
       baseStyle: baseStyle ?? this.baseStyle,
@@ -80,6 +99,8 @@ class VerticalTextStyle {
       enableGyotoIndent: enableGyotoIndent ?? this.enableGyotoIndent,
       enableKerning: enableKerning ?? this.enableKerning,
       useVerticalGlyphs: useVerticalGlyphs ?? this.useVerticalGlyphs,
+      alignment: alignment ?? this.alignment,
+      indent: indent ?? this.indent,
     );
   }
 

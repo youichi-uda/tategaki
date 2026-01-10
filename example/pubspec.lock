@@ -118,10 +118,9 @@ packages:
   kinsoku:
     dependency: transitive
     description:
-      name: kinsoku
-      sha256: "60ccbcbf5f213c715fffc150fbcff8ea4a66f93d1d439028d13350d3e8939c20"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../../kinsoku"
+      relative: true
+    source: path
     version: "0.2.0"
   leak_tracker:
     dependency: transitive
@@ -294,7 +293,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.3.0"
+    version: "0.3.1"
   term_glyph:
     dependency: transitive
     description:

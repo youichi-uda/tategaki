@@ -62,9 +62,6 @@ class KentenRenderer {
       case KentenStyle.star:
         _drawStar(canvas, position, size, strokePaint);
         break;
-      case KentenStyle.sideline:
-        _drawSideline(canvas, position, size, strokePaint);
-        break;
     }
   }
 
@@ -204,16 +201,6 @@ class KentenRenderer {
     }
     path.close();
     return path;
-  }
-
-  static void _drawSideline(Canvas canvas, Offset position, double size, Paint paint) {
-    final lineLength = size * 0.8;
-    // Draw vertical line to the right of character
-    canvas.drawLine(
-      Offset(position.dx, position.dy - lineLength / 2),
-      Offset(position.dx, position.dy + lineLength / 2),
-      paint..strokeWidth = 1.5,
-    );
   }
 
   /// Calculate position for kenten relative to character

@@ -70,8 +70,6 @@ class _KentenDemoState extends State<KentenDemo> {
                 _buildKentenExample('黒星', 'これは重要です', KentenStyle.filledStar),
                 const SizedBox(width: 40),
                 _buildKentenExample('白星', 'これは重要です', KentenStyle.star),
-                const SizedBox(width: 40),
-                _buildKentenExample('傍線', 'これは重要です', KentenStyle.sideline),
               ],
             ),
           ),

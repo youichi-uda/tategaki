@@ -70,7 +70,9 @@ class TextLayouter {
     final layouts = <CharacterLayout>[];
     final fontSize = style.baseStyle.fontSize ?? 16.0;
 
-    double currentY = 0.0;
+    // Apply indent (字下げ) - shift starting Y position
+    final indentOffset = style.indent * fontSize;
+    double currentY = indentOffset;
     double currentX = startX;
     int lineStartIndex = 0;
 
@@ -238,7 +240,7 @@ class TextLayouter {
           if (breakPosition < i) {
             // Move layouts after break position to next line
             currentX -= fontSize + style.lineSpacing;
-            currentY = 0.0;
+            currentY = indentOffset;
 
             // Find layouts that need to be moved (textIndex >= breakPosition)
             // Recalculate positions for moved characters
@@ -321,7 +323,7 @@ class TextLayouter {
           } else {
             // breakPosition == i, need to move current character to next line
             currentX -= fontSize + style.lineSpacing;
-            currentY = 0.0;
+            currentY = indentOffset;
 
             // Recalculate position for current character (i) at start of new line
             double newXOffset = 0.0;
@@ -374,8 +376,67 @@ class TextLayouter {
         } else {
           // shouldHang is true - let the character hang, but move to next line for subsequent characters
           currentX -= fontSize + style.lineSpacing;
-          currentY = 0.0;
+          currentY = indentOffset;
           lineStartIndex = i + 1;
+        }
+      }
+    }
+
+    // Apply line alignment (jizuki, tenzuki, center)
+    if (maxHeight > 0 && layouts.isNotEmpty) {
+      // Group layouts by line (X coordinate with tolerance for yakumono adjustment)
+      final lineWidth = fontSize + style.lineSpacing;
+      final lineGroups = <int, List<int>>{};
+      for (int i = 0; i < layouts.length; i++) {
+        final x = layouts[i].position.dx;
+        // Calculate line index based on distance from start position
+        // This accounts for yakumono position adjustments
+        final lineIndex = ((startX - x) / lineWidth).round();
+        lineGroups.putIfAbsent(lineIndex, () => []).add(i);
+      }
+
+      // Adjust Y position for each line based on alignment
+      for (final indices in lineGroups.values) {
+        if (indices.isEmpty) continue;
+
+        // Find the maximum Y coordinate in this line
+        double maxY = 0.0;
+        for (final idx in indices) {
+          final layout = layouts[idx];
+          double yEnd = layout.position.dy + layout.fontSize;
+          if (yEnd > maxY) {
+            maxY = yEnd;
+          }
+        }
+
+        // Calculate Y offset based on alignment
+        double yOffset = 0.0;
+        switch (style.alignment) {
+          case TextAlignment.start:
+            // Top alignment (天付き) - no offset
+            yOffset = 0.0;
+            break;
+          case TextAlignment.center:
+            // Center alignment - offset to center
+            yOffset = (maxHeight - maxY) / 2;
+            break;
+          case TextAlignment.end:
+            // Bottom alignment (地付き) - offset to bottom
+            yOffset = maxHeight - maxY;
+            break;
+        }
+
+        // Apply offset to all characters in this line
+        for (final idx in indices) {
+          final layout = layouts[idx];
+          layouts[idx] = CharacterLayout(
+            character: layout.character,
+            position: Offset(layout.position.dx, layout.position.dy + yOffset),
+            rotation: layout.rotation,
+            fontSize: layout.fontSize,
+            type: layout.type,
+            textIndex: layout.textIndex,
+          );
         }
       }
     }

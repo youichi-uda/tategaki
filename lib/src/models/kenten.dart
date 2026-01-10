@@ -38,9 +38,6 @@ enum KentenStyle {
 
   /// Hollow star (白星)
   star,
-
-  /// Sideline (傍線)
-  sideline,
 }
 
 /// Kenten (emphasis dots) annotation for vertical text
