@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:kinsoku/kinsoku.dart';
 import '../models/vertical_text_style.dart';
 import '../models/ruby_text.dart';
-import '../utils/character_classifier.dart';
 import '../utils/rotation_rules.dart';
-import '../utils/kerning_processor.dart';
-import '../utils/kinsoku_processor.dart';
-import '../utils/yakumono_adjuster.dart';
+import '../utils/kinsoku_adapter.dart';
 
 /// Layout information for a single character
 class CharacterLayout {
@@ -130,7 +128,8 @@ class TextLayouter {
 
       // Apply gyoto indent for opening brackets at line start
       double xOffset = 0.0;
-      if (style.enableGyotoIndent && layouts.isEmpty || (layouts.isNotEmpty && layouts.last.position.dx != currentX)) {
+      if (style.enableGyotoIndent &&
+          (layouts.isEmpty || layouts.last.position.dx != currentX)) {
         // This is a line start
         xOffset = YakumonoAdjuster.getGyotoIndent(char) * fontSize;
       }
@@ -138,7 +137,7 @@ class TextLayouter {
       // Apply yakumono position adjustment
       Offset position = Offset(currentX + xOffset, currentY);
       if (style.adjustYakumono) {
-        position = YakumonoAdjuster.adjustPosition(char, position, style);
+        position = KinsokuAdapter.adjustYakumonoPosition(char, position, style);
       }
 
       // Create layout
@@ -258,7 +257,7 @@ class TextLayouter {
 
               Offset newPosition = Offset(currentX + newXOffset, currentY);
               if (style.adjustYakumono) {
-                newPosition = YakumonoAdjuster.adjustPosition(layout.character, newPosition, style);
+                newPosition = KinsokuAdapter.adjustYakumonoPosition(layout.character, newPosition, style);
               }
 
               layouts[j] = CharacterLayout(
@@ -331,7 +330,7 @@ class TextLayouter {
 
             Offset newPosition = Offset(currentX + newXOffset, currentY);
             if (style.adjustYakumono) {
-              newPosition = YakumonoAdjuster.adjustPosition(char, newPosition, style);
+              newPosition = KinsokuAdapter.adjustYakumonoPosition(char, newPosition, style);
             }
 
             layouts[layouts.length - 1] = CharacterLayout(

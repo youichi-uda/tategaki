@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'character_classifier.dart';
+import 'package:kinsoku/kinsoku.dart';
 
 /// Rules for character rotation in vertical text layout
 class RotationRules {

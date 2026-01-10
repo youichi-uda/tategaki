@@ -16,12 +16,11 @@ export 'src/models/figure.dart';
 export 'src/models/vertical_text_span.dart';
 
 // Utils (for advanced usage)
-export 'src/utils/character_classifier.dart';
 export 'src/utils/rotation_rules.dart';
-export 'src/utils/yakumono_adjuster.dart';
 export 'src/utils/kenten_renderer.dart';
 export 'src/utils/warichu_renderer.dart';
 export 'src/utils/tatechuyoko_detector.dart';
-export 'src/utils/kinsoku_processor.dart';
-export 'src/utils/kerning_processor.dart';
 export 'src/utils/figure_layouter.dart';
+
+// Re-export kinsoku package for backward compatibility and convenience
+export 'package:kinsoku/kinsoku.dart';

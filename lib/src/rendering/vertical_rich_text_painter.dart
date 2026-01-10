@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:kinsoku/kinsoku.dart';
 import '../models/vertical_text_span.dart';
 import '../models/vertical_text_style.dart';
-import '../utils/character_classifier.dart';
 import '../utils/rotation_rules.dart';
-import '../utils/kerning_processor.dart';
-import '../utils/kinsoku_processor.dart';
-import '../utils/yakumono_adjuster.dart';
+import '../utils/kinsoku_adapter.dart';
 
 /// Custom painter for vertical rich text with multiple styles
 class VerticalRichTextPainter extends CustomPainter {
@@ -93,7 +91,7 @@ class VerticalRichTextPainter extends CustomPainter {
       // Apply yakumono position adjustment
       Offset position = Offset(currentX + xOffset, currentY);
       if (style.adjustYakumono) {
-        position = YakumonoAdjuster.adjustPosition(char, position, style);
+        position = KinsokuAdapter.adjustYakumonoPosition(char, position, style);
       }
 
       // Adjust number position (move right) - always apply regardless of line position
@@ -200,7 +198,7 @@ class VerticalRichTextPainter extends CustomPainter {
 
               Offset newPosition = Offset(currentX + newXOffset, currentY);
               if (layoutStyle.adjustYakumono) {
-                newPosition = YakumonoAdjuster.adjustPosition(
+                newPosition = KinsokuAdapter.adjustYakumonoPosition(
                   layout.character,
                   newPosition,
                   layoutStyle,
