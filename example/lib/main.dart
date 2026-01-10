@@ -8,6 +8,7 @@ import 'demos/tatechuyoko_demo.dart';
 import 'demos/kinsoku_demo.dart';
 import 'demos/yakumono_demo.dart';
 import 'demos/richtext_demo.dart';
+import 'demos/selection_demo.dart';
 import 'demos/comprehensive_demo.dart';
 import 'demos/comprehensive_vert_demo.dart';
 
@@ -211,6 +212,17 @@ class _TategakiDemoHomeState extends State<TategakiDemoHome> {
           ),
           _buildDemoCard(
             context,
+            title: 'テキスト選択',
+            description: 'ドラッグで選択・長押しでコピー',
+            icon: Icons.select_all,
+            color: Colors.cyan,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SelectionDemo()),
+            ),
+          ),
+          _buildDemoCard(
+            context,
             title: '総合デモ（標準）',
             description: '全機能 - 回転・位置調整あり',
             icon: Icons.auto_awesome,
@@ -253,7 +265,7 @@ class _TategakiDemoHomeState extends State<TategakiDemoHome> {
       elevation: 2,
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: color.withOpacity(0.2),
+          backgroundColor: color.withValues(alpha: 0.2),
           child: Icon(icon, color: color),
         ),
         title: Text(

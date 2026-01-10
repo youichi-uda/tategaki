@@ -285,17 +285,17 @@ class VerticalRichTextPainter extends CustomPainter {
 
   void _drawGrid(Canvas canvas, List<_StyledCharacterLayout> layouts) {
     final characterPaint = Paint()
-      ..color = Colors.blue.withOpacity(0.3)
+      ..color = Colors.blue.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 
     final spacingPaint = Paint()
-      ..color = Colors.orange.withOpacity(0.2)
+      ..color = Colors.orange.withValues(alpha: 0.2)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 
     final centerLinePaint = Paint()
-      ..color = Colors.red.withOpacity(0.3)
+      ..color = Colors.red.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0
       ..strokeCap = StrokeCap.round;

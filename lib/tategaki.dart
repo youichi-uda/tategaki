@@ -1,9 +1,10 @@
 /// A comprehensive Flutter package for Japanese vertical text (tategaki) layout
 /// with advanced typography features.
-library tategaki;
+library;
 
 // Widgets
 export 'src/widgets/vertical_text.dart';
+export 'src/widgets/selectable_vertical_text.dart';
 // export 'src/widgets/vertical_rich_text.dart'; // TODO: Update to new API
 
 // Models

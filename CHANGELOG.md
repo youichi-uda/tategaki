@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-01-10
+
+### Added
+- **Text selection support**
+  - SelectableVerticalText widget for user text selection
+  - Tap to select single character
+  - Drag to select text range
+  - Long-press to show copy menu
+  - Copy to clipboard functionality
+  - Selection highlighting with customizable color
+  - Selection demo page in example app
+
+### New Widgets
+- `SelectableVerticalText` - Vertical text with selection support
+- Selection demo at `example/lib/demos/selection_demo.dart`
+
+### Features
+- Character-level hit testing for accurate selection
+- Visual selection highlighting
+- Context menu with copy action
+- Works with ruby (furigana) and kenten annotations
+
 ## [0.2.0] - 2026-01-10
 
 ### Added

@@ -1,5 +1,17 @@
 import 'package:flutter/material.dart';
 import 'kenten.dart';
+import 'vertical_text_style.dart';
+
+/// Represents a character with its style
+class StyledCharacter {
+  final String character;
+  final VerticalTextStyle style;
+
+  const StyledCharacter({
+    required this.character,
+    required this.style,
+  });
+}
 
 /// Base class for vertical text spans (similar to Flutter's TextSpan)
 ///
@@ -90,6 +102,38 @@ abstract class VerticalTextSpan {
     }
     return index;
   }
+
+  /// Flatten the span tree into a list of styled characters
+  List<StyledCharacter> flatten() {
+    final result = <StyledCharacter>[];
+    final defaultStyle = VerticalTextStyle(baseStyle: style ?? const TextStyle());
+    _flattenRecursive(result, defaultStyle);
+    return result;
+  }
+
+  void _flattenRecursive(List<StyledCharacter> result, VerticalTextStyle parentStyle) {
+    final currentStyle = VerticalTextStyle(
+      baseStyle: parentStyle.baseStyle.merge(style),
+    );
+
+    if (text != null && this is! WarichuSpan) {
+      for (int i = 0; i < text!.length; i++) {
+        result.add(StyledCharacter(
+          character: text![i],
+          style: currentStyle,
+        ));
+      }
+    }
+
+    if (children != null) {
+      for (final child in children!) {
+        child._flattenRecursive(result, currentStyle);
+      }
+    }
+  }
+
+  /// Get the full text content of this span
+  String get fullText => toPlainText();
 }
 
 /// Plain text span with optional styling

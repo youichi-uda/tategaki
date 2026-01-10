@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/vertical_text_span.dart';
-import '../models/vertical_text_style.dart';
 import '../rendering/vertical_rich_text_painter.dart';
 
 /// A widget that displays vertical rich text with multiple styles
