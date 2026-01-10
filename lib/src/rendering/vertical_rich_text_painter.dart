@@ -353,22 +353,24 @@ class VerticalRichTextPainter extends CustomPainter {
     }
   }
 
+  // Reusable TextPainter instance to avoid repeated allocations
+  static final TextPainter _textPainter = TextPainter(
+    textDirection: TextDirection.ltr,
+  );
+
   void _drawCharacter(Canvas canvas, _StyledCharacterLayout layout) {
     canvas.save();
 
     // Move to character position
     canvas.translate(layout.position.dx, layout.position.dy);
 
-    // Create text painter with the character's specific style
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: layout.character,
-        style: layout.style.baseStyle.copyWith(fontSize: layout.fontSize),
-      ),
-      textDirection: TextDirection.ltr,
+    // Reuse text painter with the character's specific style
+    _textPainter.text = TextSpan(
+      text: layout.character,
+      style: layout.style.baseStyle.copyWith(fontSize: layout.fontSize),
     );
 
-    textPainter.layout();
+    _textPainter.layout();
 
     // Get the virtual cell size (fontSize)
     final fontSize = layout.style.baseStyle.fontSize ?? 16.0;
@@ -384,16 +386,16 @@ class VerticalRichTextPainter extends CustomPainter {
       // Horizontal center
       offsetX = 0;
       // Vertical positioning
-      offsetY = -textPainter.width;
+      offsetY = -_textPainter.width;
     } else {
       // For non-rotated characters
       // Center horizontally (X axis) within the virtual cell
-      offsetX = -(textPainter.width / 2);
+      offsetX = -(_textPainter.width / 2);
       // Center vertically (Y axis) within the virtual cell (fontSize)
-      offsetY = (fontSize - textPainter.height) / 2;
+      offsetY = (fontSize - _textPainter.height) / 2;
     }
 
-    textPainter.paint(canvas, Offset(offsetX, offsetY));
+    _textPainter.paint(canvas, Offset(offsetX, offsetY));
 
     canvas.restore();
   }

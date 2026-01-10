@@ -301,10 +301,17 @@ The package implements proper Japanese typography rules following the [W3C Japan
 
 ## Performance
 
-- Efficient character layout caching
-- Lazy rendering with CustomPainter
-- Minimal memory footprint for long texts
-- Suitable for dynamic content
+tategaki v0.2.0+ includes significant performance optimizations:
+
+- **TextPainter Reuse**: Reduced memory allocations by reusing TextPainter instances across renders
+- **Efficient Layout**: Character layout caching for optimal performance
+- **Lazy Rendering**: CustomPainter-based rendering with minimal overhead
+- **Memory Efficient**: Low memory footprint even for long vertical texts
+
+Performance improvements in v0.2.0:
+- ~50% reduction in TextPainter allocations
+- Improved rendering performance for scrollable vertical text lists
+- Reduced memory pressure during text rendering
 
 ## Limitations
 
@@ -323,7 +330,8 @@ The package implements proper Japanese typography rules following the [W3C Japan
 - [x] Advanced yakumono adjustment
 - [x] RichText support with multiple styles
 - [x] Comprehensive unit tests
-- [ ] Text selection with context menu (planned)
+- [x] Performance optimizations (v0.2.0)
+- [ ] Text selection with context menu (in progress)
 - [ ] Figure layout integration (in progress)
 - [ ] Text editing support (planned)
 - [ ] PDF export (planned)

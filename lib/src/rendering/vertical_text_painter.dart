@@ -307,22 +307,24 @@ class VerticalTextPainter extends CustomPainter {
     }
   }
 
+  // Reusable TextPainter instance to avoid repeated allocations
+  static final TextPainter _textPainter = TextPainter(
+    textDirection: TextDirection.ltr,
+  );
+
   void _drawCharacter(Canvas canvas, CharacterLayout layout) {
     canvas.save();
 
     // Move to character position
     canvas.translate(layout.position.dx, layout.position.dy);
 
-    // Create text painter
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: layout.character,
-        style: style.baseStyle.copyWith(fontSize: layout.fontSize),
-      ),
-      textDirection: TextDirection.ltr,
+    // Reuse text painter
+    _textPainter.text = TextSpan(
+      text: layout.character,
+      style: style.baseStyle.copyWith(fontSize: layout.fontSize),
     );
 
-    textPainter.layout();
+    _textPainter.layout();
 
     // Calculate offset based on rotation
     double offsetX, offsetY;
@@ -338,17 +340,17 @@ class VerticalTextPainter extends CustomPainter {
       // In the rotated coordinate system, apply positioning within virtual cell:
       offsetX = 0;
       // Vertical positioning - use text height / 2 to center at position.dx
-      offsetY = -textPainter.height / 2;
+      offsetY = -_textPainter.height / 2;
     } else {
       // For non-rotated characters
       // Center horizontally (X axis) within the virtual cell
-      offsetX = -(textPainter.width / 2);
+      offsetX = -(_textPainter.width / 2);
       // Center vertically (Y axis) within the virtual cell (fontSize)
-      offsetY = (fontSize - textPainter.height) / 2;
+      offsetY = (fontSize - _textPainter.height) / 2;
     }
 
     // Draw the character
-    textPainter.paint(canvas, Offset(offsetX, offsetY));
+    _textPainter.paint(canvas, Offset(offsetX, offsetY));
 
     canvas.restore();
   }
@@ -361,25 +363,22 @@ class VerticalTextPainter extends CustomPainter {
     for (int i = 0; i < layout.ruby.length; i++) {
       final char = layout.ruby[i];
 
-      final textPainter = TextPainter(
-        text: TextSpan(
-          text: char,
-          style: (style.rubyStyle ?? style.baseStyle).copyWith(
-            fontSize: rubyFontSize,
-          ),
+      _textPainter.text = TextSpan(
+        text: char,
+        style: (style.rubyStyle ?? style.baseStyle).copyWith(
+          fontSize: rubyFontSize,
         ),
-        textDirection: TextDirection.ltr,
       );
 
-      textPainter.layout();
+      _textPainter.layout();
 
       // Center the character horizontally
-      final offsetX = -(textPainter.width / 2);
-      textPainter.paint(canvas, Offset(layout.position.dx + offsetX, currentY));
+      final offsetX = -(_textPainter.width / 2);
+      _textPainter.paint(canvas, Offset(layout.position.dx + offsetX, currentY));
 
       // Move to next character position (vertically)
       // Use actual text height instead of fontSize
-      currentY += textPainter.height;
+      currentY += _textPainter.height;
     }
   }
 
