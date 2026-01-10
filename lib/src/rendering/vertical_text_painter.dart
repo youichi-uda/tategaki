@@ -215,7 +215,13 @@ class VerticalTextPainter extends CustomPainter {
 
     // Draw ruby if present
     if (_actualRuby.isNotEmpty) {
-      final rubyLayouts = layouter.layoutRuby(_actualText, _actualRuby, style, characterLayouts);
+      final rubyLayouts = layouter.layoutRuby(
+        _actualText,
+        _actualRuby,
+        style,
+        characterLayouts,
+        _actualKenten.isNotEmpty ? _actualKenten : null,
+      );
       for (final rubyLayout in rubyLayouts) {
         _drawRuby(canvas, rubyLayout);
       }

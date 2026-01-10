@@ -91,22 +91,32 @@ class _SelectableVerticalTextState extends State<SelectableVerticalText> {
 
   @override
   Widget build(BuildContext context) {
+    // Get default text color from theme if not specified
+    final defaultColor = widget.style.baseStyle.color ??
+        Theme.of(context).textTheme.bodyMedium?.color ??
+        const Color(0xFF000000);
+
     // Get selection color from theme if not specified
     final effectiveSelectionColor = widget.selectionColor ??
         Theme.of(context).textSelectionTheme.selectionColor ??
         const Color(0x6633B5E5);
 
+    // Merge default color with user style
+    final effectiveStyle = widget.style.copyWith(
+      baseStyle: widget.style.baseStyle.copyWith(color: defaultColor),
+    );
+
     // Calculate the size needed for the text
     final layouter = TextLayouter();
     final layouts = layouter.layoutText(
       widget.text,
-      widget.style,
+      effectiveStyle,
       widget.maxHeight,
     );
 
     double maxX = 0.0;
     double maxY = 0.0;
-    final fontSize = widget.style.baseStyle.fontSize ?? 16.0;
+    final fontSize = effectiveStyle.baseStyle.fontSize ?? 16.0;
 
     for (final layout in layouts) {
       maxX = (layout.position.dx + fontSize).clamp(maxX, double.infinity);
@@ -138,48 +148,58 @@ class _SelectableVerticalTextState extends State<SelectableVerticalText> {
         }
         return KeyEventResult.ignored;
       },
-      child: GestureDetector(
-        onTapDown: (details) {
-          _focusNode.requestFocus();
-          _handleTap(details.localPosition);
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (notification) {
+          // Block scrolling when dragging handles
+          if (_dragTarget == _DragTarget.startHandle || _dragTarget == _DragTarget.endHandle) {
+            return true; // Consume the notification to prevent scrolling
+          }
+          return false;
         },
-        onSecondaryTapDown: (details) {
-          _focusNode.requestFocus();
-          _handleSecondaryTap(details.localPosition, details.globalPosition);
-        },
-        onLongPressStart: (details) {
-          _focusNode.requestFocus();
-          _handleLongPress(details.localPosition, details.globalPosition);
-        },
-        onPanStart: (details) {
-          _focusNode.requestFocus();
-          _handlePanStart(details.localPosition);
-        },
-        onPanUpdate: (details) {
-          _handlePanUpdate(details.localPosition);
-        },
-        onPanEnd: (details) {
-          _handlePanEnd();
-        },
-        child: CustomPaint(
-          key: _textKey,
-          size: size,
-          painter: SelectableVerticalTextPainter(
-            text: widget.text,
-            style: widget.style,
-            maxHeight: widget.maxHeight,
-            showGrid: widget.showGrid,
-            rubyList: widget.rubyList,
-            kentenList: widget.kentenList,
-            tatechuyokoList: widget.tatechuyokoList,
-            selectionStart: _selectionStart,
-            selectionEnd: _selectionEnd,
-            selectionColor: effectiveSelectionColor,
-            handleColor: Theme.of(context).colorScheme.primary,
-            showHandles: true,
-            onLayoutsCalculated: (layouts) {
-              _layouts = layouts;
-            },
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: (details) {
+            _focusNode.requestFocus();
+            _handleTap(details.localPosition);
+          },
+          onSecondaryTapDown: (details) {
+            _focusNode.requestFocus();
+            _handleSecondaryTap(details.localPosition, details.globalPosition);
+          },
+          onLongPressStart: (details) {
+            _focusNode.requestFocus();
+            _handleLongPress(details.localPosition, details.globalPosition);
+          },
+          onPanStart: (details) {
+            _focusNode.requestFocus();
+            _handlePanStart(details.localPosition);
+          },
+          onPanUpdate: (details) {
+            _handlePanUpdate(details.localPosition);
+          },
+          onPanEnd: (details) {
+            _handlePanEnd();
+          },
+          child: CustomPaint(
+            key: _textKey,
+            size: size,
+            painter: SelectableVerticalTextPainter(
+              text: widget.text,
+              style: effectiveStyle,
+              maxHeight: widget.maxHeight,
+              showGrid: widget.showGrid,
+              rubyList: widget.rubyList,
+              kentenList: widget.kentenList,
+              tatechuyokoList: widget.tatechuyokoList,
+              selectionStart: _selectionStart,
+              selectionEnd: _selectionEnd,
+              selectionColor: effectiveSelectionColor,
+              handleColor: Theme.of(context).colorScheme.primary,
+              showHandles: true,
+              onLayoutsCalculated: (layouts) {
+                _layouts = layouts;
+              },
+            ),
           ),
         ),
       ),

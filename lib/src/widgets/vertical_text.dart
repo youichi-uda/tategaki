@@ -89,11 +89,21 @@ class VerticalText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get default text color from theme if not specified
+    final defaultColor = style.baseStyle.color ??
+        Theme.of(context).textTheme.bodyMedium?.color ??
+        const Color(0xFF000000);
+
+    // Merge default color with user style
+    final effectiveStyle = style.copyWith(
+      baseStyle: style.baseStyle.copyWith(color: defaultColor),
+    );
+
     return CustomPaint(
       painter: VerticalTextPainter(
         text: text,
         span: span,
-        style: style,
+        style: effectiveStyle,
         ruby: ruby,
         kenten: kenten,
         warichu: warichu,
@@ -102,16 +112,16 @@ class VerticalText extends StatelessWidget {
         maxHeight: maxHeight,
         showGrid: showGrid,
       ),
-      size: _calculateSize(),
+      size: _calculateSize(effectiveStyle),
     );
   }
 
-  Size _calculateSize() {
-    final fontSize = style.baseStyle.fontSize ?? 16.0;
+  Size _calculateSize(VerticalTextStyle effectiveStyle) {
+    final fontSize = effectiveStyle.baseStyle.fontSize ?? 16.0;
     final numChars = span != null ? span!.textLength : text!.length;
 
     // Calculate height (vertical extent in vertical text)
-    double height = numChars * (fontSize + style.characterSpacing);
+    double height = numChars * (fontSize + effectiveStyle.characterSpacing);
 
     // Calculate width (horizontal extent in vertical text)
     // Base width is one character width
@@ -119,7 +129,7 @@ class VerticalText extends StatelessWidget {
 
     // Add space for ruby text if present
     if (ruby != null && ruby!.isNotEmpty) {
-      final rubyFontSize = style.rubyStyle?.fontSize ?? (fontSize * 0.5);
+      final rubyFontSize = effectiveStyle.rubyStyle?.fontSize ?? (fontSize * 0.5);
       width += rubyFontSize + fontSize * 0.2; // Ruby size + margin
     }
 
@@ -142,7 +152,7 @@ class VerticalText extends StatelessWidget {
       // Width for multiple lines
       double lineWidth = fontSize;
       if (ruby != null && ruby!.isNotEmpty) {
-        final rubyFontSize = style.rubyStyle?.fontSize ?? (fontSize * 0.5);
+        final rubyFontSize = effectiveStyle.rubyStyle?.fontSize ?? (fontSize * 0.5);
         lineWidth += rubyFontSize + fontSize * 0.2;
       }
       if (kenten != null && kenten!.isNotEmpty) {
@@ -150,7 +160,7 @@ class VerticalText extends StatelessWidget {
       }
       // Warichu doesn't extend beyond main text width
 
-      width = lineWidth * linesNeeded + style.lineSpacing * (linesNeeded - 1);
+      width = lineWidth * linesNeeded + effectiveStyle.lineSpacing * (linesNeeded - 1);
     }
 
     return Size(width, height);

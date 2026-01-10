@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kinsoku/kinsoku.dart';
 import '../models/vertical_text_style.dart';
 import '../models/ruby_text.dart';
+import '../models/kenten.dart';
 import '../utils/rotation_rules.dart';
 import '../utils/kinsoku_adapter.dart';
 
@@ -388,6 +389,7 @@ class TextLayouter {
     List<RubyText> rubyList,
     VerticalTextStyle style,
     List<CharacterLayout> characterLayouts,
+    List<Kenten>? kentenList,
   ) {
     final layouts = <RubyLayout>[];
     final baseFontSize = style.baseStyle.fontSize ?? 16.0;
@@ -467,7 +469,26 @@ class TextLayouter {
 
         // Center ruby vertically with the base text
         final rubyY = baseY + (baseTextHeight - rubyTextHeight) / 2;
-        final rubyX = lineX + baseFontSize * 0.75;
+
+        // Check if any character in this ruby range has kenten
+        bool hasKenten = false;
+        if (kentenList != null) {
+          for (final kenten in kentenList) {
+            for (final charLayout in lineChars) {
+              if (charLayout.textIndex >= kenten.startIndex &&
+                  charLayout.textIndex < kenten.endIndex) {
+                hasKenten = true;
+                break;
+              }
+            }
+            if (hasKenten) break;
+          }
+        }
+
+        // Position ruby to the right of the character
+        // If kenten exists, add extra space to avoid overlap
+        final kentenOffset = hasKenten ? baseFontSize * 0.5 : 0.0;
+        final rubyX = lineX + baseFontSize * 0.75 + kentenOffset;
 
         layouts.add(RubyLayout(
           position: Offset(rubyX, rubyY),
