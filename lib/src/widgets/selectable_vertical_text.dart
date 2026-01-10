@@ -40,6 +40,11 @@ class SelectableVerticalText extends StatefulWidget {
   /// Selection color (if null, uses theme default)
   final Color? selectionColor;
 
+  /// Additional menu items to show in context menu
+  /// Called with the selected text when context menu is shown
+  /// The returned items will be added after Copy and Select All
+  final List<PopupMenuEntry<void>> Function(BuildContext context, String selectedText)? additionalMenuItems;
+
   const SelectableVerticalText({
     super.key,
     required this.text,
@@ -50,6 +55,7 @@ class SelectableVerticalText extends StatefulWidget {
     this.kentenList = const [],
     this.tatechuyokoList = const [],
     this.selectionColor,
+    this.additionalMenuItems,
   });
 
   @override
@@ -437,7 +443,57 @@ class _SelectableVerticalTextState extends State<SelectableVerticalText> {
   void _showContextMenu(Offset globalPosition) {
     if (_selectionStart == null || _selectionEnd == null) return;
 
+    final start = _selectionStart! < _selectionEnd! ? _selectionStart! : _selectionEnd!;
+    final end = _selectionStart! < _selectionEnd! ? _selectionEnd! : _selectionStart!;
+    final selectedText = widget.text.substring(start, end);
+
     final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+
+    final menuItems = <PopupMenuEntry<void>>[
+      PopupMenuItem(
+        child: Row(
+          children: [
+            const Icon(Icons.copy, size: 20),
+            const SizedBox(width: 12),
+            const Text('Copy'),
+            const Spacer(),
+            Text(
+              'Ctrl+C',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
+            ),
+          ],
+        ),
+        onTap: _copySelection,
+      ),
+      PopupMenuItem(
+        child: Row(
+          children: [
+            const Icon(Icons.select_all, size: 20),
+            const SizedBox(width: 12),
+            const Text('Select All'),
+            const Spacer(),
+            Text(
+              'Ctrl+A',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
+            ),
+          ],
+        ),
+        onTap: _selectAll,
+      ),
+    ];
+
+    // Add custom menu items if provided
+    if (widget.additionalMenuItems != null) {
+      final additionalItems = widget.additionalMenuItems!(context, selectedText);
+      if (additionalItems.isNotEmpty) {
+        menuItems.add(const PopupMenuDivider());
+        menuItems.addAll(additionalItems);
+      }
+    }
 
     showMenu(
       context: context,
@@ -445,42 +501,7 @@ class _SelectableVerticalTextState extends State<SelectableVerticalText> {
         globalPosition & const Size(1, 1),
         Offset.zero & overlay.size,
       ),
-      items: [
-        PopupMenuItem(
-          child: Row(
-            children: [
-              const Icon(Icons.copy, size: 20),
-              const SizedBox(width: 12),
-              const Text('Copy'),
-              const Spacer(),
-              Text(
-                'Ctrl+C',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).hintColor,
-                    ),
-              ),
-            ],
-          ),
-          onTap: _copySelection,
-        ),
-        PopupMenuItem(
-          child: Row(
-            children: [
-              const Icon(Icons.select_all, size: 20),
-              const SizedBox(width: 12),
-              const Text('Select All'),
-              const Spacer(),
-              Text(
-                'Ctrl+A',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).hintColor,
-                    ),
-              ),
-            ],
-          ),
-          onTap: _selectAll,
-        ),
-      ],
+      items: menuItems,
     );
   }
 }
