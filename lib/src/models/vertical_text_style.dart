@@ -1,5 +1,4 @@
 import 'package:flutter/painting.dart';
-import 'kinsoku_method.dart';
 
 /// Style configuration for vertical text layout
 class VerticalTextStyle {
@@ -21,10 +20,11 @@ class VerticalTextStyle {
   /// Text style for ruby (furigana) text
   final TextStyle? rubyStyle;
 
-  /// Method for kinsoku processing (line breaking rules)
-  /// - oikomi (追い込み): Push forbidden characters to previous line
-  /// - burasage (ぶら下げ): Allow forbidden characters to hang beyond maxHeight
-  final KinsokuMethod kinsokuMethod;
+  /// Enable kinsoku processing (line breaking rules)
+  /// When enabled, characters in burasageAllowed (。、）」】』〉》) will hang,
+  /// and other gyoto kinsoku characters (ー) will be pushed in (oikomi).
+  /// Default: true
+  final bool enableKinsoku;
 
   /// Enable half-width yakumono processing
   final bool enableHalfWidthYakumono;
@@ -47,10 +47,10 @@ class VerticalTextStyle {
     this.rotateLatinCharacters = true,
     this.adjustYakumono = true,
     this.rubyStyle,
-    this.kinsokuMethod = KinsokuMethod.oikomi,
-    this.enableHalfWidthYakumono = false,
-    this.enableGyotoIndent = false,
-    this.enableKerning = false,
+    this.enableKinsoku = true,
+    this.enableHalfWidthYakumono = true,
+    this.enableGyotoIndent = true,
+    this.enableKerning = true,
     this.useVerticalGlyphs = false,
   });
 
@@ -62,7 +62,7 @@ class VerticalTextStyle {
     bool? rotateLatinCharacters,
     bool? adjustYakumono,
     TextStyle? rubyStyle,
-    KinsokuMethod? kinsokuMethod,
+    bool? enableKinsoku,
     bool? enableHalfWidthYakumono,
     bool? enableGyotoIndent,
     bool? enableKerning,
@@ -75,11 +75,39 @@ class VerticalTextStyle {
       rotateLatinCharacters: rotateLatinCharacters ?? this.rotateLatinCharacters,
       adjustYakumono: adjustYakumono ?? this.adjustYakumono,
       rubyStyle: rubyStyle ?? this.rubyStyle,
-      kinsokuMethod: kinsokuMethod ?? this.kinsokuMethod,
+      enableKinsoku: enableKinsoku ?? this.enableKinsoku,
       enableHalfWidthYakumono: enableHalfWidthYakumono ?? this.enableHalfWidthYakumono,
       enableGyotoIndent: enableGyotoIndent ?? this.enableGyotoIndent,
       enableKerning: enableKerning ?? this.enableKerning,
       useVerticalGlyphs: useVerticalGlyphs ?? this.useVerticalGlyphs,
+    );
+  }
+
+  /// Create a VerticalTextStyle configured for using vertical glyphs (OpenType 'vert' feature)
+  ///
+  /// This factory method returns a style optimized for fonts with proper vertical glyph support.
+  /// When using vertical glyphs, most punctuation rotation is handled by the font,
+  /// so manual adjustments are disabled.
+  factory VerticalTextStyle.withVerticalGlyphs({
+    TextStyle baseStyle = const TextStyle(),
+    double lineSpacing = 0.0,
+    double characterSpacing = 0.0,
+    bool rotateLatinCharacters = true,
+    TextStyle? rubyStyle,
+    bool enableKinsoku = true,
+  }) {
+    return VerticalTextStyle(
+      baseStyle: baseStyle,
+      lineSpacing: lineSpacing,
+      characterSpacing: characterSpacing,
+      rotateLatinCharacters: rotateLatinCharacters,
+      adjustYakumono: false,  // Font handles yakumono positioning
+      rubyStyle: rubyStyle,
+      enableKinsoku: enableKinsoku,
+      enableHalfWidthYakumono: false,  // Font handles this
+      enableGyotoIndent: false,  // Font handles this
+      enableKerning: false,  // Font handles this
+      useVerticalGlyphs: true,
     );
   }
 }

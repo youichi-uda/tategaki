@@ -8,7 +8,7 @@
 /// ### 1. Line-start prohibition (行頭禁則, gyoto kinsoku)
 /// Characters that cannot appear at the start of a line:
 /// - Periods and commas: 。、
-/// - Closing bracket: 」
+/// - Closing brackets: ）」】』〉》
 /// - Long vowel mark: ー
 ///
 /// ### 2. Line-end prohibition (行末禁則, gyomatsu kinsoku)
@@ -17,7 +17,7 @@
 ///
 /// ### 3. Hanging (ぶら下げ, burasage)
 /// When line-start prohibited characters appear at line end, they can either:
-/// - Hang outside the text box (burasage) - only for: 。、」
+/// - Hang outside the text box (burasage) - for: 。、）」】』〉》
 /// - Be pushed into the previous line (oikomi) - for: ー
 ///
 /// ### 4. Separation prohibition (分離禁止)
@@ -42,7 +42,7 @@ class KinsokuProcessor {
   /// box (burasage) if it's in burasageAllowed.
   static const Set<String> gyotoKinsoku = {
     '。', '、', // Periods and commas (can hang)
-    '」', // Closing bracket (can hang)
+    '）', '」', '】', '』', '〉', '》', // Closing brackets (can hang)
     'ー', // Long vowel mark (cannot hang, must use oikomi)
   };
 
@@ -52,7 +52,7 @@ class KinsokuProcessor {
   /// being pushed into the previous line.
   static const Set<String> burasageAllowed = {
     '。', '、', // Periods and commas
-    '」', // Closing bracket
+    '）', '」', '】', '』', '〉', '》', // Closing brackets
   };
 
   /// Characters that cannot hang (must use oikomi when line breaking)

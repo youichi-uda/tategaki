@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/vertical_text_span.dart';
 import '../models/vertical_text_style.dart';
-import '../models/kinsoku_method.dart';
 import '../utils/character_classifier.dart';
 import '../utils/rotation_rules.dart';
 import '../utils/kerning_processor.dart';
@@ -162,15 +161,13 @@ class VerticalRichTextPainter extends CustomPainter {
       // Handle line wrapping
       if (maxHeight > 0 && currentY > maxHeight) {
         // Determine whether to hang or wrap based on character type
-        // Small characters (。、) can hang (burasage)
-        // Full-size characters (！？…… etc) must be pushed in (oikomi)
+        // Characters in burasageAllowed (。、）」】』〉》) will hang (burasage)
+        // Other gyoto kinsoku characters (ー) will be pushed in (oikomi)
         bool shouldHang = false;
 
-        if (style.kinsokuMethod == KinsokuMethod.burasage) {
-          // Only allow hanging for small characters that are explicitly allowed
-          if (KinsokuProcessor.canHangAtLineEnd(char)) {
-            shouldHang = true;
-          }
+        // Check if this character can hang (based on character type only)
+        if (style.enableKinsoku && KinsokuProcessor.canHangAtLineEnd(char)) {
+          shouldHang = true;
         }
 
         if (!shouldHang) {
@@ -276,6 +273,11 @@ class VerticalRichTextPainter extends CustomPainter {
             currentX -= fontSize + style.lineSpacing;
             lineStartIndex = i + 1;
           }
+        } else {
+          // shouldHang is true - let the character hang, but move to next line for subsequent characters
+          currentX -= fontSize + style.lineSpacing;
+          currentY = 0.0;
+          lineStartIndex = i + 1;
         }
       }
     }

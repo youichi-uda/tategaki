@@ -11,7 +11,7 @@ class KinsokuDemo extends StatefulWidget {
 
 class _KinsokuDemoState extends State<KinsokuDemo> {
   bool _showGrid = false;
-  KinsokuMethod _kinsokuMethod = KinsokuMethod.oikomi;
+  bool _enableKinsoku = true;
   double _maxHeight = 250.0;
 
   @override
@@ -24,17 +24,15 @@ class _KinsokuDemoState extends State<KinsokuDemo> {
           TextButton.icon(
             onPressed: () {
               setState(() {
-                _kinsokuMethod = _kinsokuMethod == KinsokuMethod.oikomi
-                    ? KinsokuMethod.burasage
-                    : KinsokuMethod.oikomi;
+                _enableKinsoku = !_enableKinsoku;
               });
             },
-            icon: const Icon(
-              Icons.swap_horiz,
+            icon: Icon(
+              _enableKinsoku ? Icons.check_circle : Icons.cancel,
               color: Colors.white,
             ),
             label: Text(
-              _kinsokuMethod == KinsokuMethod.oikomi ? '追い込み' : 'ぶら下げ',
+              _enableKinsoku ? '禁則ON' : '禁則OFF',
               style: const TextStyle(color: Colors.white),
             ),
           ),
@@ -64,9 +62,9 @@ class _KinsokuDemoState extends State<KinsokuDemo> {
             child: Column(
               children: [
                 Text(
-                  _kinsokuMethod == KinsokuMethod.oikomi
-                      ? '追い込み処理：行頭禁則文字を前の行に戻す'
-                      : 'ぶら下げ処理：小さい文字（。、）のみ行末にぶら下げ可能',
+                  _enableKinsoku
+                      ? '禁則処理有効：句読点・閉じ括弧はぶら下げ、長音記号は追い込み'
+                      : '禁則処理無効：改行位置で自由に分割されます',
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
@@ -160,9 +158,7 @@ class _KinsokuDemoState extends State<KinsokuDemo> {
             ),
             characterSpacing: 4,
             lineSpacing: 20,
-            kinsokuMethod: _kinsokuMethod,
-            enableGyotoIndent: true,
-            adjustYakumono: true,
+            enableKinsoku: _enableKinsoku,
           ),
           autoTatechuyoko: true,
           maxHeight: _maxHeight,
