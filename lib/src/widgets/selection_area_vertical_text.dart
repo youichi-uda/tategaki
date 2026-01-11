@@ -631,9 +631,10 @@ class RenderSelectionAreaVerticalText extends RenderBox with Selectable, Selecti
 
     if (isStart) {
       _selectionStart = clampedIndex;
-      if (_selectionEnd < 0) _selectionEnd = clampedIndex;
+      if (_selectionEnd < 0) _selectionEnd = (clampedIndex + 1).clamp(0, _text.length);
     } else {
-      _selectionEnd = clampedIndex;
+      // End is exclusive, so add 1 to include the character under the cursor
+      _selectionEnd = (clampedIndex + 1).clamp(0, _text.length);
       if (_selectionStart < 0) _selectionStart = clampedIndex;
     }
 
