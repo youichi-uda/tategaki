@@ -11,6 +11,7 @@ import 'demos/richtext_demo.dart';
 import 'demos/selection_demo.dart';
 import 'demos/alignment_demo.dart';
 import 'demos/decoration_demo.dart';
+import 'demos/gaiji_demo.dart';
 import 'demos/comprehensive_demo.dart';
 import 'demos/comprehensive_vert_demo.dart';
 
@@ -243,6 +244,17 @@ class _TategakiDemoHomeState extends State<TategakiDemoHome> {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const AlignmentDemo()),
+            ),
+          ),
+          _buildDemoCard(
+            context,
+            title: '外字（画像文字）',
+            description: 'フォントにない文字を画像で表示',
+            icon: Icons.image,
+            color: Colors.lime,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const GaijiDemo()),
             ),
           ),
           _buildDemoCard(

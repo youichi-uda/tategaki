@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import '../models/vertical_text_style.dart';
 import '../models/ruby_text.dart';
@@ -6,10 +7,12 @@ import '../models/warichu.dart';
 import '../models/tatechuyoko.dart';
 import '../models/text_decoration.dart';
 import '../models/vertical_text_span.dart';
+import '../models/gaiji.dart';
 import '../utils/kenten_renderer.dart';
 import '../utils/warichu_renderer.dart';
 import '../utils/decoration_renderer.dart';
 import '../utils/tatechuyoko_detector.dart';
+import '../utils/gaiji_renderer.dart';
 import 'text_layouter.dart';
 
 /// Custom painter for vertical text
@@ -22,6 +25,8 @@ class VerticalTextPainter extends CustomPainter {
   final List<Warichu>? warichu;
   final List<Tatechuyoko>? tatechuyoko;
   final List<TextDecorationAnnotation>? decorations;
+  final List<Gaiji>? gaiji;
+  final Map<int, ui.Image>? resolvedGaijiImages;
   final bool autoTatechuyoko;
   final TextLayouter layouter;
   final double maxHeight;
@@ -34,6 +39,7 @@ class VerticalTextPainter extends CustomPainter {
   late final List<Warichu> _actualWarichu;
   late final List<Tatechuyoko> _actualTatechuyoko;
   late final List<TextDecorationAnnotation> _actualDecorations;
+  late final List<Gaiji> _actualGaiji;
 
   VerticalTextPainter({
     this.text,
@@ -44,6 +50,8 @@ class VerticalTextPainter extends CustomPainter {
     this.warichu,
     this.tatechuyoko,
     this.decorations,
+    this.gaiji,
+    this.resolvedGaijiImages,
     this.autoTatechuyoko = false,
     TextLayouter? layouter,
     this.maxHeight = 0,
@@ -60,6 +68,7 @@ class VerticalTextPainter extends CustomPainter {
       _actualWarichu = warichu ?? [];
       _actualTatechuyoko = tatechuyoko ?? [];
       _actualDecorations = decorations ?? [];
+      _actualGaiji = gaiji ?? [];
     }
   }
 
@@ -92,6 +101,7 @@ class VerticalTextPainter extends CustomPainter {
     _actualWarichu = warichuList;
     _actualTatechuyoko = tatechuyokoList;
     _actualDecorations = []; // TODO: Add DecorationSpan support in the future
+    _actualGaiji = gaiji ?? []; // TODO: Add GaijiSpan support in the future
   }
 
   int _visitSpansForAnnotations(
@@ -173,6 +183,14 @@ class VerticalTextPainter extends CustomPainter {
       }
     }
 
+    // Create set of indices that are replaced by gaiji
+    final gaijiIndices = <int>{};
+    for (final g in _actualGaiji) {
+      for (int i = g.startIndex; i < g.endIndex; i++) {
+        gaijiIndices.add(i);
+      }
+    }
+
     // Calculate starting X position (right edge minus one character width)
     final fontSize = style.baseStyle.fontSize ?? 16.0;
     final startX = size.width - fontSize;
@@ -208,10 +226,19 @@ class VerticalTextPainter extends CustomPainter {
       warichuHeights: warichuHeights,
     );
 
-    // Draw each character (skip tatechuyoko characters only, not warichu)
+    // Draw each character (skip tatechuyoko and gaiji characters)
     for (final layout in characterLayouts) {
-      if (!tatechuyokoIndices.contains(layout.textIndex)) {
+      if (!tatechuyokoIndices.contains(layout.textIndex) &&
+          !gaijiIndices.contains(layout.textIndex)) {
         _drawCharacter(canvas, layout);
+      }
+    }
+
+    // Draw gaiji images if resolved
+    if (resolvedGaijiImages != null && resolvedGaijiImages!.isNotEmpty && _actualGaiji.isNotEmpty) {
+      final gaijiLayouts = _buildGaijiLayouts(characterLayouts, fontSize);
+      if (gaijiLayouts.isNotEmpty) {
+        GaijiRenderer.drawGaijiList(canvas, gaijiLayouts, fontSize);
       }
     }
 
@@ -579,6 +606,41 @@ class VerticalTextPainter extends CustomPainter {
     canvas.restore();
   }
 
+  /// Build gaiji layouts from character layouts and resolved images
+  List<GaijiLayout> _buildGaijiLayouts(
+    List<CharacterLayout> characterLayouts,
+    double fontSize,
+  ) {
+    final layouts = <GaijiLayout>[];
+
+    for (int i = 0; i < _actualGaiji.length; i++) {
+      final gaijiDef = _actualGaiji[i];
+      final image = resolvedGaijiImages![i];
+      if (image == null) continue;
+
+      // Find the character layout at the gaiji position
+      CharacterLayout? charLayout;
+      for (final layout in characterLayouts) {
+        if (layout.textIndex == gaijiDef.startIndex) {
+          charLayout = layout;
+          break;
+        }
+      }
+
+      if (charLayout != null) {
+        layouts.add(GaijiLayout(
+          position: charLayout.position,
+          width: gaijiDef.width ?? fontSize,
+          height: gaijiDef.height ?? fontSize,
+          image: image,
+          textIndex: gaijiDef.startIndex,
+        ));
+      }
+    }
+
+    return layouts;
+  }
+
   @override
   bool shouldRepaint(covariant VerticalTextPainter oldDelegate) {
     return oldDelegate.text != text ||
@@ -589,6 +651,8 @@ class VerticalTextPainter extends CustomPainter {
         oldDelegate.warichu != warichu ||
         oldDelegate.tatechuyoko != tatechuyoko ||
         oldDelegate.decorations != decorations ||
+        oldDelegate.gaiji != gaiji ||
+        oldDelegate.resolvedGaijiImages != resolvedGaijiImages ||
         oldDelegate.autoTatechuyoko != autoTatechuyoko ||
         oldDelegate.maxHeight != maxHeight ||
         oldDelegate.showGrid != showGrid;
