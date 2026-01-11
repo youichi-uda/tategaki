@@ -400,7 +400,7 @@ class SelectionDemo extends StatelessWidget {
                         child: SelectionAreaVerticalText(
                           text: '縦書きテキスト選択可能',
                           style: VerticalTextStyle(
-                            baseStyle: const TextStyle(fontSize: 20),
+                            baseStyle: const TextStyle(fontSize: 20, color: Colors.black),
                           ),
                           maxHeight: 200,
                         ),
