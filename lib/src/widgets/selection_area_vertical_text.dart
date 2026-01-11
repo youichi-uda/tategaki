@@ -364,10 +364,12 @@ class RenderSelectionAreaVerticalText extends RenderBox with Selectable, Selecti
     if (_characterLayouts == null || _characterLayouts!.isEmpty) return;
 
     final canvas = context.canvas;
+    canvas.save();
+    canvas.translate(offset.dx, offset.dy);
 
     // Draw selection highlight
     if (_selectionStart >= 0 && _selectionEnd >= 0 && _selectionStart != _selectionEnd) {
-      _paintSelection(canvas, offset);
+      _paintSelection(canvas);
     }
 
     // Draw text using VerticalTextPainter
@@ -384,9 +386,11 @@ class RenderSelectionAreaVerticalText extends RenderBox with Selectable, Selecti
       maxHeight: _maxHeight,
     );
     painter.paint(canvas, size);
+
+    canvas.restore();
   }
 
-  void _paintSelection(Canvas canvas, Offset offset) {
+  void _paintSelection(Canvas canvas) {
     final paint = Paint()..color = _selectionColor;
     final fontSize = _style.baseStyle.fontSize ?? 16.0;
 
@@ -396,8 +400,8 @@ class RenderSelectionAreaVerticalText extends RenderBox with Selectable, Selecti
     for (final layout in _characterLayouts!) {
       if (layout.textIndex >= start && layout.textIndex < end) {
         final rect = Rect.fromLTWH(
-          offset.dx + layout.position.dx - fontSize / 2,
-          offset.dy + layout.position.dy,
+          layout.position.dx - fontSize / 2,
+          layout.position.dy,
           fontSize,
           fontSize,
         );
