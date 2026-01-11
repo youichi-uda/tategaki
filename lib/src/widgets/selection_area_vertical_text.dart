@@ -254,6 +254,10 @@ class RenderSelectionAreaVerticalText extends RenderBox with Selectable, Selecti
     markNeedsPaint();
   }
 
+  // Handle layers for selection handles
+  LayerLink? _startHandleLayerLink;
+  LayerLink? _endHandleLayerLink;
+
   // Selectable implementation
   @override
   SelectionGeometry get value => _selectionGeometry;
@@ -400,6 +404,55 @@ class RenderSelectionAreaVerticalText extends RenderBox with Selectable, Selecti
     painter.paint(canvas, size);
 
     canvas.restore();
+
+    // Paint handle layers
+    _paintHandleLayers(context, offset);
+  }
+
+  void _paintHandleLayers(PaintingContext context, Offset offset) {
+    if (_selectionStart < 0 || _selectionEnd < 0 || _selectionStart == _selectionEnd) {
+      return;
+    }
+
+    final fontSize = _style.baseStyle.fontSize ?? 16.0;
+    final start = math.min(_selectionStart, _selectionEnd);
+    final end = math.max(_selectionStart, _selectionEnd);
+
+    Offset? startOffset;
+    Offset? endOffset;
+
+    for (final layout in _characterLayouts!) {
+      if (layout.textIndex == start) {
+        startOffset = Offset(
+          offset.dx + layout.position.dx,
+          offset.dy + layout.position.dy,
+        );
+      }
+      if (layout.textIndex == end - 1) {
+        endOffset = Offset(
+          offset.dx + layout.position.dx,
+          offset.dy + layout.position.dy + fontSize,
+        );
+      }
+    }
+
+    // Paint start handle layer
+    if (_startHandleLayerLink != null && startOffset != null) {
+      context.pushLayer(
+        LeaderLayer(link: _startHandleLayerLink!, offset: startOffset),
+        (context, offset) {},
+        Offset.zero,
+      );
+    }
+
+    // Paint end handle layer
+    if (_endHandleLayerLink != null && endOffset != null) {
+      context.pushLayer(
+        LeaderLayer(link: _endHandleLayerLink!, offset: endOffset),
+        (context, offset) {},
+        Offset.zero,
+      );
+    }
   }
 
   void _paintSelection(Canvas canvas) {
@@ -701,7 +754,11 @@ class RenderSelectionAreaVerticalText extends RenderBox with Selectable, Selecti
 
   @override
   void pushHandleLayers(LayerLink? startHandle, LayerLink? endHandle) {
-    // Handle layers for selection handles
-    // This is optional but provides better visual feedback
+    if (_startHandleLayerLink == startHandle && _endHandleLayerLink == endHandle) {
+      return;
+    }
+    _startHandleLayerLink = startHandle;
+    _endHandleLayerLink = endHandle;
+    markNeedsPaint();
   }
 }
