@@ -78,12 +78,22 @@ class TextLayouter {
     int lineStartIndex = 0;
 
     for (int i = 0; i < text.length; i++) {
+      final char = text[i];
+
+      // Handle newline characters
+      if (char == '\n') {
+        // Move to next column (left)
+        currentX -= fontSize + style.lineSpacing;
+        currentY = indentOffset;
+        lineStartIndex = i + 1;
+        continue;
+      }
+
       // Skip characters that are part of tatechuyoko (except the first one)
       if (tatechuyokoIndices != null && tatechuyokoIndices.contains(i)) {
         // Check if this is the first character of a tatechuyoko range
         if (i == 0 || !tatechuyokoIndices.contains(i - 1)) {
           // This is the first character - create a placeholder layout
-          final char = text[i];
           final type = CharacterClassifier.classify(char);
 
           final position = Offset(currentX, currentY);
@@ -103,8 +113,6 @@ class TextLayouter {
         // Skip remaining characters in tatechuyoko range
         continue;
       }
-
-      final char = text[i];
       final type = CharacterClassifier.classify(char);
 
       // Use base font size for all characters
