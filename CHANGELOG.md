@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2026-01-12
+
+### Fixed
+- Fixed `SelectionAreaVerticalText` constraint violation error
+  - `RenderSelectionAreaVerticalText` now properly constrains its size to parent constraints
+  - Prevents "does not meet its constraints" assertion when text height exceeds available space
+
 ## [0.6.0] - 2026-01-12
 
 ### Breaking Changes

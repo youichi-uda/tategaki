@@ -304,13 +304,13 @@ class RenderSelectionAreaVerticalText extends RenderBox with Selectable, Selecti
   @override
   Size computeDryLayout(BoxConstraints constraints) {
     _ensureLayout(constraints);
-    return _computedSize ?? Size.zero;
+    return constraints.constrain(_computedSize ?? Size.zero);
   }
 
   @override
   void performLayout() {
     _ensureLayout(constraints);
-    size = _computedSize ?? Size.zero;
+    size = constraints.constrain(_computedSize ?? Size.zero);
     _updateSelectionGeometry();
   }
 
