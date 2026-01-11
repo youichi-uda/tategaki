@@ -594,4 +594,45 @@ class TextLayouter {
 
     return layouts;
   }
+
+  /// Calculate the required width for vertical text layout
+  ///
+  /// This performs a layout pass to determine the actual number of lines
+  /// needed, accounting for kinsoku, rotated characters, etc.
+  double calculateRequiredWidth(
+    String text,
+    VerticalTextStyle style,
+    double maxHeight, {
+    double startX = 0.0,
+    Set<int>? tatechuyokoIndices,
+    Map<int, double>? warichuHeights,
+    double annotationWidth = 0.0,
+  }) {
+    // Perform layout to get actual character positions
+    final layouts = layoutText(
+      text,
+      style,
+      maxHeight,
+      startX: startX,
+      tatechuyokoIndices: tatechuyokoIndices,
+      warichuHeights: warichuHeights,
+    );
+
+    if (layouts.isEmpty) {
+      return annotationWidth;
+    }
+
+    // Find minimum X coordinate from all character positions
+    double minX = layouts.first.position.dx;
+    for (final layout in layouts) {
+      if (layout.position.dx < minX) {
+        minX = layout.position.dx;
+      }
+    }
+
+    final fontSize = style.baseStyle.fontSize ?? 16.0;
+
+    // Calculate required width: startX - minX + fontSize (for rightmost line) + annotationWidth
+    return startX - minX + fontSize + annotationWidth;
+  }
 }

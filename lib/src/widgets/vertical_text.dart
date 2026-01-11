@@ -9,6 +9,8 @@ import '../models/text_decoration.dart';
 import '../models/vertical_text_span.dart';
 import '../models/gaiji.dart';
 import '../rendering/vertical_text_painter.dart';
+import '../rendering/text_layouter.dart';
+import '../utils/tatechuyoko_detector.dart';
 
 /// A widget that displays vertical Japanese text (tategaki)
 class VerticalText extends StatefulWidget {
@@ -67,23 +69,6 @@ class VerticalText extends StatefulWidget {
         assert(text != null, 'text must not be null');
 
   /// Creates a vertical text widget with rich text composition
-  ///
-  /// This constructor uses a span-based API similar to Flutter's Text.rich()
-  /// which makes it easier to compose text with different styles and annotations.
-  ///
-  /// Example:
-  /// ```dart
-  /// VerticalText.rich(
-  ///   TextSpanV(
-  ///     children: [
-  ///       RubySpan(text: '東京', ruby: 'とうきょう'),
-  ///       TextSpanV(text: 'と'),
-  ///       RubySpan(text: '大阪', ruby: 'おおさか'),
-  ///       TextSpanV(text: 'は日本の大都市である。'),
-  ///     ],
-  ///   ),
-  /// )
-  /// ```
   const VerticalText.rich(
     this.span, {
     super.key,
@@ -113,6 +98,9 @@ class _VerticalTextState extends State<VerticalText> {
 
   /// Image stream listeners for proper disposal
   final Map<int, ImageStreamListener> _imageStreamListeners = {};
+
+  /// Text layouter for size calculation
+  final TextLayouter _layouter = TextLayouter();
 
   @override
   void initState() {
@@ -212,50 +200,88 @@ class _VerticalTextState extends State<VerticalText> {
 
   Size _calculateSize(VerticalTextStyle effectiveStyle) {
     final fontSize = effectiveStyle.baseStyle.fontSize ?? 16.0;
-    final numChars = widget.span != null ? widget.span!.textLength : widget.text!.length;
 
-    // Calculate height (vertical extent in vertical text)
-    double height = numChars * (fontSize + effectiveStyle.characterSpacing);
+    // Get actual text
+    final actualText = widget.span != null ? widget.span!.toPlainText() : widget.text!;
 
-    // Calculate width (horizontal extent in vertical text)
-    // Base width is one character width
-    double width = fontSize;
-
-    // Add space for ruby text if present
-    if (widget.ruby != null && widget.ruby!.isNotEmpty) {
-      final rubyFontSize = effectiveStyle.rubyStyle?.fontSize ?? (fontSize * 0.5);
-      width += rubyFontSize + fontSize * 0.2; // Ruby size + margin
+    if (actualText.isEmpty) {
+      return Size(fontSize, fontSize);
     }
 
-    // Add space for kenten if present
-    if (widget.kenten != null && widget.kenten!.isNotEmpty) {
-      width += fontSize * 0.5; // Extra space for kenten on the right
-    }
-
-    // Add space for warichu if present
-    if (widget.warichu != null && widget.warichu!.isNotEmpty) {
-      // Warichu doesn't extend beyond main text width
-      // No extra space needed
-    }
-
-    // Handle wrapping
-    if (widget.maxHeight > 0 && height > widget.maxHeight) {
-      final linesNeeded = (height / widget.maxHeight).ceil();
+    // Calculate height
+    double height;
+    if (widget.maxHeight > 0) {
       height = widget.maxHeight;
-
-      // Width for multiple lines
-      double lineWidth = fontSize;
-      if (widget.ruby != null && widget.ruby!.isNotEmpty) {
-        final rubyFontSize = effectiveStyle.rubyStyle?.fontSize ?? (fontSize * 0.5);
-        lineWidth += rubyFontSize + fontSize * 0.2;
+    } else {
+      // Calculate total text height without wrapping
+      double totalHeight = 0.0;
+      for (int i = 0; i < actualText.length; i++) {
+        final char = actualText[i];
+        if (char != '\n') {
+          totalHeight += fontSize + effectiveStyle.characterSpacing;
+        }
       }
-      if (widget.kenten != null && widget.kenten!.isNotEmpty) {
-        lineWidth += fontSize * 0.5;
-      }
-      // Warichu doesn't extend beyond main text width
-
-      width = lineWidth * linesNeeded + effectiveStyle.lineSpacing * (linesNeeded - 1);
+      height = totalHeight > 0 ? totalHeight : fontSize;
     }
+
+    // Calculate annotation width for ruby/kenten
+    double annotationWidth = 0.0;
+
+    final actualRuby = widget.ruby ?? [];
+    final actualKenten = widget.kenten ?? [];
+
+    if (actualRuby.isNotEmpty) {
+      final rubyFontSize = effectiveStyle.rubyStyle?.fontSize ?? (fontSize * 0.5);
+      annotationWidth = rubyFontSize + fontSize * 0.25;
+    }
+
+    if (actualKenten.isNotEmpty) {
+      annotationWidth = annotationWidth > 0
+          ? annotationWidth + fontSize * 0.5
+          : fontSize * 0.5;
+    }
+
+    // Get tatechuyoko ranges
+    List<Tatechuyoko> tatechuyokoRanges = widget.tatechuyoko ?? [];
+    if (widget.autoTatechuyoko) {
+      tatechuyokoRanges = TatechuyokoDetector.detectAuto(actualText);
+    }
+
+    final tatechuyokoIndices = <int>{};
+    for (final tcy in tatechuyokoRanges) {
+      for (int i = tcy.startIndex; i < tcy.startIndex + tcy.length; i++) {
+        tatechuyokoIndices.add(i);
+      }
+    }
+
+    // Calculate warichu heights
+    final warichuHeights = <int, double>{};
+    final actualWarichu = widget.warichu ?? [];
+    for (final warichuItem in actualWarichu) {
+      final warichuFontSize = fontSize * 0.5;
+      final maxLineLength = warichuItem.firstLine.length > warichuItem.secondLine.length
+          ? warichuItem.firstLine.length
+          : warichuItem.secondLine.length;
+      final warichuHeight = maxLineLength * warichuFontSize + effectiveStyle.characterSpacing * 2;
+
+      if (warichuItem.length == 0 && warichuItem.startIndex > 0) {
+        warichuHeights[warichuItem.startIndex - 1] = warichuHeight;
+      } else if (warichuItem.length > 0) {
+        final endIndex = warichuItem.startIndex + warichuItem.length - 1;
+        warichuHeights[endIndex] = warichuHeight;
+      }
+    }
+
+    // Use TextLayouter to calculate accurate width
+    final width = _layouter.calculateRequiredWidth(
+      actualText,
+      effectiveStyle,
+      widget.maxHeight > 0 ? widget.maxHeight : height,
+      startX: fontSize, // Start from right edge (will be adjusted in painter)
+      tatechuyokoIndices: tatechuyokoIndices,
+      warichuHeights: warichuHeights,
+      annotationWidth: annotationWidth,
+    );
 
     return Size(width, height);
   }
