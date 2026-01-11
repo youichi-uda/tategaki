@@ -327,7 +327,8 @@ class RenderSelectionAreaVerticalText extends RenderBox with Selectable, Selecti
       }
     }
 
-    _characterLayouts = _layouter.layoutText(
+    // First pass: layout to calculate size
+    final initialLayouts = _layouter.layoutText(
       _text,
       _style,
       effectiveMaxHeight,
@@ -335,7 +336,8 @@ class RenderSelectionAreaVerticalText extends RenderBox with Selectable, Selecti
     );
 
     // Calculate size
-    if (_characterLayouts!.isEmpty) {
+    if (initialLayouts.isEmpty) {
+      _characterLayouts = initialLayouts;
       _computedSize = Size.zero;
       return;
     }
@@ -344,7 +346,7 @@ class RenderSelectionAreaVerticalText extends RenderBox with Selectable, Selecti
     double maxX = double.negativeInfinity;
     double maxY = 0;
 
-    for (final layout in _characterLayouts!) {
+    for (final layout in initialLayouts) {
       minX = math.min(minX, layout.position.dx - fontSize / 2);
       maxX = math.max(maxX, layout.position.dx + fontSize / 2);
       maxY = math.max(maxY, layout.position.dy + fontSize);
@@ -357,6 +359,16 @@ class RenderSelectionAreaVerticalText extends RenderBox with Selectable, Selecti
     final height = math.max(maxY, effectiveMaxHeight > 0 ? effectiveMaxHeight : maxY);
 
     _computedSize = Size(width, height);
+
+    // Second pass: layout with correct startX (matching VerticalTextPainter)
+    final startX = _computedSize!.width - fontSize;
+    _characterLayouts = _layouter.layoutText(
+      _text,
+      _style,
+      effectiveMaxHeight,
+      tatechuyokoIndices: tatechuyokoIndices,
+      startX: startX,
+    );
   }
 
   @override
