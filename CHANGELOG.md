@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-01-11
+
+### Added
+- **Gaiji (外字) support** - Image-based custom characters
+  - `Gaiji` model for specifying custom character images
+  - `gaijiList` parameter in `VerticalText` widget
+  - Supports multiple image sources: `AssetImage`, `NetworkImage`, `FileImage`, `MemoryImage`
+  - Gaiji images automatically scale to match font size
+  - Placeholder characters are replaced with images
+
+## [0.4.2] - 2026-01-11
+
+### Changed
+- Updated README with latest features documentation
+- Added TextAlignment usage examples
+- Added Related Packages section
+- Updated installation version to ^0.4.0
+- Updated Roadmap with completed features
+
+## [0.4.1] - 2026-01-11
+
+### Fixed
+- Removed unused `dart:math` and `dart:ui` imports from decoration_renderer.dart
+- Fixed `sort_child_properties_last` lint warnings in selectable_vertical_text.dart
+- Updated TextSpanV to use super parameters
+
+## [0.4.0] - 2026-01-11
+
+### Added
+- **Line alignment support** (地付き/天付き)
+  - `alignment` property in `VerticalTextStyle`
+  - `TextAlignment.start` (天付き): Align line to top
+  - `TextAlignment.center`: Center alignment (default)
+  - `TextAlignment.end` (地付き): Align line to bottom
+- Alignment demo page in example app
+
+### Fixed
+- Ruby position adjustment when sideline decoration is present
+- Line grouping for alignment now uses lineIndex instead of exact X coordinate
+
+### Changed
+- Uses kinsoku package's `TextAlignment` enum for alignment values
+
 ## [0.3.1] - 2026-01-10
 
 ### Fixed
