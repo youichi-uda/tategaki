@@ -57,31 +57,180 @@ class _GaijiDemoState extends State<GaijiDemo> {
   }
 
   Widget _buildGaijiExample() {
-    return Column(
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          '外字の例',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 24),
-        VerticalText(
-          // 「挿」の旧字体「插」を画像で表示
-          // プレースホルダーとして「〓」を使用
-          '「〓入」の旧字体',
-          style: VerticalTextStyle(
-            baseStyle: GoogleFonts.notoSerifJp(
-              fontSize: 32,
-              color: Colors.black87,
+        // 例1: 短いテキスト
+        Column(
+          children: [
+            const Text(
+              '短文',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
-            characterSpacing: 8,
-          ),
-          gaiji: [
-            Gaiji(
-              startIndex: 1, // 「〓」の位置
-              image: const AssetImage('assets/image.png'),
+            const SizedBox(height: 16),
+            VerticalText(
+              '「〓入」の旧字体',
+              style: VerticalTextStyle(
+                baseStyle: GoogleFonts.notoSerifJp(
+                  fontSize: 32,
+                  color: Colors.black87,
+                ),
+                characterSpacing: 8,
+              ),
+              gaiji: [
+                Gaiji(
+                  startIndex: 1,
+                  image: const AssetImage('assets/image.png'),
+                ),
+              ],
+              showGrid: _showGrid,
             ),
           ],
-          showGrid: _showGrid,
+        ),
+        const SizedBox(width: 40),
+        // 例2: 長いテキストの途中に外字
+        Column(
+          children: [
+            const Text(
+              '長文（途中に外字）',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            VerticalText(
+              '日本語の文章の中に〓入という旧字体を使った例文です。',
+              style: VerticalTextStyle(
+                baseStyle: GoogleFonts.notoSerifJp(
+                  fontSize: 28,
+                  color: Colors.black87,
+                ),
+                characterSpacing: 4,
+              ),
+              gaiji: [
+                Gaiji(
+                  startIndex: 9, // 「〓」の位置（0から数えて9番目）
+                  image: const AssetImage('assets/image.png'),
+                ),
+              ],
+              showGrid: _showGrid,
+              maxHeight: 400,
+            ),
+          ],
+        ),
+        const SizedBox(width: 40),
+        // 例3: さらに長いテキスト
+        Column(
+          children: [
+            const Text(
+              '長文（複数行）',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            VerticalText(
+              '昔々あるところに、〓入という技術を持つ職人がいました。その職人は毎日丁寧に仕事をしていました。',
+              style: VerticalTextStyle(
+                baseStyle: GoogleFonts.notoSerifJp(
+                  fontSize: 24,
+                  color: Colors.black87,
+                ),
+                characterSpacing: 2,
+              ),
+              gaiji: [
+                Gaiji(
+                  startIndex: 9, // 「〓」の位置（0から数えて9番目: 昔々あるところに、〓）
+                  image: const AssetImage('assets/image.png'),
+                ),
+              ],
+              showGrid: _showGrid,
+              maxHeight: 350,
+            ),
+          ],
+        ),
+        const SizedBox(width: 40),
+        // 例4: 小さいフォントサイズ
+        Column(
+          children: [
+            const Text(
+              '小フォント',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            VerticalText(
+              'この文章には〓入という外字が含まれています。',
+              style: VerticalTextStyle(
+                baseStyle: GoogleFonts.notoSerifJp(
+                  fontSize: 18,
+                  color: Colors.black87,
+                ),
+                characterSpacing: 2,
+              ),
+              gaiji: [
+                Gaiji(
+                  startIndex: 6,
+                  image: const AssetImage('assets/image.png'),
+                ),
+              ],
+              showGrid: _showGrid,
+              maxHeight: 300,
+            ),
+          ],
+        ),
+        const SizedBox(width: 40),
+        // 例5: 改行後に外字（2行目の先頭付近）
+        Column(
+          children: [
+            const Text(
+              '改行後に外字',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            VerticalText(
+              'あいうえおかきくけこ〓入さしすせそ', // 〓は10番目、maxHeight=200で2行目に来る
+              style: VerticalTextStyle(
+                baseStyle: GoogleFonts.notoSerifJp(
+                  fontSize: 28,
+                  color: Colors.black87,
+                ),
+                characterSpacing: 4,
+              ),
+              gaiji: [
+                Gaiji(
+                  startIndex: 10, // 「〓」の位置（0から数えて10番目）
+                  image: const AssetImage('assets/image.png'),
+                ),
+              ],
+              showGrid: _showGrid,
+              maxHeight: 200, // 短いmaxHeightで強制的に改行
+            ),
+          ],
+        ),
+        const SizedBox(width: 40),
+        // 例6: 改行後に外字（3行目）
+        Column(
+          children: [
+            const Text(
+              '3行目に外字',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            VerticalText(
+              'あいうえおかきくけこさしすせそたちつてと〓入なにぬねの', // 〓は20番目
+              style: VerticalTextStyle(
+                baseStyle: GoogleFonts.notoSerifJp(
+                  fontSize: 24,
+                  color: Colors.black87,
+                ),
+                characterSpacing: 2,
+              ),
+              gaiji: [
+                Gaiji(
+                  startIndex: 20, // 「〓」の位置（0から数えて20番目）
+                  image: const AssetImage('assets/image.png'),
+                ),
+              ],
+              showGrid: _showGrid,
+              maxHeight: 200, // 短いmaxHeightで複数行に
+            ),
+          ],
         ),
       ],
     );

@@ -47,13 +47,27 @@ class VerticalTextStyle {
   /// - [TextAlignment.end]: Bottom alignment (地付き)
   final TextAlignment alignment;
 
-  /// Text indent in character units (字下げ)
+  /// Text indent in character units (字下げ) - applies to ALL lines
   ///
   /// For vertical text, this shifts the starting position down by
-  /// `indent * fontSize` pixels.
+  /// `indent * fontSize` pixels for every line.
   ///
-  /// Example: `indent: 2` shifts text down by 2 character widths.
+  /// Example: `indent: 2` shifts all lines down by 2 character widths.
+  ///
+  /// See also: [firstLineIndent] for Japanese-style paragraph indentation.
   final int indent;
+
+  /// First line indent in character units (段落字下げ)
+  ///
+  /// For vertical text, this shifts only the FIRST line's starting position
+  /// down by `firstLineIndent * fontSize` pixels. Subsequent lines start at
+  /// the normal position (affected only by [indent] if set).
+  ///
+  /// This is the traditional Japanese paragraph indentation style where only
+  /// the first line of a paragraph is indented.
+  ///
+  /// Example: `firstLineIndent: 1` shifts only the first line down by 1 character width.
+  final int firstLineIndent;
 
   const VerticalTextStyle({
     this.baseStyle = const TextStyle(),
@@ -67,8 +81,9 @@ class VerticalTextStyle {
     this.enableGyotoIndent = true,
     this.enableKerning = true,
     this.useVerticalGlyphs = false,
-    this.alignment = TextAlignment.center,
+    this.alignment = TextAlignment.start,
     this.indent = 0,
+    this.firstLineIndent = 0,
   });
 
   /// Create a copy with modified properties
@@ -86,6 +101,7 @@ class VerticalTextStyle {
     bool? useVerticalGlyphs,
     TextAlignment? alignment,
     int? indent,
+    int? firstLineIndent,
   }) {
     return VerticalTextStyle(
       baseStyle: baseStyle ?? this.baseStyle,
@@ -101,6 +117,7 @@ class VerticalTextStyle {
       useVerticalGlyphs: useVerticalGlyphs ?? this.useVerticalGlyphs,
       alignment: alignment ?? this.alignment,
       indent: indent ?? this.indent,
+      firstLineIndent: firstLineIndent ?? this.firstLineIndent,
     );
   }
 

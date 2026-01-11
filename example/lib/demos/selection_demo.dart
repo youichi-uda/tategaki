@@ -357,6 +357,67 @@ class SelectionDemo extends StatelessWidget {
 
             const SizedBox(height: 32),
 
+            // SelectionArea integration
+            const Text(
+              'SelectionArea 統合（Selection API）',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '他の SelectableText と一緒に SelectionArea 内で使用可能。',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.indigo.shade200),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: SelectionArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '横書きの説明文',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    const SelectableText(
+                      'これは通常のSelectableTextです。',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      '↓ 縦書きテキスト（SelectionAreaVerticalText）',
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 200,
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: SelectionAreaVerticalText(
+                          text: '縦書きテキスト選択可能',
+                          style: VerticalTextStyle(
+                            baseStyle: const TextStyle(fontSize: 20),
+                          ),
+                          maxHeight: 200,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const SelectableText(
+                      '上下のテキストをドラッグで一括選択できます。',
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 32),
+
             // Instructions
             Card(
               child: Padding(

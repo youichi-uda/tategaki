@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-01-12
+
+### Breaking Changes
+- **Default alignment changed from `center` to `start` (天付き)**
+  - `VerticalTextStyle.alignment` now defaults to `TextAlignment.start`
+  - This matches traditional Japanese vertical text layout where text aligns to the top
+  - To restore previous behavior, explicitly set `alignment: TextAlignment.center`
+
+## [0.5.1] - 2026-01-11
+
+### Added
+- Quick Start section with simple Japanese examples
+- Platform Support table for all supported platforms
+- Use Cases section with practical examples (novels, haiku, newspapers, greeting cards, education apps)
+
 ## [0.5.0] - 2026-01-11
 
 ### Added

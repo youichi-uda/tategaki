@@ -541,6 +541,7 @@ class _SelectableVerticalTextState extends State<SelectableVerticalText> {
 
     final menuItems = <PopupMenuEntry<void>>[
       PopupMenuItem(
+        onTap: _copySelection,
         child: Row(
           children: [
             const Icon(Icons.copy, size: 20),
@@ -555,9 +556,9 @@ class _SelectableVerticalTextState extends State<SelectableVerticalText> {
             ),
           ],
         ),
-        onTap: _copySelection,
       ),
       PopupMenuItem(
+        onTap: _selectAll,
         child: Row(
           children: [
             const Icon(Icons.select_all, size: 20),
@@ -572,7 +573,6 @@ class _SelectableVerticalTextState extends State<SelectableVerticalText> {
             ),
           ],
         ),
-        onTap: _selectAll,
       ),
     ];
 

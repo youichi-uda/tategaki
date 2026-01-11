@@ -5,6 +5,7 @@ library;
 // Widgets
 export 'src/widgets/vertical_text.dart';
 export 'src/widgets/selectable_vertical_text.dart';
+export 'src/widgets/selection_area_vertical_text.dart';
 export 'src/widgets/vertical_rich_text.dart';
 
 // Models

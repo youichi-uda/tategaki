@@ -7,19 +7,81 @@ A comprehensive Flutter package for Japanese vertical text (縦書き) layout wi
 
 ## Features
 
-- ✨ **Basic Vertical Text Layout**: Top-to-bottom, right-to-left Japanese text rendering
-- 📝 **Ruby (Furigana)**: Phonetic guide text above characters
-- • **Kenten (圏点)**: Various styles of emphasis marks (sesame, circles, triangles)
-- ↔️ **Tatechuyoko (縦中横)**: Horizontal text within vertical layout (for numbers, dates)
-- 📏 **Advanced Kinsoku Shori (禁則処理)**: Proper line breaking rules for Japanese typography
-- 🎯 **Kerning**: Advanced character spacing adjustments for professional typography
-- 📌 **Yakumono Adjustment (約物調整)**: Fine-tuned punctuation positioning
+- **Basic Vertical Text Layout**: Top-to-bottom, right-to-left Japanese text rendering
+- **Ruby (Furigana)**: Phonetic guide text beside characters
+- **Kenten (圏点)**: Various styles of emphasis marks (sesame, circles, triangles, etc.)
+- **Tatechuyoko (縦中横)**: Horizontal text within vertical layout (for numbers, dates)
+- **Warichu (割注)**: Two-line inline annotations
+- **Text Decoration (傍線)**: Sideline decorations (single, double, wavy, dotted)
+- **Text Alignment (地付き/天付き)**: Line-level vertical alignment
+  - `TextAlignment.start` (天付き): Align to top
+  - `TextAlignment.center`: Center alignment (default)
+  - `TextAlignment.end` (地付き): Align to bottom
+- **Text Selection**: Interactive text selection with copy support
+- **Advanced Kinsoku Shori (禁則処理)**: Proper line breaking rules for Japanese typography
+- **Kerning**: Advanced character spacing adjustments for professional typography
+- **Yakumono Adjustment (約物調整)**: Fine-tuned punctuation positioning
   - Burasage-gumi (ぶら下げ組): Hanging punctuation at line ends
   - Half-width punctuation (半角処理): Treats certain punctuation as 0.5 character width
   - Gyoto indent (行頭括弧の字下げ): Indented opening brackets at line start
   - Consecutive punctuation spacing: Tightened spacing between adjacent punctuation
-- 🎨 **RichText Support**: Multiple text styles, colors, and sizes in a single vertical text
-- 🖼️ **Figure Layout**: Image placement with captions and text wrapping support
+- **RichText Support**: Multiple text styles, colors, and sizes in a single vertical text
+- **Figure Layout**: Image placement with captions and text wrapping support
+
+## Related Packages
+
+This package is part of the Japanese text layout suite:
+
+| Package | Description |
+|---------|-------------|
+| [kinsoku](https://pub.dev/packages/kinsoku) | Core text processing (line breaking, character classification) |
+| **tategaki** | Vertical text layout (this package) |
+| [yokogaki](https://pub.dev/packages/yokogaki) | Horizontal text layout (横書き) |
+
+## Quick Start
+
+3ステップで縦書きテキストを表示:
+
+```dart
+// 1. Import
+import 'package:tategaki/tategaki.dart';
+
+// 2. Widget内で使用
+VerticalText(
+  'こんにちは、世界！',
+  style: const VerticalTextStyle(
+    baseStyle: TextStyle(fontSize: 24),
+  ),
+)
+```
+
+ルビ付きの例:
+
+```dart
+VerticalText(
+  '日本語',
+  ruby: const [RubyText(startIndex: 0, length: 3, ruby: 'にほんご')],
+  style: const VerticalTextStyle(
+    baseStyle: TextStyle(fontSize: 32),
+    rubyStyle: TextStyle(fontSize: 14),
+  ),
+)
+```
+
+## Platform Support
+
+| Platform | Status | Notes |
+|----------|--------|-------|
+| Android | ✅ Supported | All features |
+| iOS | ✅ Supported | All features |
+| Web | ✅ Supported | All features |
+| Windows | ✅ Supported | All features |
+| macOS | ✅ Supported | All features |
+| Linux | ✅ Supported | All features |
+
+**Requirements:**
+- Flutter: ≥1.17.0
+- Dart SDK: ≥3.10.3
 
 ## Installation
 
@@ -27,7 +89,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  tategaki: ^0.1.0
+  tategaki: ^0.5.1
 ```
 
 Then run:
@@ -97,6 +159,22 @@ Available kenten styles:
 - `KentenStyle.circle` - 白丸 (○)
 - `KentenStyle.filledTriangle` - 黒三角 (▲)
 - `KentenStyle.triangle` - 白三角 (△)
+- `KentenStyle.doubleCircle` - 二重丸 (◎)
+
+### With Text Alignment (地付き/天付き)
+
+Control line-level vertical alignment:
+
+```dart
+VerticalText(
+  '地付きの例です。',
+  style: VerticalTextStyle(
+    baseStyle: TextStyle(fontSize: 24),
+    alignment: TextAlignment.end, // 地付き - align to bottom
+  ),
+  maxHeight: 400,
+)
+```
 
 ### Auto Tatechuyoko (Horizontal Numbers)
 
@@ -112,6 +190,46 @@ VerticalText(
   autoTatechuyoko: true, // Automatically detects 06, 12, 25
 )
 ```
+
+### Selectable Text
+
+Enable text selection with copy support:
+
+```dart
+SelectableVerticalText(
+  'これは選択可能な縦書きテキストです。',
+  style: const VerticalTextStyle(
+    baseStyle: TextStyle(fontSize: 24),
+  ),
+  maxHeight: 400,
+)
+```
+
+### SelectionArea Integration (Selection API)
+
+Use `SelectionAreaVerticalText` inside `SelectionArea` to enable unified text selection across multiple widgets:
+
+```dart
+SelectionArea(
+  child: Row(
+    children: [
+      SelectableText('横書きテキスト'),
+      SelectionAreaVerticalText(
+        text: '縦書きテキスト',
+        style: VerticalTextStyle(
+          baseStyle: TextStyle(fontSize: 24),
+        ),
+        rubyList: [
+          RubyText(startIndex: 0, length: 2, ruby: 'たて'),
+        ],
+        maxHeight: 300,
+      ),
+    ],
+  ),
+)
+```
+
+This allows seamless text selection that spans across vertical and horizontal text widgets.
 
 ### Advanced Typography with Kerning and Yakumono
 
@@ -226,6 +344,7 @@ VerticalText(
 | `baseStyle` | `TextStyle` | - | Base text style (font, size, color, etc.) |
 | `characterSpacing` | `double` | `0` | Vertical spacing between characters |
 | `lineSpacing` | `double` | `0` | Horizontal spacing between lines |
+| `alignment` | `TextAlignment` | `center` | Line-level alignment (start/center/end) |
 | `rotateLatinCharacters` | `bool` | `false` | Rotate Latin characters 90° |
 | `adjustYakumono` | `bool` | `true` | Enable yakumono position adjustments |
 | `enableKerning` | `bool` | `false` | Enable advanced kerning |
@@ -250,12 +369,11 @@ VerticalText(
 )
 ```
 
-### Figure Layout (Future Feature)
+### Figure Layout
 
 Place images within vertical text with captions:
 
 ```dart
-// Coming in future versions
 VerticalText(
   '本文テキスト',
   figures: [
@@ -299,6 +417,113 @@ The package implements proper Japanese typography rules following the [W3C Japan
 - Proper line breaking with forbidden positions
 - Character pair kerning for professional spacing
 
+## Use Cases / ユースケース
+
+### 小説・文芸作品
+
+縦書きの小説ビューアに最適:
+
+```dart
+VerticalText(
+  '吾輩は猫である。名前はまだ無い。'
+  'どこで生まれたかとんと見当がつかぬ。',
+  style: VerticalTextStyle(
+    baseStyle: TextStyle(
+      fontSize: 18,
+      fontFamily: 'NotoSerifJP',  // 明朝体推奨
+      height: 1.8,
+    ),
+    lineSpacing: 24,
+    characterSpacing: 2,
+  ),
+  maxHeight: 500,
+)
+```
+
+### 俳句・短歌
+
+一行で表示する短詩形式:
+
+```dart
+VerticalText(
+  '古池や蛙飛び込む水の音',
+  ruby: const [
+    RubyText(startIndex: 0, length: 2, ruby: 'ふるいけ'),
+    RubyText(startIndex: 3, length: 1, ruby: 'かわず'),
+  ],
+  style: const VerticalTextStyle(
+    baseStyle: TextStyle(fontSize: 28),
+    rubyStyle: TextStyle(fontSize: 12),
+    characterSpacing: 8,
+  ),
+)
+```
+
+### 新聞・雑誌レイアウト
+
+見出しと本文の組み合わせ:
+
+```dart
+Column(
+  children: [
+    VerticalText(
+      '本日の主要ニュース',
+      style: const VerticalTextStyle(
+        baseStyle: TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+    VerticalText(
+      '詳細な本文がここに続きます...',
+      kenten: const [
+        Kenten(startIndex: 0, length: 2, style: KentenStyle.sesame),
+      ],
+      style: const VerticalTextStyle(
+        baseStyle: TextStyle(fontSize: 16),
+        lineSpacing: 16,
+      ),
+      maxHeight: 300,
+    ),
+  ],
+)
+```
+
+### 年賀状・挨拶状
+
+日付に縦中横を使用:
+
+```dart
+VerticalText(
+  '令和07年01月01日　謹賀新年',
+  autoTatechuyoko: true,  // 07, 01 が横組みに
+  style: const VerticalTextStyle(
+    baseStyle: TextStyle(fontSize: 24),
+    characterSpacing: 4,
+  ),
+)
+```
+
+### 教育アプリ
+
+選択可能なテキストで読解練習:
+
+```dart
+SelectableVerticalText(
+  '漢字の読み方を学びましょう。',
+  ruby: const [
+    RubyText(startIndex: 0, length: 2, ruby: 'かんじ'),
+    RubyText(startIndex: 3, length: 2, ruby: 'よみかた'),
+  ],
+  style: const VerticalTextStyle(
+    baseStyle: TextStyle(fontSize: 28),
+    rubyStyle: TextStyle(fontSize: 14, color: Colors.blue),
+  ),
+  maxHeight: 400,
+)
+```
+
 ## Performance
 
 tategaki v0.2.0+ includes significant performance optimizations:
@@ -313,12 +538,6 @@ Performance improvements in v0.2.0:
 - Improved rendering performance for scrollable vertical text lists
 - Reduced memory pressure during text rendering
 
-## Limitations
-
-- **Static text only**: Text editing/input is not currently supported (planned for future)
-- **Basic figure support**: Figure layout implementation is in progress
-- **No text selection**: Interactive text selection is planned for future versions
-
 ## Roadmap
 
 - [x] Basic vertical text layout
@@ -331,8 +550,10 @@ Performance improvements in v0.2.0:
 - [x] RichText support with multiple styles
 - [x] Comprehensive unit tests
 - [x] Performance optimizations (v0.2.0)
-- [ ] Text selection with context menu (in progress)
-- [ ] Figure layout integration (in progress)
+- [x] Text selection with context menu (v0.3.0)
+- [x] Text alignment (地付き/天付き) (v0.4.0)
+- [x] Text decoration (sideline) support
+- [x] Selection API integration (SelectionArea support)
 - [ ] Text editing support (planned)
 - [ ] PDF export (planned)
 - [ ] Web optimization (planned)
@@ -363,5 +584,5 @@ Special thanks to the Flutter community and the W3C Japanese Layout Task Force f
 ## References
 
 - [W3C Japanese Text Layout Requirements](https://www.w3.org/TR/jlreq/)
+- [JIS X 4051:2004](https://kikakurui.com/x4/X4051-2004-02.html) - Japanese document composition method
 - [Flutter CustomPainter](https://api.flutter.dev/flutter/rendering/CustomPainter-class.html)
-- [Japanese Typography (Wikipedia)](https://en.wikipedia.org/wiki/Japanese_writing_system#Vertical_and_horizontal_writing)

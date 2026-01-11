@@ -139,10 +139,10 @@ abstract class VerticalTextSpan {
 /// Plain text span with optional styling
 class TextSpanV extends VerticalTextSpan {
   const TextSpanV({
-    String? text,
-    List<VerticalTextSpan>? children,
+    super.text,
+    super.children,
     super.style,
-  }) : super(text: text, children: children);
+  });
 }
 
 /// Text span with ruby (furigana) annotation
