@@ -137,7 +137,6 @@ class TextLayouter {
     double currentY = indentOffset + firstLineIndentOffset;
     double currentX = startX;
     int lineStartIndex = 0;
-    bool isFirstLine = true;
 
     for (int i = 0; i < text.length; i++) {
       final char = text[i];
@@ -149,7 +148,6 @@ class TextLayouter {
         // Subsequent lines don't have firstLineIndent
         currentY = indentOffset;
         lineStartIndex = i + 1;
-        isFirstLine = false;
         continue;
       }
 
@@ -270,7 +268,6 @@ class TextLayouter {
             // Move layouts after break position to next line
             currentX -= fontSize + style.lineSpacing;
             currentY = indentOffset;  // No firstLineIndent for subsequent lines
-            isFirstLine = false;
 
             // Find layouts that need to be moved (textIndex >= breakPosition)
             // Recalculate positions for moved characters
@@ -320,7 +317,6 @@ class TextLayouter {
             // breakPosition == i, need to move current character to next line
             currentX -= fontSize + style.lineSpacing;
             currentY = indentOffset;  // No firstLineIndent for subsequent lines
-            isFirstLine = false;
 
             // Recalculate position for current character (i) at start of new line
             double newXOffset = 0.0;
@@ -351,7 +347,6 @@ class TextLayouter {
           // shouldHang is true - let the character hang, but move to next line for subsequent characters
           currentX -= fontSize + style.lineSpacing;
           currentY = indentOffset;  // No firstLineIndent for subsequent lines
-          isFirstLine = false;
           lineStartIndex = i + 1;
         }
       }
