@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.2] - 2026-01-12
+
+### Performance
+- Reuse static `TextPainter` instances in `TextLayouter`, `WarichuRenderer`, and `SelectableVerticalTextPainter` to reduce object allocations
+- Extract duplicate advance calculation logic into `_calculateAdvance()` helper method
+- Reuse static `TextLayouter` instance in `SelectableVerticalTextPainter`
+
+### Fixed
+- Fix `shouldRepaint()` in `VerticalTextPainter` and `SelectableVerticalTextPainter` to use `listEquals` for proper deep comparison of annotation lists
+- Add missing style properties to `LayoutCacheKey` comparison (`rotateLatinCharacters`, `alignment`, `indent`, `firstLineIndent`, `rubyStyle`)
+
 ## [0.6.1] - 2026-01-12
 
 ### Fixed
