@@ -43,7 +43,13 @@ class LayoutCacheKey {
         a.enableKinsoku == b.enableKinsoku &&
         a.enableHalfWidthYakumono == b.enableHalfWidthYakumono &&
         a.enableGyotoIndent == b.enableGyotoIndent &&
-        a.enableKerning == b.enableKerning;
+        a.enableKerning == b.enableKerning &&
+        a.rotateLatinCharacters == b.rotateLatinCharacters &&
+        a.alignment == b.alignment &&
+        a.indent == b.indent &&
+        a.firstLineIndent == b.firstLineIndent &&
+        a.rubyStyle?.fontSize == b.rubyStyle?.fontSize &&
+        a.rubyStyle?.color == b.rubyStyle?.color;
   }
 
   /// Calculate hash code for VerticalTextStyle
@@ -60,6 +66,12 @@ class LayoutCacheKey {
       style.enableHalfWidthYakumono,
       style.enableGyotoIndent,
       style.enableKerning,
+      style.rotateLatinCharacters,
+      style.alignment,
+      style.indent,
+      style.firstLineIndent,
+      style.rubyStyle?.fontSize,
+      style.rubyStyle?.color,
     );
   }
 }

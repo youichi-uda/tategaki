@@ -3,6 +3,10 @@ import '../models/warichu.dart';
 
 /// Renderer for warichu (inline annotations)
 class WarichuRenderer {
+  // Reusable TextPainter instance to avoid repeated allocations
+  static final TextPainter _textPainter = TextPainter(
+    textDirection: TextDirection.ltr,
+  );
   /// Draw warichu at the specified position
   ///
   /// Warichu is displayed as two smaller vertical lines to the left
@@ -69,17 +73,13 @@ class WarichuRenderer {
     for (int i = 0; i < text.length; i++) {
       final char = text[i];
 
-      final textPainter = TextPainter(
-        text: TextSpan(text: char, style: style),
-        textDirection: TextDirection.ltr,
-      );
-
-      textPainter.layout();
+      _textPainter.text = TextSpan(text: char, style: style);
+      _textPainter.layout();
 
       // Center the character horizontally
-      final charX = startPosition.dx - textPainter.width / 2;
+      final charX = startPosition.dx - _textPainter.width / 2;
 
-      textPainter.paint(canvas, Offset(charX, currentY));
+      _textPainter.paint(canvas, Offset(charX, currentY));
 
       // Move down for next character
       currentY += fontSize;

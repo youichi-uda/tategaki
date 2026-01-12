@@ -57,6 +57,64 @@ class RubyLayout {
 
 /// Text layouter for vertical text
 class TextLayouter {
+  // Reusable TextPainter instance to avoid repeated allocations
+  static final TextPainter _textPainter = TextPainter(
+    textDirection: TextDirection.ltr,
+  );
+
+  /// Calculate the advance (vertical distance) for a character
+  double _calculateAdvance(
+    String char,
+    double rotation,
+    double charFontSize,
+    double fontSize,
+    VerticalTextStyle style,
+    String text,
+    int textIndex,
+  ) {
+    double advance;
+    if (rotation != 0.0) {
+      // Rotated character: use actual text width for advance
+      _textPainter.text = TextSpan(
+        text: char,
+        style: TextStyle(fontSize: charFontSize),
+      );
+      _textPainter.layout();
+      advance = _textPainter.width + style.characterSpacing;
+    } else {
+      // Non-rotated character: use fontSize
+      advance = fontSize + style.characterSpacing;
+    }
+
+    // Apply half-width yakumono adjustment
+    if (style.enableHalfWidthYakumono) {
+      final yakumonoWidth = YakumonoAdjuster.getYakumonoWidth(char);
+      if (yakumonoWidth < 1.0) {
+        advance = (fontSize * yakumonoWidth) + style.characterSpacing;
+      }
+    }
+
+    // Apply kerning if enabled and there's a next character
+    if (style.enableKerning && textIndex < text.length - 1) {
+      final nextChar = text[textIndex + 1];
+      final kerning = KerningProcessor.getKerning(char, nextChar);
+      advance += kerning * fontSize;
+    }
+
+    // Apply consecutive yakumono spacing
+    if (textIndex < text.length - 1) {
+      final nextChar = text[textIndex + 1];
+      final yakumonoSpacing = YakumonoAdjuster.getConsecutiveYakumonoSpacing(
+        char,
+        nextChar,
+        useVerticalGlyphs: style.useVerticalGlyphs,
+      );
+      advance += yakumonoSpacing * fontSize;
+    }
+
+    return advance;
+  }
+
   /// Layout text characters for vertical display
   ///
   /// Returns a list of character layouts with positions and rotations
@@ -162,52 +220,8 @@ class TextLayouter {
         textIndex: i,
       ));
 
-      // Calculate advance
-      // For rotated characters (90 degrees), the advance should be based on the
-      // text width (which becomes the vertical extent after rotation)
-      double advance;
-      if (rotation != 0.0) {
-        // Rotated character: use actual text width for advance
-        final textPainter = TextPainter(
-          text: TextSpan(
-            text: char,
-            style: TextStyle(fontSize: charFontSize),
-          ),
-          textDirection: TextDirection.ltr,
-        );
-        textPainter.layout();
-        advance = textPainter.width + style.characterSpacing;
-      } else {
-        // Non-rotated character: use fontSize
-        advance = fontSize + style.characterSpacing;
-      }
-
-      // Apply half-width yakumono adjustment
-      if (style.enableHalfWidthYakumono) {
-        final yakumonoWidth = YakumonoAdjuster.getYakumonoWidth(char);
-        if (yakumonoWidth < 1.0) {
-          advance = (fontSize * yakumonoWidth) + style.characterSpacing;
-        }
-      }
-
-      // Apply kerning if enabled and there's a next character
-      if (style.enableKerning && i < text.length - 1) {
-        final nextChar = text[i + 1];
-        final kerning = KerningProcessor.getKerning(char, nextChar);
-        advance += kerning * fontSize;
-      }
-
-      // Apply consecutive yakumono spacing
-      if (i < text.length - 1) {
-        final nextChar = text[i + 1];
-        final yakumonoSpacing = YakumonoAdjuster.getConsecutiveYakumonoSpacing(
-          char,
-          nextChar,
-          useVerticalGlyphs: style.useVerticalGlyphs,
-        );
-        advance += yakumonoSpacing * fontSize;
-      }
-
+      // Calculate advance using helper method
+      final advance = _calculateAdvance(char, rotation, charFontSize, fontSize, style, text, i);
       currentY += advance;
 
       // Add space for warichu if this is the end of a warichu range
@@ -281,50 +295,16 @@ class TextLayouter {
                 textIndex: layout.textIndex,
               );
 
-              // Advance for next character
-              double moveAdvance;
-              if (layout.rotation != 0.0) {
-                // Rotated character: use actual text width for advance
-                final textPainter = TextPainter(
-                  text: TextSpan(
-                    text: layout.character,
-                    style: TextStyle(fontSize: layout.fontSize),
-                  ),
-                  textDirection: TextDirection.ltr,
-                );
-                textPainter.layout();
-                moveAdvance = textPainter.width + style.characterSpacing;
-              } else {
-                // Non-rotated character: use fontSize
-                moveAdvance = layout.fontSize + style.characterSpacing;
-              }
-
-              // Apply half-width yakumono adjustment
-              if (style.enableHalfWidthYakumono) {
-                final yakumonoWidth = YakumonoAdjuster.getYakumonoWidth(layout.character);
-                if (yakumonoWidth < 1.0) {
-                  moveAdvance = (layout.fontSize * yakumonoWidth) + style.characterSpacing;
-                }
-              }
-
-              // Apply kerning if there's a next character in the original text
-              if (style.enableKerning && layout.textIndex < text.length - 1) {
-                final nextChar = text[layout.textIndex + 1];
-                final kerning = KerningProcessor.getKerning(layout.character, nextChar);
-                moveAdvance += kerning * layout.fontSize;
-              }
-
-              // Apply consecutive yakumono spacing
-              if (layout.textIndex < text.length - 1) {
-                final nextChar = text[layout.textIndex + 1];
-                final yakumonoSpacing = YakumonoAdjuster.getConsecutiveYakumonoSpacing(
-                  layout.character,
-                  nextChar,
-                  useVerticalGlyphs: style.useVerticalGlyphs,
-                );
-                moveAdvance += yakumonoSpacing * layout.fontSize;
-              }
-
+              // Advance for next character using helper method
+              final moveAdvance = _calculateAdvance(
+                layout.character,
+                layout.rotation,
+                layout.fontSize,
+                fontSize,
+                style,
+                text,
+                layout.textIndex,
+              );
               currentY += moveAdvance;
             }
 
@@ -354,31 +334,8 @@ class TextLayouter {
               textIndex: i,
             );
 
-            // Recalculate advance for current character
-            double moveAdvance;
-            if (rotation != 0.0) {
-              // Rotated character: use actual text width for advance
-              final textPainter = TextPainter(
-                text: TextSpan(
-                  text: char,
-                  style: TextStyle(fontSize: charFontSize),
-                ),
-                textDirection: TextDirection.ltr,
-              );
-              textPainter.layout();
-              moveAdvance = textPainter.width + style.characterSpacing;
-            } else {
-              // Non-rotated character: use fontSize
-              moveAdvance = fontSize + style.characterSpacing;
-            }
-
-            if (style.enableHalfWidthYakumono) {
-              final yakumonoWidth = YakumonoAdjuster.getYakumonoWidth(char);
-              if (yakumonoWidth < 1.0) {
-                moveAdvance = (fontSize * yakumonoWidth) + style.characterSpacing;
-              }
-            }
-
+            // Recalculate advance for current character using helper method
+            final moveAdvance = _calculateAdvance(char, rotation, charFontSize, fontSize, style, text, i);
             currentY += moveAdvance;
             lineStartIndex = i;
           }
@@ -524,18 +481,16 @@ class TextLayouter {
         final baseTextHeight = (lastChar.position.dy - firstChar.position.dy) +
                                baseFontSize + style.characterSpacing;
 
-        // Calculate ruby text height
+        // Calculate ruby text height using reusable TextPainter
         double rubyTextHeight = 0;
+        final rubyTextStyle = (style.rubyStyle ?? style.baseStyle).copyWith(fontSize: rubyFontSize);
         for (int i = 0; i < rubySubstring.length; i++) {
-          final textPainter = TextPainter(
-            text: TextSpan(
-              text: rubySubstring[i],
-              style: (style.rubyStyle ?? style.baseStyle).copyWith(fontSize: rubyFontSize),
-            ),
-            textDirection: TextDirection.ltr,
+          _textPainter.text = TextSpan(
+            text: rubySubstring[i],
+            style: rubyTextStyle,
           );
-          textPainter.layout();
-          rubyTextHeight += textPainter.height;
+          _textPainter.layout();
+          rubyTextHeight += _textPainter.height;
         }
 
         // Center ruby vertically with the base text

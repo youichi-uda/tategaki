@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 import '../models/vertical_text_style.dart';
 import '../models/ruby_text.dart';
@@ -7,6 +8,9 @@ import 'text_layouter.dart';
 
 /// Custom painter for selectable vertical Japanese text
 class SelectableVerticalTextPainter extends CustomPainter {
+  // Reusable TextLayouter instance to avoid repeated allocations
+  static final TextLayouter _layouter = TextLayouter();
+
   final String text;
   final VerticalTextStyle style;
   final double maxHeight;
@@ -43,9 +47,8 @@ class SelectableVerticalTextPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (text.isEmpty) return;
 
-    // Layout the text
-    final layouter = TextLayouter();
-    final layouts = layouter.layoutText(
+    // Layout the text using static layouter
+    final layouts = _layouter.layoutText(
       text,
       style,
       maxHeight,
@@ -256,9 +259,9 @@ class SelectableVerticalTextPainter extends CustomPainter {
         style != oldDelegate.style ||
         maxHeight != oldDelegate.maxHeight ||
         showGrid != oldDelegate.showGrid ||
-        rubyList != oldDelegate.rubyList ||
-        kentenList != oldDelegate.kentenList ||
-        tatechuyokoList != oldDelegate.tatechuyokoList ||
+        !listEquals(rubyList, oldDelegate.rubyList) ||
+        !listEquals(kentenList, oldDelegate.kentenList) ||
+        !listEquals(tatechuyokoList, oldDelegate.tatechuyokoList) ||
         selectionStart != oldDelegate.selectionStart ||
         selectionEnd != oldDelegate.selectionEnd ||
         selectionColor != oldDelegate.selectionColor ||

@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 import '../models/vertical_text_style.dart';
 import '../models/ruby_text.dart';
@@ -646,12 +647,12 @@ class VerticalTextPainter extends CustomPainter {
     return oldDelegate.text != text ||
         oldDelegate.span != span ||
         oldDelegate.style != style ||
-        oldDelegate.ruby != ruby ||
-        oldDelegate.kenten != kenten ||
-        oldDelegate.warichu != warichu ||
-        oldDelegate.tatechuyoko != tatechuyoko ||
-        oldDelegate.decorations != decorations ||
-        oldDelegate.gaiji != gaiji ||
+        !listEquals(oldDelegate.ruby, ruby) ||
+        !listEquals(oldDelegate.kenten, kenten) ||
+        !listEquals(oldDelegate.warichu, warichu) ||
+        !listEquals(oldDelegate.tatechuyoko, tatechuyoko) ||
+        !listEquals(oldDelegate.decorations, decorations) ||
+        !listEquals(oldDelegate.gaiji, gaiji) ||
         oldDelegate.resolvedGaijiImages != resolvedGaijiImages ||
         oldDelegate.autoTatechuyoko != autoTatechuyoko ||
         oldDelegate.maxHeight != maxHeight ||
