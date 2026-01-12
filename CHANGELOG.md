@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.3] - 2026-01-13
+
+### Fixed
+- Fix `firstLineIndent` not being applied to the first line
+  - First line now correctly receives both `indent` and `firstLineIndent` offsets
+  - Subsequent lines only receive `indent` offset (段落字下げ behavior restored)
+
 ## [0.6.2] - 2026-01-12
 
 ### Performance

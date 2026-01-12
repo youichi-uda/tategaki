@@ -131,9 +131,13 @@ class TextLayouter {
 
     // Apply indent (字下げ) - shift starting Y position
     final indentOffset = style.indent * fontSize;
-    double currentY = indentOffset;
+    // Apply firstLineIndent (段落字下げ) - only for first line
+    final firstLineIndentOffset = style.firstLineIndent * fontSize;
+    // First line includes both indent and firstLineIndent
+    double currentY = indentOffset + firstLineIndentOffset;
     double currentX = startX;
     int lineStartIndex = 0;
+    bool isFirstLine = true;
 
     for (int i = 0; i < text.length; i++) {
       final char = text[i];
@@ -142,8 +146,10 @@ class TextLayouter {
       if (char == '\n') {
         // Move to next column (left)
         currentX -= fontSize + style.lineSpacing;
+        // Subsequent lines don't have firstLineIndent
         currentY = indentOffset;
         lineStartIndex = i + 1;
+        isFirstLine = false;
         continue;
       }
 
@@ -263,7 +269,8 @@ class TextLayouter {
           if (breakPosition < i) {
             // Move layouts after break position to next line
             currentX -= fontSize + style.lineSpacing;
-            currentY = indentOffset;
+            currentY = indentOffset;  // No firstLineIndent for subsequent lines
+            isFirstLine = false;
 
             // Find layouts that need to be moved (textIndex >= breakPosition)
             // Recalculate positions for moved characters
@@ -312,7 +319,8 @@ class TextLayouter {
           } else {
             // breakPosition == i, need to move current character to next line
             currentX -= fontSize + style.lineSpacing;
-            currentY = indentOffset;
+            currentY = indentOffset;  // No firstLineIndent for subsequent lines
+            isFirstLine = false;
 
             // Recalculate position for current character (i) at start of new line
             double newXOffset = 0.0;
@@ -342,7 +350,8 @@ class TextLayouter {
         } else {
           // shouldHang is true - let the character hang, but move to next line for subsequent characters
           currentX -= fontSize + style.lineSpacing;
-          currentY = indentOffset;
+          currentY = indentOffset;  // No firstLineIndent for subsequent lines
+          isFirstLine = false;
           lineStartIndex = i + 1;
         }
       }
