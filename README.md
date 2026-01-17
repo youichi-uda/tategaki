@@ -89,7 +89,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  tategaki: ^0.5.1
+  tategaki: ^0.6.5
 ```
 
 Then run:
@@ -230,6 +230,28 @@ SelectionArea(
 ```
 
 This allows seamless text selection that spans across vertical and horizontal text widgets.
+
+### Long Press Selectable Text
+
+For reading apps where drag gestures should scroll content rather than select text, use `LongPressSelectableVerticalText`. Selection only starts after a long press (similar to Android Chrome):
+
+```dart
+LongPressSelectableVerticalText(
+  text: 'これは長押しで選択可能な縦書きテキストです。',
+  style: const VerticalTextStyle(
+    baseStyle: TextStyle(fontSize: 24),
+  ),
+  maxHeight: 400,
+  // Optional: customize long press duration (default: 500ms)
+  longPressDuration: Duration(milliseconds: 500),
+)
+```
+
+Features:
+- Long press to start selection (word-by-word using TinySegmenter)
+- Drag to extend selection
+- Copy menu with haptic feedback
+- Tap to dismiss selection
 
 ### Advanced Typography with Kerning and Yakumono
 
@@ -554,6 +576,7 @@ Performance improvements in v0.2.0:
 - [x] Text alignment (地付き/天付き) (v0.4.0)
 - [x] Text decoration (sideline) support
 - [x] Selection API integration (SelectionArea support)
+- [x] Long press selectable text (v0.6.5)
 - [ ] Text editing support (planned)
 - [ ] PDF export (planned)
 - [ ] Web optimization (planned)
