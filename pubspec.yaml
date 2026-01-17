@@ -1,6 +1,6 @@
 name: tategaki
 description: A comprehensive Flutter package for Japanese vertical text (tategaki) layout with advanced typography features including ruby, kenten, tatechuyoko, and more.
-version: 0.6.4
+version: 0.6.5
 homepage: https://github.com/youichi-uda/tategaki
 repository: https://github.com/youichi-uda/tategaki
 issue_tracker: https://github.com/youichi-uda/tategaki/issues
@@ -13,6 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   kinsoku: ^0.3.0
+  tiny_segmenter_dart: ^1.0.0
 
 dev_dependencies:
   flutter_test:

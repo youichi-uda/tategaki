@@ -7,6 +7,7 @@ export 'src/widgets/vertical_text.dart';
 export 'src/widgets/selectable_vertical_text.dart';
 export 'src/widgets/selection_area_vertical_text.dart';
 export 'src/widgets/vertical_rich_text.dart';
+export 'src/widgets/long_press_selectable_vertical_text.dart';
 
 // Models
 export 'src/models/vertical_text_style.dart';
