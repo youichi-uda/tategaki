@@ -294,7 +294,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.6.4"
+    version: "0.6.5"
   term_glyph:
     dependency: transitive
     description:
@@ -311,6 +311,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.7"
+  tiny_segmenter_dart:
+    dependency: transitive
+    description:
+      name: tiny_segmenter_dart
+      sha256: "4009922630323ccdf9169b107ab20c91c8836409d1b9ff0c85a21afd0a3f1ced"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   typed_data:
     dependency: transitive
     description:

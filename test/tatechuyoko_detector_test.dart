@@ -26,10 +26,14 @@ void main() {
       expect(result[0].length, 2);
     });
 
-    test('does not detect single digits', () {
+    test('detects single digits as tatechuyoko', () {
       final result = TatechuyokoDetector.detectAuto('1月2日');
 
-      expect(result.length, 0); // Single digits not detected
+      expect(result.length, 2); // 1, 2
+      expect(result[0].startIndex, 0); // 1
+      expect(result[0].length, 1);
+      expect(result[1].startIndex, 2); // 2
+      expect(result[1].length, 1);
     });
 
     test('does not detect 2-digit pairs in 3+ digit numbers', () {

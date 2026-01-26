@@ -21,48 +21,54 @@ class TatechuyokoDetector {
   /// Automatically detect tatechuyoko patterns in text
   ///
   /// Detects:
-  /// - 2-digit numbers (10-99) only when not part of 3+ digit numbers
-  /// - 2-letter alphabets (AB, CD, etc.) only when not part of 3+ letter sequences
+  /// - 1-2 digit numbers only when not part of 3+ digit numbers
+  /// - 1-2 letter alphabets only when not part of 3+ letter sequences
   /// - Consecutive half-width punctuation (!!, ??, !?, ?!)
   static List<Tatechuyoko> detectAuto(String text) {
     final detected = <Tatechuyoko>[];
 
     for (int i = 0; i < text.length; i++) {
-      // Check for 2-digit number
-      if (i < text.length - 1 &&
-          _isDigit(text[i]) &&
-          _isDigit(text[i + 1])) {
-        // Make sure it's not part of a 3+ digit number
-        // Check if there's a digit before
+      // Check for 1-2 digit number
+      if (_isDigit(text[i])) {
+        // Check if there's a digit before (part of longer number)
         if (i > 0 && _isDigit(text[i - 1])) {
           continue; // Part of longer number, skip
         }
-        // Check if there's a digit after the second digit
-        if (i + 2 < text.length && _isDigit(text[i + 2])) {
-          continue; // Part of longer number, skip
+
+        // Count consecutive digits
+        int digitCount = 1;
+        if (i + 1 < text.length && _isDigit(text[i + 1])) {
+          digitCount = 2;
+          // Check if there's a digit after the second digit
+          if (i + 2 < text.length && _isDigit(text[i + 2])) {
+            continue; // Part of 3+ digit number, skip
+          }
         }
 
-        detected.add(Tatechuyoko(startIndex: i, length: 2));
-        i++; // Skip next character as it's part of this tatechuyoko
+        detected.add(Tatechuyoko(startIndex: i, length: digitCount));
+        i += digitCount - 1; // Skip processed characters
         continue;
       }
 
-      // Check for 2-letter alphabet
-      if (i < text.length - 1 &&
-          _isAlphabet(text[i]) &&
-          _isAlphabet(text[i + 1])) {
-        // Make sure it's not part of a 3+ letter sequence
-        // Check if there's an alphabet before
+      // Check for 1-2 letter alphabet
+      if (_isAlphabet(text[i])) {
+        // Check if there's an alphabet before (part of longer sequence)
         if (i > 0 && _isAlphabet(text[i - 1])) {
           continue; // Part of longer sequence, skip
         }
-        // Check if there's an alphabet after the second letter
-        if (i + 2 < text.length && _isAlphabet(text[i + 2])) {
-          continue; // Part of longer sequence, skip
+
+        // Count consecutive alphabets
+        int letterCount = 1;
+        if (i + 1 < text.length && _isAlphabet(text[i + 1])) {
+          letterCount = 2;
+          // Check if there's an alphabet after the second letter
+          if (i + 2 < text.length && _isAlphabet(text[i + 2])) {
+            continue; // Part of 3+ letter sequence, skip
+          }
         }
 
-        detected.add(Tatechuyoko(startIndex: i, length: 2));
-        i++; // Skip next character as it's part of this tatechuyoko
+        detected.add(Tatechuyoko(startIndex: i, length: letterCount));
+        i += letterCount - 1; // Skip processed characters
         continue;
       }
 

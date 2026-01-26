@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.6] - 2026-01-26
+
+### Changed
+- Tatechuyoko auto-detection now includes single-digit numbers and single-letter alphabets
+  - Previously only 2-character sequences were detected
+  - Now 1-2 digit numbers (e.g., "1", "12") are detected as tatechuyoko
+  - Now 1-2 letter alphabets (e.g., "A", "AB") are detected as tatechuyoko
+  - 3+ character sequences are still excluded from auto-detection
+
 ## [0.6.4] - 2026-01-13
 
 ### Added
