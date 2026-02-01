@@ -14,6 +14,7 @@ import 'demos/decoration_demo.dart';
 import 'demos/gaiji_demo.dart';
 import 'demos/comprehensive_demo.dart';
 import 'demos/comprehensive_vert_demo.dart';
+import 'demos/fallback_font_demo.dart';
 
 void main() {
   runApp(const MyApp());
@@ -255,6 +256,17 @@ class _TategakiDemoHomeState extends State<TategakiDemoHome> {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const GaijiDemo()),
+            ),
+          ),
+          _buildDemoCard(
+            context,
+            title: 'フォールバックフォント',
+            description: 'CJK拡張B文字のフォールバック表示',
+            icon: Icons.font_download_off,
+            color: Colors.grey,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const FallbackFontDemo()),
             ),
           ),
           _buildDemoCard(

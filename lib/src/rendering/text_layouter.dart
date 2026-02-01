@@ -1,3 +1,4 @@
+import 'package:characters/characters.dart';
 import 'package:flutter/material.dart';
 import 'package:kinsoku/kinsoku.dart';
 import '../models/vertical_text_style.dart';
@@ -62,6 +63,15 @@ class TextLayouter {
     textDirection: TextDirection.ltr,
   );
 
+  /// Get the next grapheme cluster from text starting after textIndex
+  String? _getNextCharacter(String text, int textIndex, int charLength) {
+    final nextIndex = textIndex + charLength;
+    if (nextIndex >= text.length) return null;
+    final remaining = text.substring(nextIndex);
+    if (remaining.isEmpty) return null;
+    return remaining.characters.first;
+  }
+
   /// Calculate the advance (vertical distance) for a character
   double _calculateAdvance(
     String char,
@@ -77,7 +87,7 @@ class TextLayouter {
       // Rotated character: use actual text width for advance
       _textPainter.text = TextSpan(
         text: char,
-        style: TextStyle(fontSize: charFontSize),
+        style: style.baseStyle.copyWith(fontSize: charFontSize),
       );
       _textPainter.layout();
       advance = _textPainter.width + style.characterSpacing;
@@ -94,16 +104,17 @@ class TextLayouter {
       }
     }
 
+    // Get next character using proper grapheme cluster handling
+    final nextChar = _getNextCharacter(text, textIndex, char.length);
+
     // Apply kerning if enabled and there's a next character
-    if (style.enableKerning && textIndex < text.length - 1) {
-      final nextChar = text[textIndex + 1];
+    if (style.enableKerning && nextChar != null) {
       final kerning = KerningProcessor.getKerning(char, nextChar);
       advance += kerning * fontSize;
     }
 
     // Apply consecutive yakumono spacing
-    if (textIndex < text.length - 1) {
-      final nextChar = text[textIndex + 1];
+    if (nextChar != null) {
       final yakumonoSpacing = YakumonoAdjuster.getConsecutiveYakumonoSpacing(
         char,
         nextChar,
@@ -138,8 +149,14 @@ class TextLayouter {
     double currentX = startX;
     int lineStartIndex = 0;
 
-    for (int i = 0; i < text.length; i++) {
-      final char = text[i];
+    // Use characters package for proper Unicode grapheme cluster iteration
+    // This correctly handles surrogate pairs (e.g., CJK Extension B characters)
+    final characters = text.characters;
+    int textIndex = 0;  // UTF-16 code unit index
+    int charIndex = 0;  // Grapheme cluster index
+
+    for (final char in characters) {
+      final i = textIndex;  // For compatibility with existing code
 
       // Handle newline characters
       if (char == '\n') {
@@ -347,9 +364,13 @@ class TextLayouter {
           // shouldHang is true - let the character hang, but move to next line for subsequent characters
           currentX -= fontSize + style.lineSpacing;
           currentY = indentOffset;  // No firstLineIndent for subsequent lines
-          lineStartIndex = i + 1;
+          lineStartIndex = i + char.length;
         }
       }
+
+      // Update indices for next iteration
+      textIndex += char.length;  // Advance by UTF-16 code units
+      charIndex++;
     }
 
     // Apply line alignment (jizuki, tenzuki, center)
@@ -486,11 +507,12 @@ class TextLayouter {
                                baseFontSize + style.characterSpacing;
 
         // Calculate ruby text height using reusable TextPainter
+        // Use characters for proper Unicode grapheme cluster handling
         double rubyTextHeight = 0;
         final rubyTextStyle = (style.rubyStyle ?? style.baseStyle).copyWith(fontSize: rubyFontSize);
-        for (int i = 0; i < rubySubstring.length; i++) {
+        for (final rubyChar in rubySubstring.characters) {
           _textPainter.text = TextSpan(
-            text: rubySubstring[i],
+            text: rubyChar,
             style: rubyTextStyle,
           );
           _textPainter.layout();

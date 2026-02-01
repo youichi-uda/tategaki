@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.7] - 2026-02-01
+
+### Fixed
+- **Surrogate pair support**: Fix incorrect handling of characters outside BMP (e.g., CJK Extension B characters like U+24103)
+  - Use `characters` package for proper Unicode grapheme cluster iteration
+  - Previously, surrogate pairs were split into two invalid characters
+- **Fallback font propagation**: Fix `fontFamily` and `fontFamilyFallback` not being applied in `_calculateAdvance()`
+  - Now uses `style.baseStyle.copyWith()` instead of creating a new `TextStyle`
+
+### Added
+- Add `characters` package dependency for Unicode support
+- Add fallback font demo in example app
+
 ## [0.6.6] - 2026-01-26
 
 ### Changed
