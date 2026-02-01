@@ -1,4 +1,3 @@
-import 'package:characters/characters.dart';
 import 'package:flutter/material.dart';
 import 'package:kinsoku/kinsoku.dart';
 import '../models/vertical_text_style.dart';
@@ -153,7 +152,6 @@ class TextLayouter {
     // This correctly handles surrogate pairs (e.g., CJK Extension B characters)
     final characters = text.characters;
     int textIndex = 0;  // UTF-16 code unit index
-    int charIndex = 0;  // Grapheme cluster index
 
     for (final char in characters) {
       final i = textIndex;  // For compatibility with existing code
@@ -370,7 +368,6 @@ class TextLayouter {
 
       // Update indices for next iteration
       textIndex += char.length;  // Advance by UTF-16 code units
-      charIndex++;
     }
 
     // Apply line alignment (jizuki, tenzuki, center)

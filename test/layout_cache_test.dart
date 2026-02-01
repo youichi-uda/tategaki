@@ -4,7 +4,6 @@ import 'package:kinsoku/kinsoku.dart';
 import 'package:tategaki/src/utils/layout_cache.dart';
 import 'package:tategaki/src/models/vertical_text_style.dart';
 import 'package:tategaki/src/rendering/text_layouter.dart';
-import 'dart:math' as math;
 
 void main() {
   setUp(() {

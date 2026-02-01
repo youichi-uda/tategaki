@@ -42,6 +42,13 @@ class VerticalTextPainter extends CustomPainter {
   late final List<TextDecorationAnnotation> _actualDecorations;
   late final List<Gaiji> _actualGaiji;
 
+  // Layout cache for performance optimization
+  // Avoids recalculating layout on every paint() call during scrolling
+  List<CharacterLayout>? _cachedCharacterLayouts;
+  double? _cachedStartX;
+  Set<int>? _cachedTatechuyokoIndices;
+  Map<int, double>? _cachedWarichuHeights;
+
   VerticalTextPainter({
     this.text,
     this.span,
@@ -218,14 +225,30 @@ class VerticalTextPainter extends CustomPainter {
     }
 
     // Layout the text (pass tatechuyoko indices and warichu heights)
-    final characterLayouts = layouter.layoutText(
-      _actualText,
-      style,
-      maxHeight,
-      startX: startX,
-      tatechuyokoIndices: tatechuyokoIndices,
-      warichuHeights: warichuHeights,
-    );
+    // Use cached layout if available and inputs haven't changed
+    final needsRelayout = _cachedCharacterLayouts == null ||
+        _cachedStartX != startX ||
+        !_setEquals(_cachedTatechuyokoIndices, tatechuyokoIndices) ||
+        !_mapEquals(_cachedWarichuHeights, warichuHeights);
+
+    List<CharacterLayout> characterLayouts;
+    if (needsRelayout) {
+      characterLayouts = layouter.layoutText(
+        _actualText,
+        style,
+        maxHeight,
+        startX: startX,
+        tatechuyokoIndices: tatechuyokoIndices,
+        warichuHeights: warichuHeights,
+      );
+      // Update cache
+      _cachedCharacterLayouts = characterLayouts;
+      _cachedStartX = startX;
+      _cachedTatechuyokoIndices = Set<int>.from(tatechuyokoIndices);
+      _cachedWarichuHeights = Map<int, double>.from(warichuHeights);
+    } else {
+      characterLayouts = _cachedCharacterLayouts!;
+    }
 
     // Draw each character (skip tatechuyoko and gaiji characters)
     for (final layout in characterLayouts) {
@@ -657,5 +680,24 @@ class VerticalTextPainter extends CustomPainter {
         oldDelegate.autoTatechuyoko != autoTatechuyoko ||
         oldDelegate.maxHeight != maxHeight ||
         oldDelegate.showGrid != showGrid;
+  }
+
+  /// Helper to compare two sets for equality
+  bool _setEquals<T>(Set<T>? a, Set<T>? b) {
+    if (a == null && b == null) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+    return a.containsAll(b);
+  }
+
+  /// Helper to compare two maps for equality
+  bool _mapEquals<K, V>(Map<K, V>? a, Map<K, V>? b) {
+    if (a == null && b == null) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+    for (final key in a.keys) {
+      if (a[key] != b[key]) return false;
+    }
+    return true;
   }
 }

@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.8] - 2026-02-01
+
+### Performance
+- **Layout caching in VerticalTextPainter**: Add instance-level layout cache to avoid redundant layout calculations during scroll
+  - Cache `characterLayouts`, `startX`, `tatechuyokoIndices`, and `warichuHeights`
+  - Reuse cached layout when these values haven't changed between paint() calls
+  - Significantly improves scroll performance for long text content
+
+### Fixed
+- Remove unused `charIndex` variable from `TextLayouter.layoutText()`
+- Remove unnecessary `characters` package import (provided by flutter/material.dart)
+
 ## [0.6.7] - 2026-02-01
 
 ### Fixed

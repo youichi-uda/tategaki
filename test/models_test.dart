@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:kinsoku/kinsoku.dart';
 import 'package:tategaki/tategaki.dart';
 
 void main() {
