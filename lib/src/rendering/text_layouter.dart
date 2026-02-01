@@ -162,7 +162,8 @@ class TextLayouter {
         currentX -= fontSize + style.lineSpacing;
         // Subsequent lines don't have firstLineIndent
         currentY = indentOffset;
-        lineStartIndex = i + 1;
+        lineStartIndex = i + char.length;
+        textIndex += char.length;  // Advance by UTF-16 code units (same as yokogaki)
         continue;
       }
 
@@ -188,6 +189,8 @@ class TextLayouter {
           currentY += advance;
         }
         // Skip remaining characters in tatechuyoko range
+        // BUT still increment textIndex to maintain proper indexing for ruby/annotations
+        textIndex += char.length;
         continue;
       }
       final type = CharacterClassifier.classify(char);
