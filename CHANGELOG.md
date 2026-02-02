@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.9] - 2026-02-02
+
+### Fixed
+- **Warichu splitIndex bounds check**: Add `clamp()` to prevent `RangeError` when `splitIndex` is out of bounds
+- **LayoutCache comparison**: Add `fontWeight`, `fontStyle`, `height`, `rubyStyle.fontFamily` to style comparison to prevent cache collisions
+- **Gaiji image loading**: Add debug logging for image loading failures
+
 ## [0.6.8] - 2026-02-01
 
 ### Performance

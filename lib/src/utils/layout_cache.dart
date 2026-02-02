@@ -36,6 +36,9 @@ class LayoutCacheKey {
     return a.baseStyle.fontSize == b.baseStyle.fontSize &&
         a.baseStyle.color == b.baseStyle.color &&
         a.baseStyle.fontFamily == b.baseStyle.fontFamily &&
+        a.baseStyle.fontWeight == b.baseStyle.fontWeight &&
+        a.baseStyle.fontStyle == b.baseStyle.fontStyle &&
+        a.baseStyle.height == b.baseStyle.height &&
         a.lineSpacing == b.lineSpacing &&
         a.characterSpacing == b.characterSpacing &&
         a.adjustYakumono == b.adjustYakumono &&
@@ -49,7 +52,8 @@ class LayoutCacheKey {
         a.indent == b.indent &&
         a.firstLineIndent == b.firstLineIndent &&
         a.rubyStyle?.fontSize == b.rubyStyle?.fontSize &&
-        a.rubyStyle?.color == b.rubyStyle?.color;
+        a.rubyStyle?.color == b.rubyStyle?.color &&
+        a.rubyStyle?.fontFamily == b.rubyStyle?.fontFamily;
   }
 
   /// Calculate hash code for VerticalTextStyle
@@ -58,6 +62,9 @@ class LayoutCacheKey {
       style.baseStyle.fontSize,
       style.baseStyle.color,
       style.baseStyle.fontFamily,
+      style.baseStyle.fontWeight,
+      style.baseStyle.fontStyle,
+      style.baseStyle.height,
       style.lineSpacing,
       style.characterSpacing,
       style.adjustYakumono,
@@ -70,8 +77,7 @@ class LayoutCacheKey {
       style.alignment,
       style.indent,
       style.firstLineIndent,
-      style.rubyStyle?.fontSize,
-      style.rubyStyle?.color,
+      Object.hash(style.rubyStyle?.fontSize, style.rubyStyle?.color, style.rubyStyle?.fontFamily),
     );
   }
 }

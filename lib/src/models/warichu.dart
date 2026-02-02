@@ -33,7 +33,9 @@ class Warichu {
       final mid = (text.length / 2).ceil();
       return text.substring(0, mid);
     }
-    return text.substring(0, splitIndex);
+    // Clamp splitIndex to valid range [0, text.length]
+    final safeIndex = splitIndex!.clamp(0, text.length);
+    return text.substring(0, safeIndex);
   }
 
   /// Get the second line of warichu
@@ -43,7 +45,9 @@ class Warichu {
       final mid = (text.length / 2).ceil();
       return text.substring(mid);
     }
-    return text.substring(splitIndex!);
+    // Clamp splitIndex to valid range [0, text.length]
+    final safeIndex = splitIndex!.clamp(0, text.length);
+    return text.substring(safeIndex);
   }
 
   @override
