@@ -37,6 +37,8 @@ class RotationRules {
     const rotatedYakumono = {
       '（', '）', '「', '」', '【', '】', '『', '』',
       '〈', '〉', '《', '》', // Brackets
+      '\u2018', '\u2019', '\u201C', '\u201D', // Smart quotation marks
+      '«', '»', // Guillemets
       'ー', // Long vowel mark (U+30FC)
       '―', // Horizontal bar / Dash (U+2015)
       '—', // Em dash (U+2014)
