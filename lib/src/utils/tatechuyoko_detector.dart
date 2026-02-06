@@ -35,6 +35,11 @@ class TatechuyokoDetector {
           continue; // Part of longer number, skip
         }
 
+        // Check if preceded by digit+separator (e.g., at "5" in "3,500")
+        if (i > 1 && _isDigitSeparator(text[i - 1]) && _isDigit(text[i - 2])) {
+          continue; // Part of number with separator, skip
+        }
+
         // Count consecutive digits
         int digitCount = 1;
         if (i + 1 < text.length && _isDigit(text[i + 1])) {
@@ -43,6 +48,13 @@ class TatechuyokoDetector {
           if (i + 2 < text.length && _isDigit(text[i + 2])) {
             continue; // Part of 3+ digit number, skip
           }
+        }
+
+        // Check if followed by separator+digit (e.g., "3" before ",500")
+        final nextPos = i + digitCount;
+        if (nextPos < text.length && _isDigitSeparator(text[nextPos]) &&
+            nextPos + 1 < text.length && _isDigit(text[nextPos + 1])) {
+          continue; // Part of larger number with separator, skip
         }
 
         detected.add(Tatechuyoko(startIndex: i, length: digitCount));
@@ -117,6 +129,14 @@ class TatechuyokoDetector {
            (code >= 0x0061 && code <= 0x007A) || // a-z
            (code >= 0xFF21 && code <= 0xFF3A) || // Ａ-Ｚ (full-width)
            (code >= 0xFF41 && code <= 0xFF5A);   // ａ-ｚ (full-width)
+  }
+
+  static bool _isDigitSeparator(String char) {
+    final code = char.codeUnitAt(0);
+    return code == 0x002C || // , (half-width comma)
+           code == 0x002E || // . (half-width period)
+           code == 0xFF0C || // ， (full-width comma)
+           code == 0xFF0E;   // ． (full-width period)
   }
 
   static bool _isHalfWidthPunctuation(String char) {

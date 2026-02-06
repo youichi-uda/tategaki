@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.11] - 2026-02-07
+
+### Fixed
+- **Tatechuyoko auto-detection for numbers with separators**: Numbers containing commas or periods (e.g., `3,500`, `3.14`, `1,000,000`) are now correctly recognized as single numbers and excluded from tatechuyoko detection
+  - Previously, `3,500` would incorrectly detect `3` as a standalone tatechuyoko
+  - Supports both half-width (`,` `.`) and full-width (`，` `．`) separators
+
 ## [0.6.10] - 2026-02-06
 
 ### Fixed

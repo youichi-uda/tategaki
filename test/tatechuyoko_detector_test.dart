@@ -94,6 +94,43 @@ void main() {
       expect(result[3].startIndex, 10); // !!
     });
 
+    test('does not detect digits in numbers with comma separators', () {
+      final result = TatechuyokoDetector.detectAuto('価格は3,500円です');
+
+      // "3,500" is a single number - nothing should be tatechuyoko
+      expect(result.length, 0);
+    });
+
+    test('does not detect digits in numbers with period separators', () {
+      final result = TatechuyokoDetector.detectAuto('約3.14の値');
+
+      // "3.14" is a single number - nothing should be tatechuyoko
+      expect(result.length, 0);
+    });
+
+    test('does not detect digits in large comma-separated numbers', () {
+      final result = TatechuyokoDetector.detectAuto('1,000,000円');
+
+      // "1,000,000" is a single number - nothing should be tatechuyoko
+      expect(result.length, 0);
+    });
+
+    test('does not detect digits in numbers with full-width separators', () {
+      final result = TatechuyokoDetector.detectAuto('価格は3，500円です');
+
+      expect(result.length, 0);
+    });
+
+    test('still detects standalone digits not followed by separator+digit', () {
+      final result = TatechuyokoDetector.detectAuto('第3回と第12回');
+
+      expect(result.length, 2); // 3, 12
+      expect(result[0].startIndex, 1); // 3
+      expect(result[0].length, 1);
+      expect(result[1].startIndex, 5); // 12
+      expect(result[1].length, 2);
+    });
+
     test('handles text without numbers', () {
       final result = TatechuyokoDetector.detectAuto('これは普通のテキストです');
 
